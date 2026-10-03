@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>متابعة العادات</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --ink:#1B2A22; --paper:#F5F7F1; --card:#FFFFFF; --border:#E1E6D9;
+  --accent:#3F7D5C; --accent-ink:#FFFFFF;
+  --danger:#A63A2C; --warn:#C08A2E; --muted:#6B7280;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --ink:#E9F0E9; --paper:#111712; --card:#1A2119; --border:#2A3328;
+    --accent:#6FC29A; --accent-ink:#0B1420;
+    --danger:#E06A54; --warn:#E0B24E; --muted:#9AA0B4;
+  }
+}
+*,*::before,*::after{box-sizing:inherit;}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:'Cairo',Tahoma,Arial,sans-serif;}
+header{padding:18px 16px 12px;}
+header h1{font-size:1.25rem;margin:0 0 10px;font-weight:700;}
+.month-nav{display:flex;align-items:center;justify-content:center;gap:16px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:8px 14px;}
+.month-nav button{width:32px;height:32px;border-radius:9px;border:1px solid var(--border);background:var(--paper);color:var(--ink);font-size:1.1rem;font-family:inherit;}
+.month-nav button:disabled{opacity:.35;}
+.month-nav span{font-weight:700;font-size:.95rem;min-width:120px;text-align:center;}
+main{padding:0 16px 40px;max-width:560px;margin:0 auto;}
+.section-card,.overview-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;margin-bottom:14px;}
+.section-card h3,.overview-card h3{margin:0 0 10px;font-size:.95rem;}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.section-head h3{margin:0;}
+.btn-add{background:var(--accent);color:var(--accent-ink);border:none;border-radius:10px;padding:7px 12px;font-size:.8rem;font-family:inherit;font-weight:600;}
+.donut-row{display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+.donut-wrap{flex:none;line-height:0;}
+.donut-stats{display:flex;flex-direction:column;gap:6px;flex:1;min-width:140px;}
+.donut-stat-row{display:flex;justify-content:space-between;font-size:.84rem;}
+.donut-stat-row b{font-size:1rem;}
+.daily-chart{display:flex;align-items:flex-end;gap:4px;height:120px;overflow-x:auto;padding:14px 2px 0;position:relative;}
+.daily-bar-col{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;flex:0 0 auto;width:16px;height:100%;}
+.daily-bar{width:11px;background:var(--accent);border-radius:4px 4px 0 0;min-height:2px;}
+.daily-bar-col.today .daily-bar{background:var(--warn);}
+.daily-bar-label{font-size:.56rem;color:var(--muted);margin-top:4px;}
+.grid-wrap{overflow-x:auto;margin:0 -4px;}
+.habit-grid{border-collapse:collapse;font-size:.68rem;white-space:nowrap;}
+.habit-grid th,.habit-grid td{padding:5px 3px;text-align:center;border-bottom:1px solid var(--border);}
+.habit-grid thead tr.week-row th{font-size:.62rem;color:var(--muted);font-weight:600;border-bottom:none;padding-bottom:2px;}
+.habit-grid th{color:var(--muted);font-weight:600;}
+.habit-grid td:first-child,.habit-grid th:first-child{position:sticky;right:0;background:var(--card);text-align:start;padding-inline-end:10px;min-width:118px;}
+.habit-grid .grid-habit{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:.76rem;}
+.habit-grid .grid-habit b{font-weight:600;overflow:hidden;text-overflow:ellipsis;max-width:92px;white-space:nowrap;}
+.habit-grid .edit-ic{flex:none;opacity:.55;font-size:.72rem;background:none;border:none;color:var(--ink);padding:2px;}
+.habit-grid td.today-col,.habit-grid th.today-col{background:rgba(63,125,92,.1);}
+.chk{width:24px;height:24px;border-radius:7px;border:1px solid var(--border);background:var(--paper);color:transparent;font-size:.8rem;font-family:inherit;display:flex;align-items:center;justify-content:center;}
+.chk.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+.chk.future{opacity:.3;}
+.chk:not(.future):active{transform:scale(.88);}
+.analysis-table{width:100%;border-collapse:collapse;font-size:.78rem;}
+.analysis-table th,.analysis-table td{padding:6px 4px;text-align:center;border-bottom:1px solid var(--border);}
+.analysis-table th{color:var(--muted);font-weight:600;font-size:.7rem;}
+.analysis-table td:first-child,.analysis-table th:first-child{text-align:start;}
+.mini-bar{height:6px;border-radius:99px;background:var(--paper);border:1px solid var(--border);overflow:hidden;min-width:44px;}
+.mini-bar-fill{height:100%;background:var(--accent);}
+.top-habit-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:.82rem;}
+.top-habit-row:last-child{border-bottom:none;}
+.top-habit-rank{flex:none;width:22px;height:22px;border-radius:50%;background:var(--paper);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--muted);}
+.top-habit-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.top-habit-pct{flex:none;font-weight:700;font-size:.82rem;}
+.empty,.muted{color:var(--muted);font-size:.85rem;text-align:center;padding:14px 0;}
+.modal{position:fixed;inset:0;display:none;align-items:flex-end;z-index:50;}
+.modal.show{display:flex;}
+.modal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.5);}
+.modal-content{position:relative;background:var(--card);width:100%;max-height:88vh;overflow:auto;
+  border-radius:20px 20px 0 0;padding:18px 16px calc(20px + env(safe-area-inset-bottom,0px));}
+.modal-content h3{margin:0 0 12px;}
+.field{margin-bottom:12px;}
+.field label{display:block;font-size:.78rem;color:var(--muted);margin-bottom:4px;}
+.field input{width:100%;padding:9px 10px;border-radius:10px;border:1px solid var(--border);
+  background:var(--paper);color:var(--ink);font-family:inherit;font-size:.9rem;}
+.modal-actions{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;}
+.modal-actions button{flex:1;padding:11px;border-radius:12px;border:none;font-size:.88rem;font-family:inherit;min-width:90px;}
+.btn-primary{background:var(--accent);color:var(--accent-ink);}
+.btn-ghost{background:var(--paper);color:var(--ink);border:1px solid var(--border)!important;}
+.btn-danger{background:rgba(166,58,44,.12);color:var(--danger);border:1px solid var(--danger)!important;}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🔥 متابعة العادات</h1>
+  <div class="month-nav">
+    <button id="prev-month" type="button">‹</button>
+    <span id="month-label"></span>
+    <button id="next-month" type="button">›</button>
+  </div>
+</header>
+
+<main>
+  <div class="overview-card">
+    <h3>📈 نظرة عامة على الشهر</h3>
+    <div class="donut-row">
+      <div class="donut-wrap" id="donut-wrap"></div>
+      <div class="donut-stats">
+        <div class="donut-stat-row"><span>الهدف</span><b id="ov-goal">0</b></div>
+        <div class="donut-stat-row"><span>المنجز</span><b id="ov-done">0</b></div>
+        <div class="donut-stat-row"><span>المتبقي</span><b id="ov-left">0</b></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h3>📅 الإنجاز اليومي</h3>
+    <div class="daily-chart" id="daily-chart"></div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-head">
+      <h3>🗓️ جدول العادات</h3>
+      <button class="btn-add" id="add-habit-btn" type="button">+ عادة</button>
+    </div>
+    <div class="grid-wrap"><table class="habit-grid" id="habit-grid"></table></div>
+    <p class="empty" id="grid-empty" style="display:none;">مفيش عادات متضافة لسه. دوس "+ عادة" وابدأ تتابع أول عادة.</p>
+  </div>
+
+  <div class="section-card" id="analysis-card">
+    <h3>📊 تحليل كل عادة</h3>
+    <table class="analysis-table">
+      <thead><tr><th>العادة</th><th>الهدف</th><th>الفعلي</th><th>المتبقي</th><th>التقدم</th><th>%</th></tr></thead>
+      <tbody id="analysis-body"></tbody>
+    </table>
+  </div>
+
+  <div class="section-card" id="top-card">
+    <h3>🏆 أفضل العادات الشهر ده</h3>
+    <div id="top-habits-list"></div>
+  </div>
+</main>
+
+<div class="modal" id="habit-modal">
+  <div class="modal-backdrop" id="habit-modal-overlay"></div>
+  <div class="modal-content">
+    <h3 id="habit-modal-title">عادة جديدة</h3>
+    <div class="field">
+      <label>اسم العادة (تقدر تحط إيموجي في الأول)</label>
+      <input id="habit-name-input" type="text" placeholder="مثلاً: 🏋️ رياضة">
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-ghost" id="habit-modal-cancel">إلغاء</button>
+      <button type="button" class="btn-danger" id="habit-modal-delete" style="display:none;">🗑️ حذف</button>
+      <button type="button" class="btn-primary" id="habit-modal-save">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const $=(s,p=document)=>p.querySelector(s);
+const STORE_KEY='habitTracker.v1';
+
+function uid(){ return 'h'+Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
+function pad2(n){ return String(n).padStart(2,'0'); }
+function isoOf(y,m,d){ return y+'-'+pad2(m+1)+'-'+pad2(d); }
+function todayParts(){ const n=new Date(); return {y:n.getFullYear(), m:n.getMonth(), d:n.getDate()}; }
+function escapeHtml(s){ return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+let habits=[];     // [{id, name, createdAt:'YYYY-MM-DD'}]
+let checks={};     // {"habitId|YYYY-MM-DD": true}
+let view=(()=>{ const t=todayParts(); return {y:t.y, m:t.m}; })();
+
+function load(){
+  try{
+    const raw=localStorage.getItem(STORE_KEY);
+    if(raw){ const data=JSON.parse(raw); habits=data.habits||[]; checks=data.checks||{}; }
+  }catch(e){ console.error(e); }
+  if(!habits.length){
+    const t=todayParts(); const createdAt=isoOf(t.y,t.m,1);
+    habits=[
+      {id:uid(), name:'🌅 استيقاظ بدري', createdAt},
+      {id:uid(), name:'📖 مذاكرة يومية', createdAt},
+      {id:uid(), name:'🏋️ رياضة أو مشي', createdAt},
+      {id:uid(), name:'📵 بعيد عن الموبايل بالليل', createdAt},
+    ];
+    save();
+  }
+}
+function save(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify({habits, checks})); }catch(e){ console.error(e); }
+}
+
+function toast(msg){
+  let t=document.getElementById('app-toast');
+  if(!t){
+    t=document.createElement('div');
+    t.id='app-toast';
+    t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:10px;font-size:.82rem;z-index:200;max-width:88%;text-align:center;box-shadow:0 6px 16px rgba(0,0,0,.3);';
+    document.body.appendChild(t);
+  }
+  t.textContent=msg; t.style.display='block';
+  clearTimeout(t._timer);
+  t._timer=setTimeout(()=>{ t.style.display='none'; },2800);
+}
+function confirmDialog(message){
+  return new Promise(resolve=>{
+    let m=document.getElementById('confirm-modal');
+    if(!m){
+      m=document.createElement('div');
+      m.id='confirm-modal'; m.className='modal';
+      m.innerHTML='<div class="modal-backdrop"></div><div class="modal-content"><p id="confirm-msg" style="margin:0 0 16px;"></p><div class="modal-actions"><button type="button" class="btn-ghost" id="confirm-no">إلغاء</button><button type="button" class="btn-primary" id="confirm-yes">تأكيد</button></div></div>';
+      document.body.appendChild(m);
+    }
+    document.getElementById('confirm-msg').textContent=message;
+    m.classList.add('show');
+    const done=val=>{ m.classList.remove('show'); resolve(val); };
+    document.getElementById('confirm-yes').onclick=()=>done(true);
+    document.getElementById('confirm-no').onclick=()=>done(false);
+    m.querySelector('.modal-backdrop').onclick=()=>done(false);
+  });
+}
+
+function daysInMonth(y,m){ return new Date(y,m+1,0).getDate(); }
+function isCurrentMonth(){ const t=todayParts(); return view.y===t.y && view.m===t.m; }
+function periodDays(){
+  const total=daysInMonth(view.y,view.m);
+  if(isCurrentMonth()){ return todayParts().d; }
+  const t=todayParts();
+  if(view.y>t.y || (view.y===t.y && view.m>t.m)) return 0; // future month, shouldn't happen (nav blocks it)
+  return total;
+}
+function isChecked(habitId, iso){ return !!checks[habitId+'|'+iso]; }
+function toggleCheck(habitId, iso){
+  const key=habitId+'|'+iso;
+  if(checks[key]) delete checks[key]; else checks[key]=true;
+  save();
+  renderAll();
+}
+
+function monthLabel(){
+  return new Intl.DateTimeFormat('ar-EG',{month:'long',year:'numeric'}).format(new Date(view.y,view.m,1));
+}
+
+function renderMonthNav(){
+  $('#month-label').textContent=monthLabel();
+  $('#next-month').disabled=isCurrentMonth();
+}
+
+function renderDonut(pct){
+  const r=50, c=Math.round(2*Math.PI*r*100)/100;
+  const offset=Math.round(c*(1-pct/100)*100)/100;
+  $('#donut-wrap').innerHTML=
+    '<svg viewBox="0 0 120 120" width="108" height="108">'+
+    '<circle cx="60" cy="60" r="'+r+'" fill="none" stroke="var(--border)" stroke-width="14"/>'+
+    '<circle cx="60" cy="60" r="'+r+'" fill="none" stroke="var(--accent)" stroke-width="14" '+
+    'stroke-dasharray="'+c+'" stroke-dashoffset="'+offset+'" stroke-linecap="round" transform="rotate(-90 60 60)"/>'+
+    '<text x="60" y="67" text-anchor="middle" font-size="24" font-weight="700" fill="var(--ink)">'+pct+'%</text>'+
+    '</svg>';
+}
+
+function renderOverview(){
+  const pd=periodDays();
+  const goal=pd*habits.length;
+  let done=0;
+  habits.forEach(h=>{
+    for(let d=1; d<=pd; d++){ if(isChecked(h.id, isoOf(view.y,view.m,d))) done++; }
+  });
+  const pct=goal?Math.round(done/goal*100):0;
+  $('#ov-goal').textContent=goal;
+  $('#ov-done').textContent=done;
+  $('#ov-left').textContent=Math.max(0,goal-done);
+  renderDonut(pct);
+}
+
+function renderDailyChart(){
+  const pd=periodDays();
+  const t=todayParts();
+  const el=$('#daily-chart');
+  if(!pd || !habits.length){ el.innerHTML='<p class="empty" style="padding:0;">مفيش بيانات لسه للشهر ده</p>'; return; }
+  let html='';
+  for(let d=1; d<=pd; d++){
+    const iso=isoOf(view.y,view.m,d);
+    const doneCount=habits.filter(h=>isChecked(h.id,iso)).length;
+    const pct=habits.length?Math.round(doneCount/habits.length*100):0;
+    const isToday=isCurrentMonth() && d===t.d;
+    html+='<div class="daily-bar-col'+(isToday?' today':'')+'">'+
+      '<div class="daily-bar" style="height:'+Math.max(3,Math.round(pct/100*96))+'px" title="'+pct+'%"></div>'+
+      '<span class="daily-bar-label">'+d+'</span></div>';
+  }
+  el.innerHTML=html;
+}
+
+function renderHabitGrid(){
+  const grid=$('#habit-grid');
+  const emptyMsg=$('#grid-empty');
+  if(!habits.length){ grid.innerHTML=''; emptyMsg.style.display='block'; return; }
+  emptyMsg.style.display='none';
+  const total=daysInMonth(view.y,view.m);
+  const t=todayParts();
+  // week-group header row
+  let weekRow='<tr class="week-row"><th></th>';
+  let d=1, wk=1;
+  while(d<=total){
+    const span=Math.min(7,total-d+1);
+    weekRow+='<th colspan="'+span+'">أسبوع '+wk+'</th>';
+    d+=span; wk++;
+  }
+  weekRow+='</tr>';
+  let dayRow='<tr><th>العادة</th>';
+  for(let day=1; day<=total; day++){
+    const isToday=isCurrentMonth() && day===t.d;
+    dayRow+='<th class="'+(isToday?'today-col':'')+'">'+day+'</th>';
+  }
+  dayRow+='</tr>';
+  let body='<tbody>'+habits.map(h=>{
+    let cells='<td><div class="grid-habit"><b title="'+escapeHtml(h.name)+'">'+escapeHtml(h.name)+'</b><button type="button" class="edit-ic" data-edit="'+h.id+'">✎</button></div></td>';
+    for(let day=1; day<=total; day++){
+      const iso=isoOf(view.y,view.m,day);
+      const isToday=isCurrentMonth() && day===t.d;
+      const future=(view.y>t.y)||(view.y===t.y&&view.m>t.m)||(isCurrentMonth()&&day>t.d);
+      const on=isChecked(h.id,iso);
+      cells+='<td class="'+(isToday?'today-col':'')+'"><button type="button" class="chk'+(on?' on':'')+(future?' future':'')+'" data-habit="'+h.id+'" data-date="'+iso+'" '+(future?'disabled':'')+'>'+(on?'✓':'')+'</button></td>';
+    }
+    return '<tr>'+cells+'</tr>';
+  }).join('')+'</tbody>';
+  grid.innerHTML='<thead>'+weekRow+dayRow+'</thead>'+body;
+}
+
+function renderAnalysisTable(){
+  const pd=periodDays();
+  const body=$('#analysis-body');
+  if(!habits.length){ body.innerHTML='<tr><td colspan="6" class="empty">مفيش عادات متضافة لسه</td></tr>'; return; }
+  body.innerHTML=habits.map(h=>{
+    let actual=0;
+    for(let d=1; d<=pd; d++){ if(isChecked(h.id, isoOf(view.y,view.m,d))) actual++; }
+    const left=Math.max(0,pd-actual);
+    const pct=pd?Math.round(actual/pd*100):0;
+    return '<tr><td>'+escapeHtml(h.name)+'</td><td>'+pd+'</td><td>'+actual+'</td><td>'+left+'</td>'+
+      '<td><div class="mini-bar"><div class="mini-bar-fill" style="width:'+pct+'%"></div></div></td>'+
+      '<td>'+pct+'%</td></tr>';
+  }).join('');
+}
+
+function renderTopHabits(){
+  const pd=periodDays();
+  const el=$('#top-habits-list');
+  if(!habits.length || !pd){ el.innerHTML='<p class="empty">مفيش بيانات كفاية لسه</p>'; return; }
+  const ranked=habits.map(h=>{
+    let actual=0;
+    for(let d=1; d<=pd; d++){ if(isChecked(h.id, isoOf(view.y,view.m,d))) actual++; }
+    return {name:h.name, pct: pd?Math.round(actual/pd*100):0};
+  }).sort((a,b)=>b.pct-a.pct);
+  el.innerHTML=ranked.map((r,i)=>
+    '<div class="top-habit-row"><span class="top-habit-rank">'+(i+1)+'</span>'+
+    '<span class="top-habit-name">'+escapeHtml(r.name)+'</span>'+
+    '<span class="top-habit-pct">'+r.pct+'%</span></div>'
+  ).join('');
+}
+
+function renderAll(){
+  renderMonthNav();
+  renderOverview();
+  renderDailyChart();
+  renderHabitGrid();
+  renderAnalysisTable();
+  renderTopHabits();
+}
+
+// ---------- add/edit/delete habit modal ----------
+let editingHabitId=null;
+function openHabitModal(habit){
+  editingHabitId=habit?habit.id:null;
+  $('#habit-modal-title').textContent=habit?'تعديل العادة':'عادة جديدة';
+  $('#habit-name-input').value=habit?habit.name:'';
+  $('#habit-modal-delete').style.display=habit?'block':'none';
+  $('#habit-modal').classList.add('show');
+  setTimeout(()=>$('#habit-name-input').focus(),50);
+}
+function closeHabitModal(){ $('#habit-modal').classList.remove('show'); editingHabitId=null; }
+async function saveHabitModal(){
+  const name=$('#habit-name-input').value.trim();
+  if(!name){ toast('اكتب اسم العادة الأول'); return; }
+  if(editingHabitId){
+    const h=habits.find(x=>x.id===editingHabitId);
+    if(h) h.name=name;
+  }else{
+    const t=todayParts();
+    habits.push({id:uid(), name, createdAt:isoOf(t.y,t.m,t.d)});
+  }
+  save();
+  closeHabitModal();
+  renderAll();
+}
+async function deleteHabitModal(){
+  if(!editingHabitId) return;
+  const h=habits.find(x=>x.id===editingHabitId);
+  const ok=await confirmDialog('متأكد إنك عايز تمسح عادة "'+(h?h.name:'')+'"؟ هتتمسح كل الأيام المسجلة ليها.');
+  if(!ok) return;
+  habits=habits.filter(x=>x.id!==editingHabitId);
+  Object.keys(checks).forEach(k=>{ if(k.startsWith(editingHabitId+'|')) delete checks[k]; });
+  save();
+  closeHabitModal();
+  renderAll();
+}
+
+function bindEvents(){
+  $('#prev-month').onclick=()=>{ view.m--; if(view.m<0){ view.m=11; view.y--; } renderAll(); };
+  $('#next-month').onclick=()=>{ if(isCurrentMonth()) return; view.m++; if(view.m>11){ view.m=0; view.y++; } renderAll(); };
+  $('#add-habit-btn').onclick=()=>openHabitModal(null);
+  $('#habit-modal-cancel').onclick=closeHabitModal;
+  $('#habit-modal-overlay').onclick=closeHabitModal;
+  $('#habit-modal-save').onclick=saveHabitModal;
+  $('#habit-modal-delete').onclick=deleteHabitModal;
+  $('#habit-name-input').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); saveHabitModal(); } });
+  document.addEventListener('click', e=>{
+    const chk=e.target.closest('.chk');
+    if(chk && !chk.disabled){ toggleCheck(chk.dataset.habit, chk.dataset.date); return; }
+    const editBtn=e.target.closest('[data-edit]');
+    if(editBtn){ const h=habits.find(x=>x.id===editBtn.dataset.edit); if(h) openHabitModal(h); }
+  });
+}
+
+function boot(){
+  load();
+  bindEvents();
+  renderAll();
+}
+boot();
+</script>
+</body>
+</html>
