@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>متابعة العادات</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --danger:#A63A2C; --warn:#C08A2E; --muted:#6B7280;
+}
+:root,[data-theme="bw"]{
+  --ink:#15171A; --paper:#E9E9EA; --card:#FFFFFF; --border:#D9D9DC;
+  --accent:#17181C; --accent-ink:#FFFFFF; --pill:#1C1D21; --pill-ink:#FFFFFF;
+}
+[data-theme="dark"]{
+  --ink:#ECECEE; --paper:#0F1012; --card:#1B1C1F; --border:#2C2D31;
+  --accent:#ECECEE; --accent-ink:#0F1012; --pill:#2A2B2F; --pill-ink:#ECECEE;
+}
+[data-theme="amoled"]{
+  --ink:#FFFFFF; --paper:#000000; --card:#0A0A0A; --border:#1F1F1F;
+  --accent:#FFFFFF; --accent-ink:#000000; --pill:#141414; --pill-ink:#FFFFFF;
+}
+[data-theme="midnight"]{
+  --ink:#E4E9F7; --paper:#0A0E27; --card:#141A3D; --border:#232B55;
+  --accent:#6C8CFF; --accent-ink:#0A0E27; --pill:#1C2550; --pill-ink:#E4E9F7;
+}
+[data-theme="light"]{
+  --ink:#1C1E22; --paper:#F4F5F7; --card:#FFFFFF; --border:#E2E4E9;
+  --accent:#1C1E22; --accent-ink:#FFFFFF; --pill:#1C1E22; --pill-ink:#FFFFFF;
+}
+[data-theme="softlight"]{
+  --ink:#2B2419; --paper:#FBF6EC; --card:#FFFFFF; --border:#EBE1CC;
+  --accent:#C9792E; --accent-ink:#FFFFFF; --pill:#C9792E; --pill-ink:#FFFFFF;
+}
+[data-theme="blue"]{
+  --ink:#131A2A; --paper:#EAF0FB; --card:#FFFFFF; --border:#D7E1F5;
+  --accent:#2563EB; --accent-ink:#FFFFFF; --pill:#1E3A8A; --pill-ink:#FFFFFF;
+}
+[data-theme="green"]{
+  --ink:#16221A; --paper:#EAF3EC; --card:#FFFFFF; --border:#D6E8DA;
+  --accent:#2F8F5B; --accent-ink:#FFFFFF; --pill:#1F5C3B; --pill-ink:#FFFFFF;
+}
+[data-theme="purple"]{
+  --ink:#201A2B; --paper:#F1ECFB; --card:#FFFFFF; --border:#E1D6F7;
+  --accent:#7C3AED; --accent-ink:#FFFFFF; --pill:#4C1D95; --pill-ink:#FFFFFF;
+}
+*,*::before,*::after{box-sizing:inherit;}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:'Cairo',Tahoma,Arial,sans-serif;transition:background .25s,color .25s;}
+
+/* ---- loading / auth screens ---- */
+.loading-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.9rem;}
+.auth-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+.auth-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px 24px;max-width:360px;width:100%;text-align:center;}
+.auth-logo{font-size:2.6rem;margin-bottom:8px;}
+.auth-card h1{font-size:1.25rem;margin:0 0 10px;}
+.auth-card p{color:var(--muted);font-size:.88rem;margin:0 0 22px;line-height:1.6;}
+.btn-google{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px;border-radius:12px;
+  border:1px solid var(--border);background:var(--paper);color:var(--ink);font-family:inherit;font-size:.92rem;font-weight:600;}
+.btn-google:disabled{opacity:.5;}
+.btn-google svg{width:20px;height:20px;flex:none;}
+.config-warning{margin-top:18px;padding:12px;border-radius:10px;background:rgba(166,58,44,.1);border:1px solid var(--danger);
+  color:var(--danger);font-size:.78rem;text-align:start;line-height:1.7;}
+
+/* ---- gate / splash screen ---- */
+#gate-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px;}
+.gate-card{max-width:380px;width:100%;text-align:center;}
+.gate-emoji{font-size:2.4rem;margin-bottom:14px;}
+.gate-quote{font-size:1.15rem;font-weight:700;line-height:1.7;margin:0 0 28px;color:var(--ink);}
+.btn-gate{background:var(--accent);color:var(--accent-ink);border:none;border-radius:14px;padding:15px 24px;font-size:1rem;font-weight:700;font-family:inherit;width:100%;}
+.gate-sub{margin-top:14px;font-size:.78rem;color:var(--muted);}
+#gate-duration-setup{margin-bottom:22px;}
+.gate-duration-label{font-size:.88rem;font-weight:700;margin:0 0 12px;color:var(--ink);}
+.duration-chip-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:12px;}
+.duration-chip{padding:9px 15px;border-radius:99px;border:1.5px solid var(--border);background:var(--card);color:var(--ink);font-family:inherit;font-size:.82rem;font-weight:600;}
+.duration-chip.active{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);}
+.duration-custom-row{display:none;justify-content:center;margin-bottom:12px;}
+.duration-custom-row input{width:150px;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--paper);color:var(--ink);font-family:inherit;font-size:.9rem;text-align:center;}
+.challenge-banner{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:11px 14px;margin:0 16px 12px;font-size:.78rem;font-weight:600;}
+.challenge-banner .challenge-bar{flex:1;height:7px;border-radius:99px;background:var(--paper);border:1px solid var(--border);overflow:hidden;}
+.challenge-banner .challenge-bar-fill{height:100%;background:var(--accent);}
+.challenge-banner span{white-space:nowrap;}
+
+header{padding:18px 16px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+header h1{font-size:1.25rem;margin:0;font-weight:700;}
+.icon-btn{background:var(--card);border:1px solid var(--border);border-radius:11px;width:38px;height:38px;flex:none;font-size:1.05rem;color:var(--ink);}
+.month-nav{display:flex;align-items:center;justify-content:center;gap:16px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:8px 14px;margin:0 16px 12px;}
+.month-nav button{width:32px;height:32px;border-radius:9px;border:1px solid var(--border);background:var(--paper);color:var(--ink);font-size:1.1rem;font-family:inherit;}
+.month-nav button:disabled{opacity:.35;}
+.month-nav span{font-weight:700;font-size:.95rem;min-width:120px;text-align:center;}
+main{padding:0 16px 40px;max-width:560px;margin:0 auto;}
+.section-card,.overview-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;margin-bottom:14px;}
+.section-card h3,.overview-card h3{margin:0 0 10px;font-size:.95rem;}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.section-head h3{margin:0;}
+.btn-add{background:var(--accent);color:var(--accent-ink);border:none;border-radius:10px;padding:7px 12px;font-size:.8rem;font-family:inherit;font-weight:600;}
+.overview-row{display:flex;align-items:stretch;gap:14px;}
+.pill-stack{display:flex;flex-direction:column;gap:8px;flex:1;min-width:0;}
+.pill{background:var(--pill);color:var(--pill-ink);border-radius:12px;padding:9px 13px;display:flex;justify-content:space-between;align-items:center;font-size:.8rem;}
+.pill b{font-size:1.1rem;font-weight:700;}
+.donut-wrap{flex:none;line-height:0;display:flex;align-items:center;}
+.daily-chart-wrap{display:flex;gap:8px;}
+.y-axis{display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end;height:118px;padding:0 0 18px;flex:none;}
+.y-axis span{font-size:.56rem;color:var(--muted);}
+.daily-chart{flex:1;display:flex;align-items:flex-end;gap:4px;height:118px;overflow-x:auto;padding:0 2px 18px;position:relative;
+  background-image:repeating-linear-gradient(to top, var(--border) 0, var(--border) 1px, transparent 1px, transparent 25%);
+  background-size:100% 100%;}
+.daily-bar-col{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;flex:0 0 auto;width:16px;height:100%;position:relative;}
+.daily-bar{width:11px;background:var(--accent);border-radius:2px 2px 0 0;min-height:2px;}
+.daily-bar-col.today .daily-bar{background:var(--warn);}
+.daily-bar-label{position:absolute;bottom:-16px;font-size:.56rem;color:var(--muted);}
+.grid-wrap{overflow-x:auto;margin:0 -4px;}
+.habit-grid{border-collapse:collapse;font-size:.68rem;white-space:nowrap;}
+.habit-grid th,.habit-grid td{padding:5px 3px;text-align:center;border-bottom:1px solid var(--border);}
+.habit-grid thead tr.week-row th{font-size:.6rem;color:var(--muted);font-weight:700;border-bottom:1px solid var(--border);padding-bottom:4px;text-transform:uppercase;letter-spacing:.03em;}
+.habit-grid thead tr.dow-row th{font-size:.6rem;color:var(--muted);font-weight:600;border-bottom:none;padding:3px;}
+.habit-grid th{color:var(--muted);font-weight:600;}
+.habit-grid td:first-child,.habit-grid th:first-child{position:sticky;right:0;background:var(--card);text-align:start;padding-inline-end:10px;min-width:118px;}
+.habit-grid .grid-habit{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:.76rem;}
+.habit-grid .grid-habit b{font-weight:600;overflow:hidden;text-overflow:ellipsis;max-width:92px;white-space:nowrap;}
+.habit-grid .edit-ic{flex:none;opacity:.55;font-size:.72rem;background:none;border:none;color:var(--ink);padding:2px;}
+.habit-grid td.today-col,.habit-grid th.today-col{background:rgba(127,127,127,.14);}
+.chk{width:23px;height:23px;border-radius:5px;border:1.5px solid var(--border);background:var(--card);color:transparent;font-size:.78rem;font-family:inherit;display:flex;align-items:center;justify-content:center;}
+.chk.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
+.chk.future,.chk.prestart{opacity:.28;}
+.chk:not(.future):not(.prestart):active{transform:scale(.88);}
+.analysis-table{width:100%;border-collapse:collapse;font-size:.78rem;}
+.analysis-table th,.analysis-table td{padding:6px 4px;text-align:center;border-bottom:1px solid var(--border);}
+.analysis-table th{color:var(--muted);font-weight:600;font-size:.7rem;}
+.analysis-table td:first-child,.analysis-table th:first-child{text-align:start;}
+.mini-bar{height:6px;border-radius:99px;background:var(--paper);border:1px solid var(--border);overflow:hidden;min-width:44px;}
+.mini-bar-fill{height:100%;background:var(--accent);}
+.top-habit-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:.82rem;}
+.top-habit-row:last-child{border-bottom:none;}
+.top-habit-rank{flex:none;width:22px;height:22px;border-radius:50%;background:var(--paper);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--muted);}
+.top-habit-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.top-habit-pct{flex:none;font-weight:700;font-size:.82rem;}
+.empty,.muted{color:var(--muted);font-size:.85rem;text-align:center;padding:14px 0;}
+.modal{position:fixed;inset:0;display:none;align-items:flex-end;z-index:50;}
+.modal.show{display:flex;}
+.modal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.5);}
+.modal-content{position:relative;background:var(--card);width:100%;max-height:88vh;overflow:auto;
+  border-radius:20px 20px 0 0;padding:18px 16px calc(20px + env(safe-area-inset-bottom,0px));}
+.modal-content h3{margin:0 0 12px;}
+.field{margin-bottom:12px;}
+.field label{display:block;font-size:.78rem;color:var(--muted);margin-bottom:4px;}
+.field input{width:100%;padding:9px 10px;border-radius:10px;border:1px solid var(--border);
+  background:var(--paper);color:var(--ink);font-family:inherit;font-size:.9rem;}
+.modal-actions{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;}
+.modal-actions button{flex:1;padding:11px;border-radius:12px;border:none;font-size:.88rem;font-family:inherit;min-width:90px;}
+.btn-primary{background:var(--accent);color:var(--accent-ink);}
+.btn-ghost{background:var(--paper);color:var(--ink);border:1px solid var(--border)!important;}
+.btn-danger{background:rgba(166,58,44,.12);color:var(--danger);border:1px solid var(--danger)!important;}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+.settings-section{margin-bottom:18px;}
+.settings-section h4{margin:0 0 10px;font-size:.85rem;color:var(--muted);}
+.theme-row{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.theme-chip{display:flex;align-items:center;gap:9px;padding:10px 11px;border-radius:13px;border:1.5px solid var(--border);background:var(--paper);cursor:pointer;font-family:inherit;color:var(--ink);text-align:start;}
+.theme-chip.active{border-color:var(--accent);background:var(--card);box-shadow:0 0 0 1px var(--accent) inset;}
+.theme-chip .chip-dot{width:22px;height:22px;border-radius:50%;flex:none;border:1px solid var(--border);}
+.theme-chip .chip-label{flex:1;font-size:.78rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.theme-chip .chip-check{flex:none;font-size:.85rem;opacity:0;color:var(--accent);}
+.theme-chip.active .chip-check{opacity:1;}
+.quote-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:.82rem;}
+.quote-row:last-child{border-bottom:none;}
+.quote-row span{flex:1;line-height:1.5;}
+.quote-del{flex:none;background:none;border:none;color:var(--danger);font-size:.95rem;padding:4px;}
+.add-quote-row{display:flex;gap:8px;margin-top:10px;}
+.add-quote-row input{flex:1;padding:9px 10px;border-radius:10px;border:1px solid var(--border);background:var(--paper);color:var(--ink);font-family:inherit;font-size:.85rem;}
+.add-quote-row button{flex:none;background:var(--accent);color:var(--accent-ink);border:none;border-radius:10px;padding:0 14px;font-size:.85rem;font-family:inherit;}
+.account-email{font-size:.78rem;color:var(--muted);text-align:start;padding:0 0 10px;}
+</style>
+</head>
+<body>
+
+<div id="loading-screen" class="loading-screen">بنجهزلك حسابك...</div>
+
+<div id="auth-screen" class="auth-screen" style="display:none;">
+  <div class="auth-card">
+    <div class="auth-logo">🔥</div>
+    <h1>متابعة العادات</h1>
+    <p>سجّل دخولك بحساب جوجل عشان عاداتك وتقدمك يتحفظوا ليك ومايضيعوش، وتقدر تفتح الصفحة من أي جهاز.</p>
+    <button class="btn-google" id="google-signin-btn" type="button">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.5 18.9 12 24 12c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4c-7.5 0-14 4.2-17.7 10.7z"/><path fill="#4CAF50" d="M24 44c5.5 0 10.4-1.9 14.2-5.1l-6.6-5.4C29.5 35.3 26.9 36 24 36c-5.3 0-9.7-3.1-11.4-7.6l-6.6 5c3.7 6.4 10.1 10.6 18 10.6z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.1 5.6l6.6 5.4C41.5 35.6 44 30.3 44 24c0-1.3-.1-2.7-.4-3.5z"/></svg>
+      تسجيل الدخول بجوجل
+    </button>
+    <div class="config-warning" id="config-warning" style="display:none;"></div>
+  </div>
+</div>
+
+<div id="gate-screen" style="display:none;">
+  <div class="gate-card">
+    <div class="gate-emoji">🔥</div>
+    <p class="gate-quote" id="gate-quote-text">...</p>
+    <div id="gate-duration-setup" style="display:none;">
+      <p class="gate-duration-label">🎯 حدد مدة التحدي بتاعك</p>
+      <div class="duration-chip-row" id="duration-chip-row"></div>
+      <div class="duration-custom-row" id="duration-custom-row">
+        <input type="number" id="duration-custom-input" min="1" max="999" placeholder="عدد الأيام">
+      </div>
+    </div>
+    <button class="btn-gate" id="gate-start-btn" type="button">ابدأ</button>
+    <div class="gate-sub" id="gate-sub-text"></div>
+  </div>
+</div>
+
+<div id="app-root" style="display:none;">
+<header>
+  <h1>🔥 متابعة العادات</h1>
+  <button class="icon-btn" id="settings-btn" type="button" aria-label="الإعدادات">⚙️</button>
+</header>
+<div class="month-nav">
+  <button id="prev-month" type="button">‹</button>
+  <span id="month-label"></span>
+  <button id="next-month" type="button">›</button>
+</div>
+
+<main>
+  <div class="challenge-banner" id="challenge-banner" style="display:none;"></div>
+  <div class="overview-card">
+    <h3 id="overview-title">📈 نظرة عامة على الشهر</h3>
+    <div class="overview-row">
+      <div class="pill-stack">
+        <div class="pill"><span>الهدف</span><b id="ov-goal">0</b></div>
+        <div class="pill"><span>المنجز</span><b id="ov-done">0</b></div>
+        <div class="pill"><span>المتبقي</span><b id="ov-left">0</b></div>
+      </div>
+      <div class="donut-wrap" id="donut-wrap"></div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h3>📅 الإنجاز اليومي</h3>
+    <div class="daily-chart-wrap">
+      <div class="y-axis"><span>100%</span><span>75%</span><span>50%</span><span>25%</span><span>0%</span></div>
+      <div class="daily-chart" id="daily-chart"></div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-head">
+      <h3>🗓️ جدول العادات</h3>
+      <button class="btn-add" id="add-habit-btn" type="button">+ عادة</button>
+    </div>
+    <div class="grid-wrap"><table class="habit-grid" id="habit-grid"></table></div>
+    <p class="empty" id="grid-empty" style="display:none;">مفيش عادات متضافة لسه. دوس "+ عادة" وابدأ تتابع أول عادة.</p>
+  </div>
+
+  <div class="section-card" id="analysis-card">
+    <h3>📊 تحليل كل عادة</h3>
+    <table class="analysis-table">
+      <thead><tr><th>العادة</th><th>الهدف</th><th>الفعلي</th><th>المتبقي</th><th>التقدم</th><th>%</th></tr></thead>
+      <tbody id="analysis-body"></tbody>
+    </table>
+  </div>
+
+  <div class="section-card" id="top-card">
+    <h3 id="top-title">🏆 أفضل العادات الشهر ده</h3>
+    <div id="top-habits-list"></div>
+  </div>
+</main>
+</div>
+
+<div class="modal" id="habit-modal">
+  <div class="modal-backdrop" id="habit-modal-overlay"></div>
+  <div class="modal-content">
+    <h3 id="habit-modal-title">عادة جديدة</h3>
+    <div class="field">
+      <label>اسم العادة (تقدر تحط إيموجي في الأول)</label>
+      <input id="habit-name-input" type="text" placeholder="مثلاً: 🏋️ رياضة">
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-ghost" id="habit-modal-cancel">إلغاء</button>
+      <button type="button" class="btn-danger" id="habit-modal-delete" style="display:none;">🗑️ حذف</button>
+      <button type="button" class="btn-primary" id="habit-modal-save">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="settings-modal">
+  <div class="modal-backdrop" id="settings-modal-overlay"></div>
+  <div class="modal-content">
+    <h3>⚙️ الإعدادات</h3>
+    <div class="settings-section">
+      <h4>شكل الموقع</h4>
+      <div class="theme-row" id="theme-row"></div>
+    </div>
+    <div class="settings-section">
+      <h4>🎯 تحدي العادات</h4>
+      <div id="challenge-info"></div>
+      <button type="button" class="btn-ghost" id="restart-challenge-btn" style="margin-top:10px;width:100%;">🔄 ابدأ تحدي جديد</button>
+    </div>
+    <div class="settings-section">
+      <h4>الجمل التحفيزية</h4>
+      <div id="quotes-list"></div>
+      <div class="add-quote-row">
+        <input id="new-quote-input" type="text" placeholder="اكتب جملة تحفيزية جديدة...">
+        <button type="button" id="add-quote-btn">إضافة</button>
+      </div>
+    </div>
+    <div class="settings-section">
+      <h4>الحساب</h4>
+      <p class="account-email" id="user-email-label"></p>
+      <button type="button" class="btn-ghost" id="logout-btn" style="width:100%;">🚪 تسجيل الخروج</button>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-primary" id="settings-close">تمام</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ======================= الإعدادات =======================
+// نفس مشروع Supabase ونفس تسجيل الدخول بجوجل بتوع تراكر المذاكرة — مفيش حاجة تتغير هنا عادةً.
+const SUPABASE_URL = "https://wonpoqveqcnitgnymbva.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_2ELWRkyqkc0XPUvrKMM_Dg_JipB8DDe";
+// ============================================================
+
+const $=(s,p=document)=>p.querySelector(s);
+const THEMES=[
+  {key:'bw', label:'أبيض وأسود', emoji:'⚫️⚪️', swatch:'#17181C'},
+  {key:'amoled', label:'AMOLED', emoji:'🌑', swatch:'#000000'},
+  {key:'dark', label:'Dark', emoji:'🌘', swatch:'#1B1C1F'},
+  {key:'midnight', label:'Midnight', emoji:'🌌', swatch:'#141A3D'},
+  {key:'light', label:'Light', emoji:'☀️', swatch:'#F4F5F7'},
+  {key:'softlight', label:'Soft Light', emoji:'☁️', swatch:'#C9792E'},
+  {key:'blue', label:'أزرق', emoji:'🔵', swatch:'#2563EB'},
+  {key:'green', label:'أخضر', emoji:'🟢', swatch:'#2F8F5B'},
+  {key:'purple', label:'بنفسجي', emoji:'🟣', swatch:'#7C3AED'},
+];
+const DEFAULT_QUOTES=[
+  'النجاح هو مجموع مجهودات صغيرة بتتكرر كل يوم.',
+  'ابدأ من حيث إنت، استخدم اللي عندك، اعمل اللي تقدر عليه.',
+  'الانضباط هو الجسر بين الهدف والإنجاز.',
+  'كل يوم بتلتزم فيه بعادة، إنت بتبني نسخة أقوى منك.',
+  'مش لازم تكون مثالي، يكفي إنك تكون مستمر.',
+  'اليوم اللي هتكسل فيه، هيفضل يرجعلك تاني لو سبته.',
+];
+
+function uid(){ return 'h'+Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
+function pad2(n){ return String(n).padStart(2,'0'); }
+function isoOf(y,m,d){ return y+'-'+pad2(m+1)+'-'+pad2(d); }
+function todayParts(){ const n=new Date(); return {y:n.getFullYear(), m:n.getMonth(), d:n.getDate()}; }
+function todayISOFor(){ const t=todayParts(); return isoOf(t.y,t.m,t.d); }
+function escapeHtml(s){ return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function addDays(iso, n){
+  const p=iso.split('-').map(Number);
+  const dt=new Date(p[0], p[1]-1, p[2]);
+  dt.setDate(dt.getDate()+n);
+  return isoOf(dt.getFullYear(), dt.getMonth(), dt.getDate());
+}
+function daysBetweenISO(a,b){
+  const pa=a.split('-').map(Number), pb=b.split('-').map(Number);
+  const da=new Date(pa[0],pa[1]-1,pa[2]), db=new Date(pb[0],pb[1]-1,pb[2]);
+  return Math.round((db-da)/86400000);
+}
+
+let sb=null;
+let currentUser=null;
+let habits=[];     // [{id, name, createdAt:'YYYY-MM-DD'}]
+let checks={};     // {"habitId|YYYY-MM-DD": true}
+const DEFAULT_SETTINGS={ theme:'bw', started:false, startDate:null, quoteIndex:-1, quotes:DEFAULT_QUOTES.slice(), durationDays:null, endDate:null };
+let settings=Object.assign({}, DEFAULT_SETTINGS);
+let view=(()=>{ const t=todayParts(); return {y:t.y, m:t.m}; })();
+const DURATION_PRESETS=[7,14,21,30,60,90];
+let pendingDuration=30; // number | 'custom' | 'unlimited'
+
+function toast(msg){
+  let t=document.getElementById('app-toast');
+  if(!t){
+    t=document.createElement('div');
+    t.id='app-toast';
+    t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:10px;font-size:.82rem;z-index:200;max-width:88%;text-align:center;box-shadow:0 6px 16px rgba(0,0,0,.3);';
+    document.body.appendChild(t);
+  }
+  t.textContent=msg; t.style.display='block';
+  clearTimeout(t._timer);
+  t._timer=setTimeout(()=>{ t.style.display='none'; },2800);
+}
+function confirmDialog(message){
+  return new Promise(resolve=>{
+    let m=document.getElementById('confirm-modal');
+    if(!m){
+      m=document.createElement('div');
+      m.id='confirm-modal'; m.className='modal';
+      m.innerHTML='<div class="modal-backdrop"></div><div class="modal-content"><p id="confirm-msg" style="margin:0 0 16px;"></p><div class="modal-actions"><button type="button" class="btn-ghost" id="confirm-no">إلغاء</button><button type="button" class="btn-primary" id="confirm-yes">تأكيد</button></div></div>';
+      document.body.appendChild(m);
+    }
+    document.getElementById('confirm-msg').textContent=message;
+    m.classList.add('show');
+    const done=val=>{ m.classList.remove('show'); resolve(val); };
+    document.getElementById('confirm-yes').onclick=()=>done(true);
+    document.getElementById('confirm-no').onclick=()=>done(false);
+    m.querySelector('.modal-backdrop').onclick=()=>done(false);
+  });
+}
+
+/* ---------------- theme ---------------- */
+function applyTheme(key){
+  document.documentElement.setAttribute('data-theme', key);
+}
+
+/* ---------------- Supabase persistence ---------------- */
+async function persistSettings(){
+  if(!currentUser) return;
+  const payload={
+    user_id: currentUser.id,
+    theme: settings.theme,
+    started: settings.started,
+    start_date: settings.startDate,
+    duration_days: settings.durationDays,
+    end_date: settings.endDate,
+    quote_index: settings.quoteIndex,
+    quotes: settings.quotes,
+  };
+  const {error}=await sb.from('habit_settings').upsert(payload,{onConflict:'user_id'});
+  if(error){ console.error(error); toast('حصل خطأ في حفظ الإعدادات'); }
+}
+async function persistHabitInsert(h){
+  const {error}=await sb.from('habits').insert({id:h.id, user_id:currentUser.id, name:h.name, created_at:h.createdAt});
+  if(error){ console.error(error); toast('حصل خطأ في إضافة العادة'); }
+}
+async function persistHabitUpdate(h){
+  const {error}=await sb.from('habits').update({name:h.name}).eq('id',h.id);
+  if(error){ console.error(error); toast('حصل خطأ في تعديل العادة'); }
+}
+async function persistHabitDelete(habitId){
+  const {error}=await sb.from('habits').delete().eq('id',habitId);
+  if(error){ console.error(error); toast('حصل خطأ في حذف العادة'); }
+}
+async function persistCheckOn(habitId, iso){
+  const {error}=await sb.from('habit_checks').upsert({user_id:currentUser.id, habit_id:habitId, check_date:iso},{onConflict:'habit_id,check_date'});
+  if(error){ console.error(error); toast('حصل خطأ في حفظ اليوم ده'); }
+}
+async function persistCheckOff(habitId, iso){
+  const {error}=await sb.from('habit_checks').delete().eq('habit_id',habitId).eq('check_date',iso);
+  if(error){ console.error(error); toast('حصل خطأ في حفظ اليوم ده'); }
+}
+
+async function loadFromSupabase(){
+  const {data:settingsRow, error:sErr}=await sb.from('habit_settings').select('*').eq('user_id',currentUser.id).maybeSingle();
+  if(sErr) console.error(sErr);
+
+  const {data:habitRows, error:hErr}=await sb.from('habits').select('*').order('inserted_at',{ascending:true});
+  if(hErr) console.error(hErr);
+  habits=(habitRows||[]).map(r=>({id:r.id, name:r.name, createdAt:r.created_at}));
+
+  if(!settingsRow){
+    // أول دخول على الإطلاق: نزرع الإعدادات والعادات الافتراضية
+    settings=Object.assign({}, DEFAULT_SETTINGS);
+    if(!habits.length){
+      const createdAt=todayISOFor();
+      habits=[
+        {id:uid(), name:'🌅 الاستيقاظ الساعة 4:30', createdAt},
+        {id:uid(), name:'🌙 النوم الساعة 10', createdAt},
+        {id:uid(), name:'📝 حل ساتات', createdAt},
+        {id:uid(), name:'🏋️ كاليستينكس', createdAt},
+        {id:uid(), name:'📵 بعيد عن الـ Shorts', createdAt},
+        {id:uid(), name:'🕌 ألف صلاة على النبي', createdAt},
+        {id:uid(), name:'📿 ألف استغفار', createdAt},
+        {id:uid(), name:'📖 ورد يومي من القرآن', createdAt},
+        {id:uid(), name:'🕋 الصلاة في المسجد', createdAt},
+        {id:uid(), name:'⌨️ تدريب الكتابة السريعة (نص ساعة)', createdAt},
+        {id:uid(), name:'🚫 الامتناع عن العادة السرية', createdAt},
+      ];
+      const rows=habits.map(h=>({id:h.id, user_id:currentUser.id, name:h.name, created_at:h.createdAt}));
+      const {error:insErr}=await sb.from('habits').insert(rows);
+      if(insErr) console.error(insErr);
+    }
+    await persistSettings();
+  }else{
+    settings=Object.assign({}, DEFAULT_SETTINGS, {
+      theme: settingsRow.theme,
+      started: settingsRow.started,
+      startDate: settingsRow.start_date,
+      durationDays: settingsRow.duration_days,
+      endDate: settingsRow.end_date,
+      quoteIndex: settingsRow.quote_index,
+      quotes: (settingsRow.quotes && settingsRow.quotes.length) ? settingsRow.quotes : DEFAULT_QUOTES.slice(),
+    });
+  }
+
+  const {data:checkRows, error:cErr}=await sb.from('habit_checks').select('habit_id,check_date');
+  if(cErr) console.error(cErr);
+  checks={};
+  (checkRows||[]).forEach(r=>{ checks[r.habit_id+'|'+r.check_date]=true; });
+}
+
+/* ---------------- gate / quotes ---------------- */
+async function nextQuote(){
+  if(!settings.quotes.length) return '';
+  settings.quoteIndex=(settings.quoteIndex+1) % settings.quotes.length;
+  await persistSettings();
+  return settings.quotes[settings.quoteIndex];
+}
+function renderDurationChips(){
+  const row=$('#duration-chip-row');
+  if(!row) return;
+  let html='';
+  DURATION_PRESETS.forEach(n=>{
+    html+='<button type="button" class="duration-chip'+(pendingDuration===n?' active':'')+'" data-duration="'+n+'">'+n+' يوم</button>';
+  });
+  html+='<button type="button" class="duration-chip'+(pendingDuration==='custom'?' active':'')+'" data-duration="custom">✏️ مخصص</button>';
+  html+='<button type="button" class="duration-chip'+(pendingDuration==='unlimited'?' active':'')+'" data-duration="unlimited">♾️ بدون نهاية</button>';
+  row.innerHTML=html;
+  $('#duration-custom-row').style.display = pendingDuration==='custom' ? 'flex' : 'none';
+}
+async function renderGate(){
+  $('#gate-quote-text').textContent='"'+(await nextQuote())+'"';
+  const firstTime=!settings.started;
+  $('#gate-duration-setup').style.display=firstTime?'block':'none';
+  if(firstTime){
+    pendingDuration=30;
+    renderDurationChips();
+    $('#duration-custom-input').value='';
+  }
+  $('#gate-start-btn').textContent=firstTime?'🚀 ابدأ التحدي':'💪 يلا نكمل';
+  $('#gate-sub-text').textContent=firstTime?'العد هيبدأ من النهارده وهيفضل شغال لحد ما المدة اللي اخترتها تخلص.':'';
+}
+async function dismissGate(){
+  if(!settings.started){
+    let days=null;
+    if(pendingDuration==='unlimited'){
+      days=null;
+    }else if(pendingDuration==='custom'){
+      const v=parseInt(($('#duration-custom-input').value||'').trim(),10);
+      if(!v || v<1){ toast('اكتب عدد أيام صحيح للتحدي الأول'); return; }
+      days=v;
+    }else{
+      days=pendingDuration;
+    }
+    settings.started=true;
+    settings.startDate=todayISOFor();
+    settings.durationDays=days;
+    settings.endDate=days?addDays(settings.startDate, days-1):null;
+    await persistSettings();
+  }
+  showScreen('app');
+  renderAll();
+}
+
+/* ---------------- date / range helpers ---------------- */
+function daysInMonth(y,m){ return new Date(y,m+1,0).getDate(); }
+function isCurrentMonth(){ const t=todayParts(); return view.y===t.y && view.m===t.m; }
+function isChecked(habitId, iso){ return !!checks[habitId+'|'+iso]; }
+function toggleCheck(habitId, iso){
+  const key=habitId+'|'+iso;
+  if(checks[key]){
+    delete checks[key];
+    renderAll();
+    persistCheckOff(habitId, iso);
+  }else{
+    checks[key]=true;
+    renderAll();
+    persistCheckOn(habitId, iso);
+  }
+}
+function habitStartISO(h){
+  return (settings.startDate && settings.startDate > h.createdAt) ? settings.startDate : h.createdAt;
+}
+
+/* whether the tracker is running a fixed-length challenge (vs an open-ended "بدون نهاية" tracker) */
+function isDurationMode(){ return !!(settings.durationDays && settings.startDate); }
+
+/* the full list of ISO dates currently on screen:
+   - duration mode: every day of the challenge, start to end, regardless of calendar month
+   - open-ended mode: the viewed calendar month, trimmed so it starts from the real tracker start date */
+function viewDates(){
+  if(isDurationMode()){
+    const days=[];
+    let cur=settings.startDate;
+    while(cur<=settings.endDate){ days.push(cur); cur=addDays(cur,1); }
+    return days;
+  }
+  const total=daysInMonth(view.y,view.m);
+  let gridStart=1;
+  if(settings.startDate){
+    const parts=settings.startDate.split('-').map(Number);
+    const sy=parts[0], sm=parts[1]-1, sd=parts[2];
+    if(sy===view.y && sm===view.m) gridStart=Math.min(sd,total);
+    else if(sy>view.y || (sy===view.y && sm>view.m)) gridStart=total+1; // viewed month is before the tracker started
+  }
+  const days=[];
+  for(let d=gridStart; d<=total; d++) days.push(isoOf(view.y,view.m,d));
+  return days;
+}
+
+/* the last ISO date that counts as "elapsed" (so goals never include days that haven't happened yet) */
+function elapsedCap(){
+  const today=todayISOFor();
+  if(isDurationMode()) return today<settings.endDate ? today : settings.endDate;
+  if(isCurrentMonth()) return today;
+  return isoOf(view.y,view.m,daysInMonth(view.y,view.m));
+}
+
+function habitStats(h){
+  const dates=viewDates();
+  const cap=elapsedCap();
+  const start=habitStartISO(h);
+  const relevant=dates.filter(iso=>iso>=start && iso<=cap);
+  const goal=relevant.length;
+  const actual=relevant.filter(iso=>isChecked(h.id,iso)).length;
+  return {goal, actual, left:Math.max(0,goal-actual), pct: goal?Math.round(actual/goal*100):0};
+}
+
+function monthLabel(){
+  return new Intl.DateTimeFormat('ar-EG',{month:'long',year:'numeric'}).format(new Date(view.y,view.m,1));
+}
+function shortDateLabel(iso){
+  const p=iso.split('-').map(Number);
+  return new Intl.DateTimeFormat('ar-EG',{day:'numeric',month:'short'}).format(new Date(p[0],p[1]-1,p[2]));
+}
+function updateSectionTitles(){
+  $('#overview-title').textContent=isDurationMode()?'📈 نظرة عامة على التحدي':'📈 نظرة عامة على الشهر';
+  $('#top-title').textContent=isDurationMode()?'🏆 أفضل العادات في التحدي':'🏆 أفضل العادات الشهر ده';
+}
+function renderRangeNav(){
+  updateSectionTitles();
+  if(isDurationMode()){
+    $('#prev-month').style.visibility='hidden';
+    $('#next-month').style.visibility='hidden';
+    $('#month-label').textContent=shortDateLabel(settings.startDate)+' – '+shortDateLabel(settings.endDate);
+    return;
+  }
+  $('#prev-month').style.visibility='';
+  $('#next-month').style.visibility='';
+  $('#month-label').textContent=monthLabel();
+  $('#next-month').disabled=isCurrentMonth();
+  let prevDisabled=false;
+  if(settings.startDate){
+    const parts=settings.startDate.split('-').map(Number);
+    prevDisabled=(view.y===parts[0] && view.m===parts[1]-1);
+  }
+  $('#prev-month').disabled=prevDisabled;
+}
+
+function renderDonut(pct){
+  const r=50, c=Math.round(2*Math.PI*r*100)/100;
+  const offset=Math.round(c*(1-pct/100)*100)/100;
+  $('#donut-wrap').innerHTML=
+    '<svg viewBox="0 0 120 120" width="108" height="108">'+
+    '<circle cx="60" cy="60" r="'+r+'" fill="none" stroke="var(--border)" stroke-width="14"/>'+
+    '<circle cx="60" cy="60" r="'+r+'" fill="none" stroke="var(--accent)" stroke-width="14" '+
+    'stroke-dasharray="'+c+'" stroke-dashoffset="'+offset+'" stroke-linecap="round" transform="rotate(-90 60 60)"/>'+
+    '<text x="60" y="67" text-anchor="middle" font-size="24" font-weight="700" fill="var(--ink)">'+pct+'%</text>'+
+    '</svg>';
+}
+
+function renderOverview(){
+  let goal=0, done=0;
+  habits.forEach(h=>{ const s=habitStats(h); goal+=s.goal; done+=s.actual; });
+  const pct=goal?Math.round(done/goal*100):0;
+  $('#ov-goal').textContent=goal;
+  $('#ov-done').textContent=done;
+  $('#ov-left').textContent=Math.max(0,goal-done);
+  renderDonut(pct);
+}
+
+function renderDailyChart(){
+  const today=todayISOFor();
+  const dates=viewDates().filter(iso=>iso<=today);
+  const el=$('#daily-chart');
+  if(!dates.length || !habits.length){ el.innerHTML='<p class="empty" style="padding:0;">مفيش بيانات لسه</p>'; return; }
+  let html='';
+  dates.forEach(iso=>{
+    const eligible=habits.filter(h=>habitStartISO(h)<=iso);
+    const doneCount=eligible.filter(h=>isChecked(h.id,iso)).length;
+    const pct=eligible.length?Math.round(doneCount/eligible.length*100):0;
+    const isToday=iso===today;
+    const dayNum=Number(iso.split('-')[2]);
+    html+='<div class="daily-bar-col'+(isToday?' today':'')+'">'+
+      '<div class="daily-bar" style="height:'+Math.max(3,Math.round(pct/100*96))+'px" title="'+pct+'%"></div>'+
+      '<span class="daily-bar-label">'+dayNum+'</span></div>';
+  });
+  el.innerHTML=html;
+}
+
+function renderHabitGrid(){
+  const grid=$('#habit-grid');
+  const emptyMsg=$('#grid-empty');
+  const dates=viewDates();
+  if(!habits.length){
+    grid.innerHTML='';
+    emptyMsg.textContent='مفيش عادات متضافة لسه. دوس "+ عادة" وابدأ تتابع أول عادة.';
+    emptyMsg.style.display='block';
+    return;
+  }
+  if(!dates.length){
+    grid.innerHTML='';
+    emptyMsg.textContent=isDurationMode()?'التحدي لسه هيبدأ.':'التحدي لسه ما بدأش في الشهر ده.';
+    emptyMsg.style.display='block';
+    return;
+  }
+  emptyMsg.style.display='none';
+  const today=todayISOFor();
+  let weekRow='<tr class="week-row"><th></th>';
+  for(let i=0,wk=1; i<dates.length; i+=7,wk++){
+    const span=Math.min(7,dates.length-i);
+    weekRow+='<th colspan="'+span+'">أسبوع '+wk+'</th>';
+  }
+  weekRow+='</tr>';
+  const DOW=['ح','ن','ث','ر','خ','ج','س'];
+  let dowRow='<tr class="dow-row"><th></th>';
+  dates.forEach(iso=>{
+    const isToday=iso===today;
+    const p=iso.split('-').map(Number);
+    const wd=new Date(p[0],p[1]-1,p[2]).getDay();
+    dowRow+='<th class="'+(isToday?'today-col':'')+'">'+DOW[wd]+'</th>';
+  });
+  dowRow+='</tr>';
+  let dayRow='<tr><th>العادة</th>';
+  dates.forEach(iso=>{
+    const isToday=iso===today;
+    dayRow+='<th class="'+(isToday?'today-col':'')+'">'+Number(iso.split('-')[2])+'</th>';
+  });
+  dayRow+='</tr>';
+  let body='<tbody>'+habits.map(h=>{
+    const startISO=habitStartISO(h);
+    let cells='<td><div class="grid-habit"><b title="'+escapeHtml(h.name)+'">'+escapeHtml(h.name)+'</b><button type="button" class="edit-ic" data-edit="'+h.id+'">✎</button></div></td>';
+    dates.forEach(iso=>{
+      const isToday=iso===today;
+      const future=iso>today;
+      const prestart=iso<startISO;
+      const disabled=future||prestart;
+      const on=isChecked(h.id,iso);
+      cells+='<td class="'+(isToday?'today-col':'')+'"><button type="button" class="chk'+(on?' on':'')+(future?' future':'')+(prestart?' prestart':'')+'" data-habit="'+h.id+'" data-date="'+iso+'" '+(disabled?'disabled':'')+'>'+(on?'✓':'')+'</button></td>';
+    });
+    return '<tr>'+cells+'</tr>';
+  }).join('')+'</tbody>';
+  grid.innerHTML='<thead>'+weekRow+dowRow+dayRow+'</thead>'+body;
+}
+
+function renderAnalysisTable(){
+  const body=$('#analysis-body');
+  if(!habits.length){ body.innerHTML='<tr><td colspan="6" class="empty">مفيش عادات متضافة لسه</td></tr>'; return; }
+  body.innerHTML=habits.map(h=>{
+    const s=habitStats(h);
+    return '<tr><td>'+escapeHtml(h.name)+'</td><td>'+s.goal+'</td><td>'+s.actual+'</td><td>'+s.left+'</td>'+
+      '<td><div class="mini-bar"><div class="mini-bar-fill" style="width:'+s.pct+'%"></div></div></td>'+
+      '<td>'+s.pct+'%</td></tr>';
+  }).join('');
+}
+
+function renderTopHabits(){
+  const el=$('#top-habits-list');
+  if(!habits.length){ el.innerHTML='<p class="empty">مفيش بيانات كفاية لسه</p>'; return; }
+  const ranked=habits.map(h=>({name:h.name, pct:habitStats(h).pct})).sort((a,b)=>b.pct-a.pct);
+  el.innerHTML=ranked.map((r,i)=>
+    '<div class="top-habit-row"><span class="top-habit-rank">'+(i+1)+'</span>'+
+    '<span class="top-habit-name">'+escapeHtml(r.name)+'</span>'+
+    '<span class="top-habit-pct">'+r.pct+'%</span></div>'
+  ).join('');
+}
+
+function renderChallengeBanner(){
+  const el=$('#challenge-banner');
+  if(!settings.durationDays || !settings.startDate){ el.style.display='none'; return; }
+  const today=todayISOFor();
+  const dayNum=Math.min(settings.durationDays, daysBetweenISO(settings.startDate,today)+1);
+  const ended=today>settings.endDate;
+  el.style.display='flex';
+  if(ended){
+    el.innerHTML='<span>🎉 خلصت تحدي الـ '+settings.durationDays+' يوم!</span>';
+  }else{
+    const pct=Math.round(dayNum/settings.durationDays*100);
+    el.innerHTML='<span>🎯 يوم '+dayNum+'/'+settings.durationDays+'</span>'+
+      '<div class="challenge-bar"><div class="challenge-bar-fill" style="width:'+pct+'%"></div></div>'+
+      '<span>باقي '+(settings.durationDays-dayNum)+'</span>';
+  }
+}
+function renderAll(){
+  renderRangeNav();
+  renderChallengeBanner();
+  renderOverview();
+  renderDailyChart();
+  renderHabitGrid();
+  renderAnalysisTable();
+  renderTopHabits();
+}
+
+/* ---------------- add/edit/delete habit modal ---------------- */
+let editingHabitId=null;
+function openHabitModal(habit){
+  editingHabitId=habit?habit.id:null;
+  $('#habit-modal-title').textContent=habit?'تعديل العادة':'عادة جديدة';
+  $('#habit-name-input').value=habit?habit.name:'';
+  $('#habit-modal-delete').style.display=habit?'block':'none';
+  $('#habit-modal').classList.add('show');
+  setTimeout(()=>$('#habit-name-input').focus(),50);
+}
+function closeHabitModal(){ $('#habit-modal').classList.remove('show'); editingHabitId=null; }
+async function saveHabitModal(){
+  const name=$('#habit-name-input').value.trim();
+  if(!name){ toast('اكتب اسم العادة الأول'); return; }
+  if(editingHabitId){
+    const h=habits.find(x=>x.id===editingHabitId);
+    if(h){ h.name=name; await persistHabitUpdate(h); }
+  }else{
+    const h={id:uid(), name, createdAt:todayISOFor()};
+    habits.push(h);
+    await persistHabitInsert(h);
+  }
+  closeHabitModal();
+  renderAll();
+}
+async function deleteHabitModal(){
+  if(!editingHabitId) return;
+  const h=habits.find(x=>x.id===editingHabitId);
+  const ok=await confirmDialog('متأكد إنك عايز تمسح عادة "'+(h?h.name:'')+'"؟ هتتمسح كل الأيام المسجلة ليها.');
+  if(!ok) return;
+  await persistHabitDelete(editingHabitId);
+  habits=habits.filter(x=>x.id!==editingHabitId);
+  Object.keys(checks).forEach(k=>{ if(k.startsWith(editingHabitId+'|')) delete checks[k]; });
+  closeHabitModal();
+  renderAll();
+}
+
+/* ---------------- settings modal: theme + quotes ---------------- */
+function renderThemeRow(){
+  $('#theme-row').innerHTML=THEMES.map(t=>
+    '<button type="button" class="theme-chip'+(settings.theme===t.key?' active':'')+'" data-theme-key="'+t.key+'">'+
+      '<span class="chip-dot" style="background:'+t.swatch+'"></span>'+
+      '<span class="chip-label">'+t.emoji+' '+escapeHtml(t.label)+'</span>'+
+      '<span class="chip-check">✓</span>'+
+    '</button>'
+  ).join('');
+}
+function renderQuotesList(){
+  const el=$('#quotes-list');
+  if(!settings.quotes.length){ el.innerHTML='<p class="empty">مفيش جمل، ضيف واحدة تحت.</p>'; return; }
+  el.innerHTML=settings.quotes.map((q,i)=>
+    '<div class="quote-row"><span>'+escapeHtml(q)+'</span><button type="button" class="quote-del" data-qidx="'+i+'">🗑️</button></div>'
+  ).join('');
+}
+function renderChallengeInfo(){
+  const el=$('#challenge-info');
+  if(!settings.startDate){ el.innerHTML='<p class="muted">لسه مفيش تحدي متبدأ.</p>'; return; }
+  if(!settings.durationDays){
+    el.innerHTML='<p class="muted">تحدي مفتوح من غير مدة محددة، بدأ من '+settings.startDate+'.</p>';
+    return;
+  }
+  const today=todayISOFor();
+  const dayNum=Math.min(settings.durationDays, daysBetweenISO(settings.startDate,today)+1);
+  const ended=today>settings.endDate;
+  el.innerHTML = ended
+    ? '<p class="muted">🎉 خلصت تحدي الـ '+settings.durationDays+' يوم (انتهى '+settings.endDate+'). تقدر تبدأ تحدي جديد.</p>'
+    : '<p class="muted">يوم '+dayNum+' من '+settings.durationDays+' — باقي '+(settings.durationDays-dayNum)+' يوم (هينتهي '+settings.endDate+').</p>';
+}
+function openSettingsModal(){
+  renderThemeRow();
+  renderChallengeInfo();
+  renderQuotesList();
+  $('#user-email-label').textContent=currentUser?(currentUser.email||''):'';
+  $('#settings-modal').classList.add('show');
+}
+function closeSettingsModal(){ $('#settings-modal').classList.remove('show'); }
+
+function bindEvents(){
+  $('#gate-start-btn').onclick=dismissGate;
+  $('#duration-chip-row').addEventListener('click', e=>{
+    const btn=e.target.closest('[data-duration]');
+    if(!btn) return;
+    const v=btn.dataset.duration;
+    pendingDuration=(v==='custom'||v==='unlimited')?v:Number(v);
+    renderDurationChips();
+    if(pendingDuration==='custom') setTimeout(()=>$('#duration-custom-input').focus(),50);
+  });
+  $('#settings-btn').onclick=openSettingsModal;
+  $('#settings-close').onclick=closeSettingsModal;
+  $('#settings-modal-overlay').onclick=closeSettingsModal;
+  $('#theme-row').addEventListener('click', async e=>{
+    const sw=e.target.closest('[data-theme-key]');
+    if(!sw) return;
+    settings.theme=sw.dataset.themeKey;
+    applyTheme(settings.theme);
+    renderThemeRow();
+    renderAll();
+    await persistSettings();
+  });
+  $('#add-quote-btn').onclick=async ()=>{
+    const input=$('#new-quote-input');
+    const val=input.value.trim();
+    if(!val){ toast('اكتب جملة الأول'); return; }
+    settings.quotes.push(val);
+    input.value='';
+    renderQuotesList();
+    await persistSettings();
+  };
+  $('#quotes-list').addEventListener('click', async e=>{
+    const btn=e.target.closest('[data-qidx]');
+    if(!btn) return;
+    settings.quotes.splice(+btn.dataset.qidx,1);
+    if(settings.quoteIndex>=settings.quotes.length) settings.quoteIndex=-1;
+    renderQuotesList();
+    await persistSettings();
+  });
+  $('#restart-challenge-btn').onclick=async ()=>{
+    const ok=await confirmDialog('هتبدأ تحدي جديد وتختار مدة جديدة، والعد هيبدأ من النهارده. العادات والتسجيلات القديمة هتفضل محفوظة زي ما هي.');
+    if(!ok) return;
+    settings.started=false;
+    settings.durationDays=null;
+    settings.endDate=null;
+    await persistSettings();
+    closeSettingsModal();
+    showScreen('gate');
+    await renderGate();
+  };
+  $('#logout-btn').onclick=async ()=>{
+    closeSettingsModal();
+    await sb.auth.signOut();
+    currentUser=null;
+    showScreen('auth');
+  };
+
+  $('#prev-month').onclick=()=>{ if(isDurationMode()) return; view.m--; if(view.m<0){ view.m=11; view.y--; } renderAll(); };
+  $('#next-month').onclick=()=>{ if(isDurationMode()||isCurrentMonth()) return; view.m++; if(view.m>11){ view.m=0; view.y++; } renderAll(); };
+  $('#add-habit-btn').onclick=()=>openHabitModal(null);
+  $('#habit-modal-cancel').onclick=closeHabitModal;
+  $('#habit-modal-overlay').onclick=closeHabitModal;
+  $('#habit-modal-save').onclick=saveHabitModal;
+  $('#habit-modal-delete').onclick=deleteHabitModal;
+  $('#habit-name-input').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); saveHabitModal(); } });
+  document.addEventListener('click', e=>{
+    const chk=e.target.closest('.chk');
+    if(chk && !chk.disabled){ toggleCheck(chk.dataset.habit, chk.dataset.date); return; }
+    const editBtn=e.target.closest('[data-edit]');
+    if(editBtn){ const h=habits.find(x=>x.id===editBtn.dataset.edit); if(h) openHabitModal(h); }
+  });
+  $('#google-signin-btn').onclick=async ()=>{
+    const {error}=await sb.auth.signInWithOAuth({provider:'google', options:{redirectTo:window.location.href}});
+    if(error){ console.error(error); toast('حصل خطأ في تسجيل الدخول'); }
+  };
+}
+
+/* ---------------- auth flow ---------------- */
+function configIsMissing(){
+  return !SUPABASE_URL || SUPABASE_URL.indexOf('PASTE_')===0 ||
+         !SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.indexOf('PASTE_')===0;
+}
+function showScreen(name){
+  $('#loading-screen').style.display = name==='loading'?'flex':'none';
+  $('#auth-screen').style.display = name==='auth'?'flex':'none';
+  $('#gate-screen').style.display = name==='gate'?'flex':'none';
+  $('#app-root').style.display = name==='app'?'block':'none';
+}
+async function doHandleSession(session){
+  if(session && session.user){
+    currentUser=session.user;
+    showScreen('loading');
+    await loadFromSupabase();
+    applyTheme(settings.theme);
+    if(settings.started){
+      showScreen('app');
+      renderAll();
+    }else{
+      await renderGate();
+      showScreen('gate');
+    }
+  }else{
+    currentUser=null;
+    showScreen('auth');
+  }
+}
+/* Supabase can call onAuthStateChange more than once for what is really a
+   single sign-in (an immediate INITIAL_SESSION replay, then SIGNED_IN, then
+   a TOKEN_REFRESHED later). Running doHandleSession for each of those
+   concurrently is what caused the gate/app screen to flicker back to the
+   wrong one after a reload: two overlapping loads of settings/habits/checks
+   racing to finish last. handleSession() below chains every call onto one
+   promise so they always run one at a time, in order, and the boot-time
+   getSession() call is treated as the single source of truth for startup —
+   the listener only reacts to real sign-in/sign-out, not the session replay
+   that fires right after subscribing. */
+let sessionQueue=Promise.resolve();
+function handleSession(session){
+  sessionQueue=sessionQueue.then(()=>doHandleSession(session)).catch(err=>console.error(err));
+  return sessionQueue;
+}
+async function boot(){
+  bindEvents();
+  if(configIsMissing()){
+    $('#config-warning').textContent='لسه محتاج تحط إعدادات Supabase في أول الملف (داخل وسم <script> بعد تعليق "الإعدادات").';
+    $('#config-warning').style.display='block';
+    $('#google-signin-btn').disabled=true;
+    showScreen('auth');
+    return;
+  }
+  try{
+    sb=window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }catch(e){
+    console.error(e);
+    $('#config-warning').textContent='فيه مشكلة في رابط أو مفتاح Supabase. راجعهم في أول الملف.';
+    $('#config-warning').style.display='block';
+    $('#google-signin-btn').disabled=true;
+    showScreen('auth');
+    return;
+  }
+  let bootHandled=false;
+  sb.auth.onAuthStateChange((event, s)=>{
+    if(!bootHandled) return; // boot()'s own getSession() call is handling startup
+    if(event==='SIGNED_IN' || event==='SIGNED_OUT' || event==='USER_UPDATED'){
+      handleSession(s);
+    }
+    // TOKEN_REFRESHED and other housekeeping events don't need a reload
+  });
+  const {data:{session}}=await sb.auth.getSession();
+  await handleSession(session);
+  bootHandled=true;
+}
+boot();
+</script>
+</body>
+</html>
