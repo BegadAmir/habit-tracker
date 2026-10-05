@@ -202,6 +202,10 @@ main{padding:0 16px 40px;max-width:560px;margin:0 auto;}
       <div class="duration-custom-row" id="duration-custom-row">
         <input type="number" id="duration-custom-input" min="1" max="999" placeholder="عدد الأيام">
       </div>
+      <p class="gate-duration-label" style="margin-top:14px;">📅 التحدي يبدأ من</p>
+      <div class="duration-custom-row" id="gate-startdate-row" style="display:flex;">
+        <input type="date" id="gate-startdate-input">
+      </div>
     </div>
     <button class="btn-gate" id="gate-start-btn" type="button">ابدأ</button>
     <div class="gate-sub" id="gate-sub-text"></div>
@@ -364,12 +368,16 @@ let sb=null;
 let currentUser=null;
 let habits=[];     // [{id, name, createdAt:'YYYY-MM-DD'}]
 let checks={};     // {"habitId|YYYY-MM-DD": true}
-const DEFAULT_SETTINGS={ theme:'bw', started:false, startDate:null, quoteIndex:-1, quotes:DEFAULT_QUOTES.slice(), durationDays:null, endDate:null };
+const DEFAULT_SETTINGS={ theme:'bw', started:false, startDate:null, quoteIndex:-1, quotes:DEFAULT_QUOTES.slice(), durationDays:null, endDate:null, catchupUsedOn:null };
 let settings=Object.assign({}, DEFAULT_SETTINGS);
 let view=(()=>{ const t=todayParts(); return {y:t.y, m:t.m}; })();
 const DURATION_PRESETS=[7,14,21,30,60,90];
 let pendingDuration=30; // number | 'custom' | 'unlimited'
 
+function describeError(error){
+  if(!error) return '';
+  return error.message || error.details || error.hint || error.code || JSON.stringify(error);
+}
 function toast(msg){
   let t=document.getElementById('app-toast');
   if(!t){
@@ -417,37 +425,39 @@ async function persistSettings(){
     end_date: settings.endDate,
     quote_index: settings.quoteIndex,
     quotes: settings.quotes,
+    catchup_used_on: settings.catchupUsedOn,
   };
   const {error}=await sb.from('habit_settings').upsert(payload,{onConflict:'user_id'});
-  if(error){ console.error(error); toast('حصل خطأ في حفظ الإعدادات'); }
+  if(error){ console.error(error); toast('حصل خطأ في حفظ الإعدادات: '+describeError(error)); }
+  return error;
 }
 async function persistHabitInsert(h){
   const {error}=await sb.from('habits').insert({id:h.id, user_id:currentUser.id, name:h.name, created_at:h.createdAt});
-  if(error){ console.error(error); toast('حصل خطأ في إضافة العادة'); }
+  if(error){ console.error(error); toast('حصل خطأ في إضافة العادة: '+describeError(error)); }
 }
 async function persistHabitUpdate(h){
   const {error}=await sb.from('habits').update({name:h.name}).eq('id',h.id);
-  if(error){ console.error(error); toast('حصل خطأ في تعديل العادة'); }
+  if(error){ console.error(error); toast('حصل خطأ في تعديل العادة: '+describeError(error)); }
 }
 async function persistHabitDelete(habitId){
   const {error}=await sb.from('habits').delete().eq('id',habitId);
-  if(error){ console.error(error); toast('حصل خطأ في حذف العادة'); }
+  if(error){ console.error(error); toast('حصل خطأ في حذف العادة: '+describeError(error)); }
 }
 async function persistCheckOn(habitId, iso){
   const {error}=await sb.from('habit_checks').upsert({user_id:currentUser.id, habit_id:habitId, check_date:iso},{onConflict:'habit_id,check_date'});
-  if(error){ console.error(error); toast('حصل خطأ في حفظ اليوم ده'); }
+  if(error){ console.error(error); toast('حصل خطأ في حفظ اليوم ده: '+describeError(error)); }
 }
 async function persistCheckOff(habitId, iso){
   const {error}=await sb.from('habit_checks').delete().eq('habit_id',habitId).eq('check_date',iso);
-  if(error){ console.error(error); toast('حصل خطأ في حفظ اليوم ده'); }
+  if(error){ console.error(error); toast('حصل خطأ في حفظ اليوم ده: '+describeError(error)); }
 }
 
 async function loadFromSupabase(){
   const {data:settingsRow, error:sErr}=await sb.from('habit_settings').select('*').eq('user_id',currentUser.id).maybeSingle();
-  if(sErr) console.error(sErr);
+  if(sErr){ console.error(sErr); toast('حصل خطأ في تحميل الإعدادات: '+describeError(sErr)); }
 
   const {data:habitRows, error:hErr}=await sb.from('habits').select('*').order('inserted_at',{ascending:true});
-  if(hErr) console.error(hErr);
+  if(hErr){ console.error(hErr); toast('حصل خطأ في تحميل العادات: '+describeError(hErr)); }
   habits=(habitRows||[]).map(r=>({id:r.id, name:r.name, createdAt:r.created_at}));
 
   if(!settingsRow){
@@ -470,7 +480,7 @@ async function loadFromSupabase(){
       ];
       const rows=habits.map(h=>({id:h.id, user_id:currentUser.id, name:h.name, created_at:h.createdAt}));
       const {error:insErr}=await sb.from('habits').insert(rows);
-      if(insErr) console.error(insErr);
+      if(insErr){ console.error(insErr); toast('حصل خطأ في إنشاء العادات الافتراضية: '+describeError(insErr)); }
     }
     await persistSettings();
   }else{
@@ -482,11 +492,12 @@ async function loadFromSupabase(){
       endDate: settingsRow.end_date,
       quoteIndex: settingsRow.quote_index,
       quotes: (settingsRow.quotes && settingsRow.quotes.length) ? settingsRow.quotes : DEFAULT_QUOTES.slice(),
+      catchupUsedOn: settingsRow.catchup_used_on || null,
     });
   }
 
   const {data:checkRows, error:cErr}=await sb.from('habit_checks').select('habit_id,check_date');
-  if(cErr) console.error(cErr);
+  if(cErr){ console.error(cErr); toast('حصل خطأ في تحميل التسجيلات: '+describeError(cErr)); }
   checks={};
   (checkRows||[]).forEach(r=>{ checks[r.habit_id+'|'+r.check_date]=true; });
 }
@@ -518,6 +529,8 @@ async function renderGate(){
     pendingDuration=30;
     renderDurationChips();
     $('#duration-custom-input').value='';
+    $('#gate-startdate-input').value=todayISOFor();
+    $('#gate-startdate-input').max=todayISOFor();
   }
   $('#gate-start-btn').textContent=firstTime?'🚀 ابدأ التحدي':'💪 يلا نكمل';
   $('#gate-sub-text').textContent=firstTime?'العد هيبدأ من النهارده وهيفضل شغال لحد ما المدة اللي اخترتها تخلص.':'';
@@ -534,11 +547,15 @@ async function dismissGate(){
     }else{
       days=pendingDuration;
     }
+    const pickedDate=($('#gate-startdate-input').value||'').trim();
+    const startDate=(pickedDate && pickedDate<=todayISOFor()) ? pickedDate : todayISOFor();
     settings.started=true;
-    settings.startDate=todayISOFor();
+    settings.startDate=startDate;
     settings.durationDays=days;
     settings.endDate=days?addDays(settings.startDate, days-1):null;
-    await persistSettings();
+    settings.catchupUsedOn=null;
+    const err=await persistSettings();
+    if(err) return; // الإعدادات ما اتسجلتش، سيب الشاشة زي ما هي عشان يقدر يحاول تاني
   }
   showScreen('app');
   renderAll();
@@ -905,6 +922,7 @@ function bindEvents(){
     settings.started=false;
     settings.durationDays=null;
     settings.endDate=null;
+    settings.catchupUsedOn=null;
     await persistSettings();
     closeSettingsModal();
     showScreen('gate');
