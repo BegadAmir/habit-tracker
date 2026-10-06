@@ -100,6 +100,8 @@ main{padding:0 16px 40px;max-width:560px;margin:0 auto;}
 .btn-add{background:var(--accent);color:var(--accent-ink);border:none;border-radius:10px;padding:7px 12px;font-size:.8rem;font-family:inherit;font-weight:600;}
 .btn-edit-day{background:var(--paper);color:var(--ink);border:1px solid var(--border);border-radius:10px;padding:7px 12px;font-size:.8rem;font-family:inherit;font-weight:600;}
 .btn-edit-day.active-edit{background:var(--warn);color:#fff;border-color:var(--warn);}
+.edit-day-hint{font-size:.74rem;color:var(--warn);background:rgba(192,138,46,.12);border:1px solid var(--warn);border-radius:10px;padding:8px 10px;margin:0 0 10px;text-align:start;line-height:1.6;}
+.chk.catchup-open:not(.on){box-shadow:0 0 0 2px var(--warn) inset;}
 .overview-row{display:flex;align-items:stretch;gap:14px;}
 .pill-stack{display:flex;flex-direction:column;gap:8px;flex:1;min-width:0;}
 .pill{background:var(--pill);color:var(--pill-ink);border-radius:12px;padding:9px 13px;display:flex;justify-content:space-between;align-items:center;font-size:.8rem;}
@@ -267,8 +269,12 @@ main{padding:0 16px 40px;max-width:560px;margin:0 auto;}
   <div class="section-card">
     <div class="section-head">
       <h3>🗓️ جدول العادات</h3>
-      <button class="btn-add" id="add-habit-btn" type="button">+ عادة</button>
+      <div class="section-head-actions">
+        <button class="btn-edit-day" id="edit-day-btn" type="button">✏️ تعديل يوم سابق</button>
+        <button class="btn-add" id="add-habit-btn" type="button">+ عادة</button>
+      </div>
     </div>
+    <p class="edit-day-hint" id="edit-day-hint" style="display:none;"></p>
     <div class="grid-wrap"><table class="habit-grid" id="habit-grid"></table></div>
     <p class="empty" id="grid-empty" style="display:none;">مفيش عادات متضافة لسه. دوس "+ عادة" وابدأ تتابع أول عادة.</p>
   </div>
@@ -392,6 +398,7 @@ let settings=Object.assign({}, DEFAULT_SETTINGS);
 let view=(()=>{ const t=todayParts(); return {y:t.y, m:t.m}; })();
 const DURATION_PRESETS=[7,14,21,30,60,90];
 let pendingDuration=30; // number | 'custom' | 'unlimited'
+let editMode=false; // "تعديل يوم سابق": مش محفوظة، بترجع false تلقائي كل ما الصفحة تتفتح من جديد
 
 function describeError(error){
   if(!error) return '';
@@ -584,16 +591,28 @@ async function dismissGate(){
 function daysInMonth(y,m){ return new Date(y,m+1,0).getDate(); }
 function isCurrentMonth(){ const t=todayParts(); return view.y===t.y && view.m===t.m; }
 function isChecked(habitId, iso){ return !!checks[habitId+'|'+iso]; }
+/* هل فيه فرصة "تعديل يوم سابق" متاحة النهاردة؟ (مرة واحدة بس في اليوم الواحد) */
+function catchupAvailableToday(){ return settings.catchupUsedOn!==todayISOFor(); }
 function toggleCheck(habitId, iso){
+  const today=todayISOFor();
+  const isPastDay=iso<today;
+  if(isPastDay && !editMode) return; // محمي أصلاً بـ disabled، ده حماية إضافية بس
   const key=habitId+'|'+iso;
-  if(checks[key]){
-    delete checks[key];
-    renderAll();
-    persistCheckOff(habitId, iso);
-  }else{
-    checks[key]=true;
-    renderAll();
-    persistCheckOn(habitId, iso);
+  const turningOn=!checks[key];
+  if(turningOn) checks[key]=true; else delete checks[key];
+
+  let consumedCatchup=false;
+  if(isPastDay && editMode){
+    // استخدم فرصة التعديل الرجعي بتاعة النهاردة، وقفل وضع التعديل تلقائي
+    settings.catchupUsedOn=today;
+    editMode=false;
+    consumedCatchup=true;
+  }
+  renderAll();
+  if(turningOn) persistCheckOn(habitId, iso); else persistCheckOff(habitId, iso);
+  if(consumedCatchup){
+    persistSettings();
+    toast('تم حفظ التعديل ✅ فرصة التعديل الرجعي هترجع تاني بكرة.');
   }
 }
 function habitStartISO(h){
@@ -762,9 +781,12 @@ function renderHabitGrid(){
       const isToday=iso===today;
       const future=iso>today;
       const prestart=iso<startISO;
-      const disabled=future||prestart;
+      const isPastDay=iso<today && !future && !prestart;
+      const pastLocked=isPastDay && !editMode;
+      const pastOpen=isPastDay && editMode;
+      const disabled=future||prestart||pastLocked;
       const on=isChecked(h.id,iso);
-      cells+='<td class="'+(isToday?'today-col':'')+'"><button type="button" class="chk'+(on?' on':'')+(future?' future':'')+(prestart?' prestart':'')+'" data-habit="'+h.id+'" data-date="'+iso+'" '+(disabled?'disabled':'')+'>'+(on?'✓':'')+'</button></td>';
+      cells+='<td class="'+(isToday?'today-col':'')+'"><button type="button" class="chk'+(on?' on':'')+(future?' future':'')+(prestart?' prestart':'')+(pastLocked?' prestart':'')+(pastOpen?' catchup-open':'')+'" data-habit="'+h.id+'" data-date="'+iso+'" '+(disabled?'disabled':'')+'>'+(on?'✓':'')+'</button></td>';
     });
     return '<tr>'+cells+'</tr>';
   }).join('')+'</tbody>';
@@ -809,11 +831,32 @@ function renderChallengeBanner(){
       '<span>باقي '+(settings.durationDays-dayNum)+'</span>';
   }
 }
+function renderEditDayControls(){
+  const btn=$('#edit-day-btn');
+  const hint=$('#edit-day-hint');
+  if(!btn||!hint) return;
+  const usedToday=!catchupAvailableToday();
+  btn.classList.toggle('active-edit', editMode);
+  if(editMode){
+    btn.textContent='✖️ إلغاء وضع التعديل';
+  }else if(usedToday){
+    btn.textContent='🔒 التعديل مستخدم النهاردة';
+  }else{
+    btn.textContent='✏️ تعديل يوم سابق';
+  }
+  if(editMode){
+    hint.style.display='block';
+    hint.textContent='🟠 وضع التعديل شغال — دوس على أي يوم سابق في الجدول عشان تحط أو تشيل علامة عادة فيه. هتقدر تعدل يوم واحد بس، وبعده وضع التعديل هيتقفل تلقائي لحد بكرة.';
+  }else{
+    hint.style.display='none';
+  }
+}
 function renderAll(){
   renderRangeNav();
   renderChallengeBanner();
   renderOverview();
   renderDailyChart();
+  renderEditDayControls();
   renderHabitGrid();
   renderAnalysisTable();
   renderTopHabits();
@@ -942,6 +985,7 @@ function bindEvents(){
     settings.durationDays=null;
     settings.endDate=null;
     settings.catchupUsedOn=null;
+    editMode=false;
     await persistSettings();
     closeSettingsModal();
     showScreen('gate');
@@ -956,6 +1000,20 @@ function bindEvents(){
 
   $('#prev-month').onclick=()=>{ if(isDurationMode()) return; view.m--; if(view.m<0){ view.m=11; view.y--; } renderAll(); };
   $('#next-month').onclick=()=>{ if(isDurationMode()||isCurrentMonth()) return; view.m++; if(view.m>11){ view.m=0; view.y++; } renderAll(); };
+  $('#edit-day-btn').onclick=()=>{
+    if(editMode){
+      editMode=false;
+      renderAll();
+      return;
+    }
+    if(!catchupAvailableToday()){
+      toast('استخدمت فرصة تعديل يوم سابق النهاردة. جرب تاني بكرة 🌙');
+      return;
+    }
+    editMode=true;
+    renderAll();
+    toast('وضع التعديل شغال ✏️ اختار يوم سابق وغيّر فيه عادة واحدة.');
+  };
   $('#add-habit-btn').onclick=()=>openHabitModal(null);
   $('#habit-modal-cancel').onclick=closeHabitModal;
   $('#habit-modal-overlay').onclick=closeHabitModal;
@@ -986,6 +1044,7 @@ function showScreen(name){
   $('#app-root').style.display = name==='app'?'block':'none';
 }
 async function doHandleSession(session){
+  editMode=false;
   if(session && session.user){
     currentUser=session.user;
     showScreen('loading');
