@@ -393,12 +393,18 @@ let sb=null;
 let currentUser=null;
 let habits=[];     // [{id, name, createdAt:'YYYY-MM-DD'}]
 let checks={};     // {"habitId|YYYY-MM-DD": true}
-const DEFAULT_SETTINGS={ theme:'bw', started:false, startDate:null, quoteIndex:-1, quotes:DEFAULT_QUOTES.slice(), durationDays:null, endDate:null, catchupUsedOn:null };
+const DEFAULT_SETTINGS={ theme:'bw', started:false, startDate:null, quoteIndex:-1, quotes:DEFAULT_QUOTES.slice(), durationDays:null, endDate:null, lockedEditDays:[] };
 let settings=Object.assign({}, DEFAULT_SETTINGS);
 let view=(()=>{ const t=todayParts(); return {y:t.y, m:t.m}; })();
 const DURATION_PRESETS=[7,14,21,30,60,90];
 let pendingDuration=30; // number | 'custom' | 'unlimited'
-let editMode=false; // "تعديل يوم سابق": مش محفوظة، بترجع false تلقائي كل ما الصفحة تتفتح من جديد
+/* "تعديل يوم سابق": مش محفوظة بنفسها — بترجع false تلقائي كل ما الصفحة تتفتح من جديد.
+   وضع التعديل بيفتح كل الأيام السابقة اللي لسه مش مقفولة، وتقدر تغيّر في أكتر من يوم
+   وأكتر من عادة وإنت فيه. touchedEditDays بتسجل أي يوم لمسته وإنت في الوضع ده، ولما
+   تدوس "تم التعديل" كل الأيام دي تتقفل في settings.lockedEditDays نهائيًا ومتخزنة في الداتابيز. */
+let editMode=false;
+let touchedEditDays=new Set();
+function isDayLocked(iso){ return settings.lockedEditDays.indexOf(iso)!==-1; }
 
 function describeError(error){
   if(!error) return '';
@@ -451,7 +457,7 @@ async function persistSettings(){
     end_date: settings.endDate,
     quote_index: settings.quoteIndex,
     quotes: settings.quotes,
-    catchup_used_on: settings.catchupUsedOn,
+    locked_edit_days: settings.lockedEditDays,
   };
   const {error}=await sb.from('habit_settings').upsert(payload,{onConflict:'user_id'});
   if(error){ console.error(error); toast('حصل خطأ في حفظ الإعدادات: '+describeError(error)); }
@@ -518,7 +524,7 @@ async function loadFromSupabase(){
       endDate: settingsRow.end_date,
       quoteIndex: settingsRow.quote_index,
       quotes: (settingsRow.quotes && settingsRow.quotes.length) ? settingsRow.quotes : DEFAULT_QUOTES.slice(),
-      catchupUsedOn: settingsRow.catchup_used_on || null,
+      lockedEditDays: Array.isArray(settingsRow.locked_edit_days) ? settingsRow.locked_edit_days : [],
     });
   }
 
@@ -579,7 +585,7 @@ async function dismissGate(){
     settings.startDate=startDate;
     settings.durationDays=days;
     settings.endDate=days?addDays(settings.startDate, days-1):null;
-    settings.catchupUsedOn=null;
+    settings.lockedEditDays=[];
     const err=await persistSettings();
     if(err) return; // الإعدادات ما اتسجلتش، سيب الشاشة زي ما هي عشان يقدر يحاول تاني
   }
@@ -591,29 +597,19 @@ async function dismissGate(){
 function daysInMonth(y,m){ return new Date(y,m+1,0).getDate(); }
 function isCurrentMonth(){ const t=todayParts(); return view.y===t.y && view.m===t.m; }
 function isChecked(habitId, iso){ return !!checks[habitId+'|'+iso]; }
-/* هل فيه فرصة "تعديل يوم سابق" متاحة النهاردة؟ (مرة واحدة بس في اليوم الواحد) */
-function catchupAvailableToday(){ return settings.catchupUsedOn!==todayISOFor(); }
 function toggleCheck(habitId, iso){
   const today=todayISOFor();
   const isPastDay=iso<today;
-  if(isPastDay && !editMode) return; // محمي أصلاً بـ disabled، ده حماية إضافية بس
+  const lockedDay=isPastDay && isDayLocked(iso);
+  if(isPastDay && (!editMode || lockedDay)) return; // محمي أصلاً بـ disabled، ده حماية إضافية بس
   const key=habitId+'|'+iso;
   const turningOn=!checks[key];
   if(turningOn) checks[key]=true; else delete checks[key];
 
-  let consumedCatchup=false;
-  if(isPastDay && editMode){
-    // استخدم فرصة التعديل الرجعي بتاعة النهاردة، وقفل وضع التعديل تلقائي
-    settings.catchupUsedOn=today;
-    editMode=false;
-    consumedCatchup=true;
-  }
+  if(isPastDay && editMode) touchedEditDays.add(iso); // هيتقفل لما يدوس "تم التعديل"
+
   renderAll();
   if(turningOn) persistCheckOn(habitId, iso); else persistCheckOff(habitId, iso);
-  if(consumedCatchup){
-    persistSettings();
-    toast('تم حفظ التعديل ✅ فرصة التعديل الرجعي هترجع تاني بكرة.');
-  }
 }
 function habitStartISO(h){
   return (settings.startDate && settings.startDate > h.createdAt) ? settings.startDate : h.createdAt;
@@ -782,11 +778,12 @@ function renderHabitGrid(){
       const future=iso>today;
       const prestart=iso<startISO;
       const isPastDay=iso<today && !future && !prestart;
-      const pastLocked=isPastDay && !editMode;
-      const pastOpen=isPastDay && editMode;
-      const disabled=future||prestart||pastLocked;
+      const lockedDay=isPastDay && isDayLocked(iso);
+      const editableNow=isPastDay && editMode && !lockedDay; // فاضي للتعديل دلوقتي
+      const pastDimmed=isPastDay && !editableNow; // مقفول (دائمًا) أو لسه مش مفتوح للتعديل
+      const disabled=future||prestart||pastDimmed;
       const on=isChecked(h.id,iso);
-      cells+='<td class="'+(isToday?'today-col':'')+'"><button type="button" class="chk'+(on?' on':'')+(future?' future':'')+(prestart?' prestart':'')+(pastLocked?' prestart':'')+(pastOpen?' catchup-open':'')+'" data-habit="'+h.id+'" data-date="'+iso+'" '+(disabled?'disabled':'')+'>'+(on?'✓':'')+'</button></td>';
+      cells+='<td class="'+(isToday?'today-col':'')+'"><button type="button" class="chk'+(on?' on':'')+(future?' future':'')+(prestart?' prestart':'')+(pastDimmed?' prestart':'')+(editableNow?' catchup-open':'')+'" data-habit="'+h.id+'" data-date="'+iso+'" '+(disabled?'disabled':'')+'>'+(on?'✓':'')+'</button></td>';
     });
     return '<tr>'+cells+'</tr>';
   }).join('')+'</tbody>';
@@ -835,18 +832,11 @@ function renderEditDayControls(){
   const btn=$('#edit-day-btn');
   const hint=$('#edit-day-hint');
   if(!btn||!hint) return;
-  const usedToday=!catchupAvailableToday();
   btn.classList.toggle('active-edit', editMode);
-  if(editMode){
-    btn.textContent='✖️ إلغاء وضع التعديل';
-  }else if(usedToday){
-    btn.textContent='🔒 التعديل مستخدم النهاردة';
-  }else{
-    btn.textContent='✏️ تعديل يوم سابق';
-  }
+  btn.textContent=editMode?'✅ تم التعديل':'✏️ تعديل يوم سابق';
   if(editMode){
     hint.style.display='block';
-    hint.textContent='🟠 وضع التعديل شغال — دوس على أي يوم سابق في الجدول عشان تحط أو تشيل علامة عادة فيه. هتقدر تعدل يوم واحد بس، وبعده وضع التعديل هيتقفل تلقائي لحد بكرة.';
+    hint.textContent='🟠 وضع التعديل شغال — غيّر في أي يوم سابق عايزه (تقدر تغيّر في أكتر من يوم وأكتر من عادة). لما تخلص دوس «✅ تم التعديل»، وكل يوم غيّرت فيه هيتقفل نهائيًا ومش هتقدر تعدل فيه تاني.';
   }else{
     hint.style.display='none';
   }
@@ -984,8 +974,9 @@ function bindEvents(){
     settings.started=false;
     settings.durationDays=null;
     settings.endDate=null;
-    settings.catchupUsedOn=null;
+    settings.lockedEditDays=[];
     editMode=false;
+    touchedEditDays.clear();
     await persistSettings();
     closeSettingsModal();
     showScreen('gate');
@@ -1000,19 +991,27 @@ function bindEvents(){
 
   $('#prev-month').onclick=()=>{ if(isDurationMode()) return; view.m--; if(view.m<0){ view.m=11; view.y--; } renderAll(); };
   $('#next-month').onclick=()=>{ if(isDurationMode()||isCurrentMonth()) return; view.m++; if(view.m>11){ view.m=0; view.y++; } renderAll(); };
-  $('#edit-day-btn').onclick=()=>{
+  $('#edit-day-btn').onclick=async ()=>{
     if(editMode){
+      // "تم التعديل": اقفل نهائيًا كل الأيام اللي غيّرنا فيها في الجلسة دي
+      const newlyLocked=Array.from(touchedEditDays).filter(iso=>!isDayLocked(iso));
+      if(newlyLocked.length){
+        settings.lockedEditDays=settings.lockedEditDays.concat(newlyLocked);
+        await persistSettings();
+      }
       editMode=false;
+      touchedEditDays.clear();
       renderAll();
-      return;
-    }
-    if(!catchupAvailableToday()){
-      toast('استخدمت فرصة تعديل يوم سابق النهاردة. جرب تاني بكرة 🌙');
+      if(newlyLocked.length){
+        const labels=newlyLocked.slice().sort().map(shortDateLabel).join('، ');
+        toast('تم ✅ الأيام دي اتقفلت نهائيًا: '+labels);
+      }
       return;
     }
     editMode=true;
+    touchedEditDays.clear();
     renderAll();
-    toast('وضع التعديل شغال ✏️ اختار يوم سابق وغيّر فيه عادة واحدة.');
+    toast('وضع التعديل شغال ✏️ غيّر في أي يوم سابق عايزه، ولما تخلص دوس «تم التعديل».');
   };
   $('#add-habit-btn').onclick=()=>openHabitModal(null);
   $('#habit-modal-cancel').onclick=closeHabitModal;
@@ -1045,6 +1044,7 @@ function showScreen(name){
 }
 async function doHandleSession(session){
   editMode=false;
+  touchedEditDays.clear();
   if(session && session.user){
     currentUser=session.user;
     showScreen('loading');
