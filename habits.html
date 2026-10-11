@@ -142,7 +142,7 @@ main{padding:0 16px 40px;max-width:560px;margin:0 auto;}
 @media (min-width:980px){
   main{max-width:1200px;}
   #today-page{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(300px,.75fr);gap:14px;align-items:start}
-  #today-page>.section-card:first-child{grid-column:1/-1}
+  #today-page>.overview-card:first-child{grid-column:1/-1}
   #today-page>.section-card:nth-child(2){grid-column:1}
   #today-page>.section-card:nth-child(3){grid-column:2}
   #today-page>.section-card:nth-child(4){grid-column:1/-1}
@@ -234,6 +234,8 @@ input,select,textarea{border-radius:12px!important}select{min-height:40px;paddin
 .study-tools{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.study-tools>div{min-width:0}.study-entry-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px;padding:16px;border-radius:16px;background:color-mix(in srgb,var(--paper) 60%,var(--card));border:1px solid var(--border)}.study-entry-grid .field{margin:0}.study-subject-field{grid-column:1/-1}
 @media(min-width:980px){#today-page{grid-template-columns:minmax(0,1.35fr) minmax(300px,.8fr)}#today-page>.section-card:nth-child(4){grid-column:1/-1}.study-page-card{padding:26px}.study-tools{gap:20px}}
 @media(max-width:639px){.tabs{gap:7px;padding-inline:12px}.tabs button{font-size:.78rem;padding:9px 5px;min-height:44px}.study-tools{grid-template-columns:1fr}.study-page-card{min-height:0}.study-page-note{font-size:.68rem}.study-entry-grid{grid-template-columns:1fr;padding:12px}.study-subject-field{grid-column:auto}}
+/* The desktop grid must not override the tab's hidden state. */
+#today-page.page-panel:not(.active){display:none}
 </style>
 </head>
 <body>
