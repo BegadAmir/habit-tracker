@@ -262,21 +262,7 @@ input,select,textarea{border-radius:12px!important}select{min-height:40px;paddin
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);
   padding-bottom:env(safe-area-inset-bottom,0px);
-  --ink:#1B1F3B; --paper:#F6F4EE; --card:#FFFFFF; --border:#E3E0D6;
-  --accent:#2C5F6F; --accent-ink:#FFFFFF;
-  --danger:#A63A2C; --success:#4C7A3F; --warn:#C08A2E; --muted:#6B7280;
-}
-@media (prefers-color-scheme: dark){
-  .study-app-root:not([data-theme="light"]){
-    --ink:#EDEBFF; --paper:#12141F; --card:#1B1E2E; --border:#2B2E42;
-    --accent:#6FB6CC; --accent-ink:#0B1420;
-    --danger:#E06A54; --success:#7FBF6E; --warn:#E0B24E; --muted:#9AA0B4;
-  }
-}
-.study-app-root[data-theme="dark"]{
-  --ink:#EDEBFF; --paper:#12141F; --card:#1B1E2E; --border:#2B2E42;
-  --accent:#6FB6CC; --accent-ink:#0B1420;
-  --danger:#E06A54; --success:#7FBF6E; --warn:#E0B24E; --muted:#9AA0B4;
+  --success:var(--accent);
 }
 .study-app-root *,.study-app-root *::before,.study-app-root *::after{box-sizing:inherit;}
 .study-app-root{scroll-padding-top:env(safe-area-inset-top,0px);}
@@ -323,7 +309,7 @@ input,select,textarea{border-radius:12px!important}select{min-height:40px;paddin
 .study-app-root .subj{font-size:.75rem;color:var(--muted);}
 .study-app-root .badge{font-size:.66rem;padding:2px 7px;border-radius:999px;background:var(--paper);border:1px solid var(--border);color:var(--muted);}
 .study-app-root .badge.overdue{background:var(--danger);color:#fff;border:none;}
-.study-app-root .badge.prio-high{background:var(--warn);color:#1B1F3B;border:none;}
+.study-app-root .badge.prio-high{background:var(--warn);color:var(--ink);border:none;}
 .study-app-root .card-title{font-weight:600;font-size:.97rem;}
 .study-app-root .card-title.strike{text-decoration:line-through;}
 .study-app-root .card-notes{color:var(--muted);font-size:.81rem;margin-top:3px;}
@@ -430,7 +416,7 @@ input,select,textarea{border-radius:12px!important}select{min-height:40px;paddin
 .study-home-heading h2{margin:0;font-size:clamp(1.3rem,2.5vw,1.8rem);color:var(--ink)}.study-home-heading .eyebrow{margin:0 0 3px;color:var(--accent);font-size:.78rem;font-weight:700}.study-home-heading .muted{margin:5px 0 0}.study-home-greeting{color:var(--muted);font-size:.84rem}
 .study-home-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}.study-home-section-head h3{margin:0;font-size:1rem}.study-home-section-head .chip{margin:0}.study-week-period{font-size:.76rem;color:var(--muted)}
 .study-home-today{margin-bottom:12px}.home-task-list{display:grid;gap:8px}.home-task-list .task-row{grid-template-columns:auto minmax(0,1fr) auto}.home-task-list .task-main{min-width:0}.home-task-list .task-actions{display:flex}
-.study-home-summaries{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.study-summary-card{width:100%;display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:10px;text-align:start;color:var(--ink);font:inherit;cursor:pointer}.study-summary-card:hover{border-color:var(--accent)}.summary-icon{width:40px;height:40px;display:grid;place-items:center;border-radius:12px;background:var(--paper);font-size:1.2rem}.summary-copy{display:grid;gap:4px;min-width:0}.summary-copy b{font-size:.94rem}.summary-copy small{font-size:.75rem;color:var(--muted)}.study-summary-card>strong{font-size:1.4rem;color:var(--accent)}.summary-arrow{color:var(--muted);font-size:1.15rem}.summary-preview{grid-column:2/4;display:flex;flex-wrap:wrap;gap:5px 12px;color:var(--muted);font-size:.74rem}.summary-preview span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.study-home-summaries{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}.study-summary-card{width:100%;display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:10px;text-align:start;color:var(--ink);font:inherit;cursor:pointer}.study-summary-card:hover{border-color:var(--accent)}.summary-icon{width:40px;height:40px;display:grid;place-items:center;border-radius:12px;background:var(--paper);font-size:1.2rem}.summary-copy{display:grid;gap:4px;min-width:0}.summary-copy b{font-size:.94rem}.summary-copy small{font-size:.75rem;color:var(--muted)}.study-summary-card>strong{font-size:1.4rem;color:var(--accent)}.summary-arrow{color:var(--muted);font-size:1.15rem}.summary-preview{grid-column:2/4;display:flex;flex-wrap:wrap;gap:5px 12px;color:var(--muted);font-size:.74rem}.summary-preview span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .study-week-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.study-week-metrics>div{display:grid;gap:7px;min-width:0;padding:12px;border:1px solid var(--border);border-radius:13px;background:var(--paper)}.study-week-metrics span{font-size:.75rem;color:var(--muted)}.study-week-metrics b{font-size:clamp(.9rem,1.5vw,1.2rem);overflow-wrap:anywhere}.study-week-card #study-week-empty{margin:10px 0 0}.home-study-progress .progress-block{margin:8px 0 0}.study-app-root .progress-block-label{font-size:.82rem}
 .study-app-root .text-link{border:0;background:none;color:var(--accent);font:inherit;font-weight:700}.study-app-root details.homework-plan-card summary{cursor:pointer;font-weight:700;padding:3px 0 10px}.study-app-root details.homework-plan-card[open] summary{margin-bottom:8px}.study-app-root .homework-rule{flex-wrap:wrap}.study-app-root .homework-rule-body{flex-basis:100%}
 .deadline-wrap{display:grid;gap:5px;margin-top:8px}.deadline-label{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:.72rem;color:var(--muted)}.deadline-label b{font-weight:700}.deadline-track{height:8px;border-radius:999px;background:color-mix(in srgb,var(--border) 70%,transparent);overflow:hidden}.deadline-track span{display:block;height:100%;border-radius:inherit;transition:width .3s ease}.deadline-track.green span{background:#31865b}.deadline-track.yellow span{background:#d29b25}.deadline-track.red span{background:#c8443b}.deadline-track.empty span{background:transparent}.deadline-unset{margin-top:7px;color:var(--muted);font-size:.74rem}
@@ -509,6 +495,7 @@ input,select,textarea{border-radius:12px!important}select{min-height:40px;paddin
   <section class="page-panel" id="study-page">
   <nav class="study-subtabs" aria-label="صفحات الدراسة">
     <button type="button" data-study-tab="home" class="active" aria-current="page">🏠 الرئيسية</button>
+    <button type="button" data-study-tab="focus">🍅 المذاكرة</button>
     <button type="button" data-study-tab="tasks">📝 التسكات</button>
     <button type="button" data-study-tab="homework">📚 الواجبات</button>
     <button type="button" data-study-tab="backlog">🧱 المتراكم</button>
@@ -516,19 +503,7 @@ input,select,textarea{border-radius:12px!important}select{min-height:40px;paddin
   <div id="study-app-root" class="study-app-root">
 <div class="study-main">
   <section id="view-home" class="view" style="display:block">
-    <div class="study-home-heading"><div><p class="eyebrow">الدراسة</p><h2>ملخص مذاكرتك</h2><p id="study-home-date" class="muted"></p></div><span class="study-home-greeting">خطوة صغيرة كل يوم 🌱</span></div>
-    <div class="analysis-card study-home-today">
-      <div class="study-home-section-head"><h3>📝 تاسكات اليوم</h3><span class="chip" id="home-today-count">جار التحميل…</span></div>
-      <div id="home-today-list" class="home-task-list"><p class="muted">بنحمّل مهام اليوم…</p></div>
-    </div>
-    <div class="analysis-card study-home-deadlines">
-      <div class="study-home-section-head"><h3>⏳ أقرب ٣ مواعيد تسليم</h3><button type="button" class="text-link" data-open-study-tab="homework">كل الواجبات</button></div>
-      <div id="home-deadline-list"><p class="muted">جار تحميل المواعيد…</p></div>
-    </div>
-    <div class="study-home-summaries">
-      <button type="button" class="analysis-card study-summary-card" data-open-study-tab="homework"><span class="summary-icon">📚</span><span class="summary-copy"><b>الواجبات الحالية</b><small id="home-homework-summary">جار التحميل…</small></span><strong id="home-homework-count">—</strong><span class="summary-arrow" aria-hidden="true">←</span><span id="home-homework-preview" class="summary-preview"></span></button>
-      <button type="button" class="analysis-card study-summary-card" data-open-study-tab="backlog"><span class="summary-icon">🧱</span><span class="summary-copy"><b>المتراكم</b><small id="home-backlog-summary">جار التحميل…</small></span><strong id="home-backlog-count">—</strong><span class="summary-arrow" aria-hidden="true">←</span><span id="home-backlog-preview" class="summary-preview"></span></button>
-    </div>
+    <div class="study-home-heading"><div><p class="eyebrow">الدراسة</p><h2>ملخص مذاكرتك</h2></div><span class="study-home-greeting">خطوة صغيرة كل يوم 🌱</span></div>
     <div class="analysis-card study-week-card">
       <div class="study-home-section-head"><h3>📈 مذاكرتك هذا الأسبوع</h3><span class="study-week-period">آخر ٧ أيام</span></div>
       <div class="study-week-metrics">
@@ -539,12 +514,27 @@ input,select,textarea{border-radius:12px!important}select{min-height:40px;paddin
       </div>
       <p id="study-week-empty" class="muted" hidden></p>
     </div>
+    <div class="analysis-card study-home-deadlines">
+      <div class="study-home-section-head"><h3>⏳ أقرب ٣ مواعيد تسليم</h3><button type="button" class="text-link" data-open-study-tab="homework">كل الواجبات</button></div>
+      <div id="home-deadline-list"><p class="muted">جار تحميل المواعيد…</p></div>
+    </div>
+    <div class="analysis-card study-home-today">
+      <div class="study-home-section-head"><h3>📝 تاسكات اليوم</h3><span class="chip" id="home-today-count">جار التحميل…</span></div>
+      <div id="home-today-list" class="home-task-list"><p class="muted">بنحمّل مهام اليوم…</p></div>
+    </div>
+    <div class="study-home-summaries">
+      <button type="button" class="analysis-card study-summary-card" data-open-study-tab="backlog"><span class="summary-icon">🧱</span><span class="summary-copy"><b>المتراكم</b><small id="home-backlog-summary">جار التحميل…</small></span><strong id="home-backlog-count">—</strong><span class="summary-arrow" aria-hidden="true">←</span><span id="home-backlog-preview" class="summary-preview"></span></button>
+    </div>
     <div class="analysis-card home-study-progress">
       <div class="study-home-section-head"><h3>تقدّم المهام</h3><button type="button" class="text-link" data-open-study-tab="tasks">كل المهام</button></div>
       <div class="progress-block"><div class="progress-block-label"><span>المهام المكتملة</span><b id="task-progress-pct">0%</b></div><div class="progress-bar"><div class="progress-fill" id="task-progress-fill" style="width:0%"></div></div><div class="progress-block-sub" id="task-progress-sub"></div></div>
       <div class="progress-block"><div class="progress-block-label"><span>تقدّم المتراكم</span><b id="backlog-progress-pct">0%</b></div><div class="progress-bar"><div class="progress-fill backlog-fill" id="backlog-progress-fill" style="width:0%"></div></div><div class="progress-block-sub" id="backlog-progress-sub"></div></div>
     </div>
   
+  </section>
+
+  <section id="view-focus" class="view">
+    <div class="study-home-heading"><div><p class="eyebrow">جلساتك</p><h2>المذاكرة والتركيز</h2><p class="muted">ابدأ جلسة، وسجّل وقت مذاكرتك ومراجعتك.</p></div></div>
     <div id="focus-page">
   <div class="section-card study-page-card"><div class="section-head"><h3>🍅 التركيز والدراسة</h3><span class="study-page-note">مؤقت بومودورو، ساعة الإيقاف، وسجل المذاكرة</span></div><div class="study-tools">
     <div><h4>مؤقت بومودورو</h4><div class="field"><div style="display:flex;gap:8px"><label style="flex:1">تركيز (دقيقة)<input id="focus-minutes" type="number" min="1" value="25"></label><label style="flex:1">راحة (دقيقة)<input id="break-minutes" type="number" min="1" value="5"></label></div></div><div class="timer" id="timer-display">25:00</div><p class="timer-subtitle" id="timer-status">جلسة تركيز</p><div class="timer-controls"><button class="btn-primary" id="timer-start">ابدأ التركيز</button><button class="btn-ghost" id="timer-reset">إعادة</button><button class="btn-ghost" id="study-log">تسجيل جلسة</button></div>
@@ -919,13 +909,24 @@ function renderHomeworkPlan(){
   $('#homework-edit').onclick=()=>{prompt.value=lessonHomeworkPlan?.prompt||'';prompt.dataset.initialized='true';prompt.focus();};
   $('#homework-delete').onclick=deleteHomeworkPlan;
 }
+async function homeworkAnalysisErrorMessage(error){
+  let code=String(error?.code||''),status=Number(error?.context?.status)||0;
+  try{const response=error?.context;if(response&&typeof response.clone==='function'){const body=await response.clone().json();code=String(body?.error||code);}}catch{}
+  if(code==='ai_not_configured')return 'مساعد الذكاء الاصطناعي غير مُعدّ في Supabase. انشر وظيفة habit-assistant وأضف GEMINI_API_KEY ضمن أسرار وظائف Edge.';
+  if(code==='ai_provider_error')return 'تعذر على Gemini إكمال التحليل. جرّب لاحقًا وتحقق من صلاحية مفتاح Gemini وحصته.';
+  if(code==='free_quota_or_rate_limit')return 'وصل المساعد إلى حد الطلبات أو الحصة المجانية. انتظر قليلًا ثم حاول مرة أخرى.';
+  if(code==='local_rate_limit')return 'أُرسلت طلبات كثيرة خلال دقيقة؛ انتظر قليلًا ثم حاول مرة أخرى.';
+  if(code==='unauthorized'||status===401)return 'انتهت جلسة الدخول أو لم تعد صالحة. سجّل الدخول مرة أخرى ثم حاول.';
+  if(status===404)return 'وظيفة habit-assistant غير منشورة في مشروع Supabase المتصل.';
+  return 'تعذر الاتصال بوظيفة habit-assistant'+(status?' (HTTP '+status+')':'')+'. تحقق من نشرها وإعداد GEMINI_API_KEY في أسرار Supabase.';
+}
 async function analyzeHomeworkPrompt(){
   const prompt=$('#homework-prompt').value.trim();
   if(!prompt){toast('اكتب جدول الدروس والواجبات أولًا.');return;}
   lessonHomeworkBusy=true;lessonHomeworkDraft=[];$('#homework-analyze').disabled=true;$('#homework-analyze').textContent='جارٍ تحليل الجدول…';$('#homework-status').textContent='الذكاء الاصطناعي يحلل أيام الدروس ومواعيدها…';renderHomeworkPlan();
   let data,error;try{({data,error}=await sb.functions.invoke('habit-assistant',{body:{mode:'schedule',prompt,context:{today:todayISOFor(),timezone:getLocalTimeZone()}}}));}catch(e){error=e;}
   lessonHomeworkBusy=false;$('#homework-analyze').disabled=false;$('#homework-analyze').textContent='حلّل الجدول';
-  if(error){console.error(error);const msg='تعذر تحليل الجدول. حدّث وانشر وظيفة habit-assistant الجديدة في Supabase.';renderHomeworkPlan();$('#homework-status').textContent=msg;$('#homework-status').dataset.state='error';toast(msg);return;}
+  if(error){console.error(error);const msg=await homeworkAnalysisErrorMessage(error);renderHomeworkPlan();$('#homework-status').textContent=msg;$('#homework-status').dataset.state='error';toast('تعذر تحليل الجدول؛ راجع رسالة الخطأ أسفل إعدادات الجدول.');return;}
   lessonHomeworkDraft=(Array.isArray(data?.lesson_rules)?data.lesson_rules:[]).filter(validHomeworkRule).map(r=>({
     day_of_week:Number(r.day_of_week),next_lesson_day:r.next_lesson_day!==null&&r.next_lesson_day!==undefined&&Number.isInteger(Number(r.next_lesson_day))&&Number(r.next_lesson_day)>=0&&Number(r.next_lesson_day)<=6?Number(r.next_lesson_day):null,lesson_subject:String(r.lesson_subject).trim().slice(0,80),lesson_end_time:String(r.lesson_end_time),
     homework_subject:String(r.homework_subject).trim().slice(0,80),homework_title:String(r.homework_title).trim().slice(0,160),
@@ -1888,7 +1889,7 @@ async function boot(){
 // Native study pages use the Habit Tracker's daily_tasks and study_sessions tables.
 let studyModuleInitialized=false,studyModuleBound=false,activeStudyTab='home';
 function showIntegratedStudyTab(name){
-  const allowed=['home','tasks','homework','backlog'];
+  const allowed=['home','focus','tasks','homework','backlog'];
   if(!allowed.includes(name))name='home';
   activeStudyTab=name;
   allowed.forEach(key=>{const view=document.getElementById('view-'+key);if(view)view.style.display=name===key?'block':'none';});
@@ -1922,10 +1923,6 @@ function renderIntegratedStudyPages(){
   const nearest=homework.filter(t=>t.due_date).slice(0,3);
   if(deadlines)deadlines.innerHTML=nearest.length?nearest.map(t=>'<article class="home-deadline-item"><div class="home-deadline-title"><b>'+escapeHtml(t.title)+'</b><span>'+(t.due_date<today?'متأخر':'موعد التسليم')+' · '+escapeHtml(t.due_date)+'</span></div>'+homeworkDeadlineMarkup(t.due_date,t.created_at)+'</article>').join(''):'<p class="empty">لا توجد واجبات مفتوحة بموعد تسليم مسجل.</p>';
   const backlog=open.filter(t=>t.is_backlog).sort((a,b)=>priority[a.priority]-priority[b.priority]||(a.due_date||'9999').localeCompare(b.due_date||'9999'));
-  const homeworkCount=document.getElementById('home-homework-count'),homeworkSummary=document.getElementById('home-homework-summary'),homeworkPreview=document.getElementById('home-homework-preview');
-  if(homeworkCount)homeworkCount.textContent=String(homework.length);
-  if(homeworkSummary)homeworkSummary.textContent=homework.length?'واجبات مفتوحة من جدولك ومهامك':'مافيش واجبات مفتوحة';
-  if(homeworkPreview)homeworkPreview.innerHTML=homework.slice(0,2).map(t=>'<span>'+escapeHtml(t.title)+'</span>').join('')||'<span>هتظهر هنا الواجبات الحالية</span>';
   const backlogCount=document.getElementById('home-backlog-count'),backlogSummary=document.getElementById('home-backlog-summary'),backlogPreview=document.getElementById('home-backlog-preview');
   if(backlogCount)backlogCount.textContent=String(backlog.length);
   if(backlogSummary)backlogSummary.textContent=backlog.length?'مهمة مفتوحة في المتراكم':'مافيش مهام متراكمة';
@@ -1938,7 +1935,6 @@ function renderIntegratedStudyPages(){
   if(filter==='open')all=all.filter(t=>!t.completed&&!t.is_backlog);else if(filter==='today')all=all.filter(t=>!t.completed&&t.due_date===today);else if(filter==='overdue')all=all.filter(t=>!t.completed&&t.due_date&&t.due_date<today);else if(filter==='upcoming')all=all.filter(t=>!t.completed&&t.due_date>today);else if(filter==='completed')all=all.filter(t=>t.completed);else if(filter==='backlog')all=all.filter(t=>t.is_backlog);
   all.sort((a,b)=>priority[a.priority]-priority[b.priority]||(a.due_date||'9999').localeCompare(b.due_date||'9999'));
   const allList=document.getElementById('study-tasks-list');if(allList)allList.innerHTML=all.length?all.map(studyTaskCardHTML).join(''):'<p class="empty">لا توجد مهام في هذا العرض.</p>';
-  const date=document.getElementById('study-home-date');if(date)date.textContent=new Intl.DateTimeFormat('ar-EG',{weekday:'long',day:'numeric',month:'long'}).format(new Date());
   const active=tasks.filter(t=>!t.completed&&!t.is_backlog),done=tasks.filter(t=>t.completed),total=active.length+done.length,pct=total?Math.round(done.length/total*100):0;
   const taskPct=document.getElementById('task-progress-pct'),taskFill=document.getElementById('task-progress-fill'),taskSub=document.getElementById('task-progress-sub');if(taskPct)taskPct.textContent=pct+'%';if(taskFill)taskFill.style.width=pct+'%';if(taskSub)taskSub.textContent=done.length+' من '+total+' مهمة';
   const allBacklog=tasks.filter(t=>t.is_backlog),doneBacklog=allBacklog.filter(t=>t.completed),backlogPct=allBacklog.length?Math.round(doneBacklog.length/allBacklog.length*100):0;
@@ -1960,7 +1956,7 @@ function bindIntegratedStudyModule(){
   document.getElementById('study-add-task').addEventListener('click',()=>openTaskModal(null));
   document.getElementById('homework-add-task').addEventListener('click',()=>{openTaskModal(null);document.getElementById('task-category').value='واجب';});
   let start=null;page.addEventListener('touchstart',e=>{if(e.touches.length!==1||e.target.closest('input,textarea,select,[contenteditable="true"],.study-subtabs,.grid-wrap')){start=null;return;}start={x:e.touches[0].clientX,y:e.touches[0].clientY};},{passive:true});
-  page.addEventListener('touchend',e=>{if(!start||!e.changedTouches.length)return;const dx=e.changedTouches[0].clientX-start.x,dy=e.changedTouches[0].clientY-start.y;start=null;if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.25)return;const order=['home','tasks','homework','backlog'],index=order.indexOf(activeStudyTab),next=index+(dx>0?1:-1);if(next>=0&&next<order.length)showIntegratedStudyTab(order[next]);},{passive:true});
+  page.addEventListener('touchend',e=>{if(!start||!e.changedTouches.length)return;const dx=e.changedTouches[0].clientX-start.x,dy=e.changedTouches[0].clientY-start.y;start=null;if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.25)return;const order=['home','focus','tasks','homework','backlog'],index=order.indexOf(activeStudyTab),next=index+(dx>0?1:-1);if(next>=0&&next<order.length)showIntegratedStudyTab(order[next]);},{passive:true});
   page.addEventListener('touchcancel',()=>{start=null;},{passive:true});
 }
 globalThis.initializeStudyTracker=async function(client,user){if(!client||!user)return;sb=client;currentUser=user;bindIntegratedStudyModule();studyModuleInitialized=true;renderIntegratedStudyPages();showIntegratedStudyTab(activeStudyTab);};
