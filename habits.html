@@ -203,6 +203,7 @@ main{padding:0 16px 40px;max-width:560px;margin:0 auto;}
 .tabs{display:flex;gap:8px;padding:0 16px 12px;max-width:1200px;margin:auto}.tabs button{flex:1;border:1px solid var(--border);background:var(--card);color:var(--ink);border-radius:11px;padding:10px;font:inherit}.tabs button.active{background:var(--accent);color:var(--accent-ink)}
 .page-panel{display:none}.page-panel.active{display:block} .today-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.today-metrics .pill{display:block;text-align:center}.today-metrics .pill b{display:block}
 .task-row{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}.task-row:last-child{border:0}.task-row .task-main{flex:1;min-width:0}.task-row h4{margin:0;font-size:.9rem}.task-row p{margin:3px 0;color:var(--muted);font-size:.75rem}.task-row.overdue:before,.task-row.due-today:before{font-weight:700;white-space:nowrap;font-size:.72rem}.task-row.overdue:before{content:'متأخرة';color:var(--danger)}.task-row.due-today:before{content:'اليوم';color:var(--warn)}.task-actions{display:flex;gap:4px}.task-actions button{border:1px solid var(--border);background:var(--paper);color:var(--ink);border-radius:8px;padding:6px;font:inherit}.priority-high{font-weight:700}.priority-medium{font-weight:600}.timer{font-size:2rem;font-weight:700;text-align:center;padding:8px}.field select,.field textarea{width:100%;padding:9px 10px;border-radius:10px;border:1px solid var(--border);background:var(--paper);color:var(--ink);font:inherit}
+.study-tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:14px}.timer-controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}.timer-controls button{flex:1;min-width:100px}.timer-subtitle{text-align:center;color:var(--muted);font-size:.78rem;margin:0}.sound-controls{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:end}.sound-controls .field{margin:0}.sound-controls input[type=file]{font-size:.72rem;padding:6px}.habit-order-controls{display:flex;align-items:center;gap:3px}.habit-order-controls button{border:1px solid var(--border);background:var(--paper);color:var(--ink);border-radius:6px;padding:1px 5px;font:inherit}.habit-drag{cursor:grab;touch-action:none}.habit-grid tbody tr[draggable=true]{cursor:grab}.ai-chat{display:flex;flex-direction:column;gap:8px}.ai-log{min-height:90px;max-height:260px;overflow:auto;border:1px solid var(--border);border-radius:10px;padding:10px;background:var(--paper)}.ai-message{white-space:pre-wrap;line-height:1.6;font-size:.82rem;margin:0 0 8px}.ai-message.user{font-weight:700}.ai-compose{display:flex;gap:8px}.ai-compose textarea{flex:1;resize:vertical}.ai-task-preview{padding:9px;border-bottom:1px solid var(--border);font-size:.82rem}.ai-task-preview label{display:flex;gap:7px;align-items:flex-start}.ai-disclosure{font-size:.72rem;color:var(--muted);line-height:1.6}.timer-audio{display:none}
 </style>
 </head>
 <body>
@@ -262,11 +263,24 @@ main{padding:0 16px 40px;max-width:560px;margin:0 auto;}
     </div>
   </div>
   <div class="section-card"><h3>أولويات اليوم</h3><div id="top-priorities" class="empty">لا توجد مهام بعد</div></div>
+  <div class="section-card" id="ai-card"><h3>مساعد AI</h3><p class="ai-disclosure">اكتب طلبًا لتحويله لمهام، أو اسأل عن تنظيم يومك. عند الإرسال سيصل ملخص عاداتك ومهامك إلى Google Gemini؛ في الخطة المجانية قد تُستخدم الطلبات لتحسين خدمات Google.</p>
+    <div class="modal-actions"><button type="button" class="btn-primary" id="ai-mode-chat">استشارة</button><button type="button" class="btn-ghost" id="ai-mode-tasks">إنشاء مهام</button></div>
+    <div id="ai-log" class="ai-log" aria-live="polite"><p class="muted">اسألني عن ترتيب يومك أو اكتب خطة تريد تقسيمها لمهام.</p></div>
+    <div id="ai-task-preview"></div>
+    <div class="ai-compose"><textarea id="ai-message" rows="2" placeholder="اكتب سؤالك أو البرومبت…"></textarea><button type="button" class="btn-primary" id="ai-send">إرسال</button></div>
+    <button type="button" class="btn-ghost" id="ai-save-tasks" style="display:none;width:100%;margin-top:8px">حفظ المهام المحددة</button>
+  </div>
   <div class="section-card"><div class="section-head"><h3>المهام</h3><button class="btn-add" id="add-task-btn">+ مهمة</button></div>
     <div class="section-head"><select id="task-filter" aria-label="تصفية المهام"><option value="all">الكل</option><option value="today">اليوم</option><option value="overdue">المتأخرة</option><option value="completed">المكتملة</option><option value="upcoming">القادمة</option></select><select id="task-sort" aria-label="ترتيب المهام"><option value="manual">ترتيبي</option><option value="priority">الأولوية</option><option value="due">الموعد النهائي</option><option value="status">الحالة</option><option value="created">وقت الإضافة</option></select></div>
     <div id="tasks-list" class="empty">جار التحميل…</div></div>
-  <div class="section-card"><h3>🍅 التركيز والدراسة</h3><div class="field"><label>مدة التركيز / الراحة بالدقائق</label><div style="display:flex;gap:8px"><input id="focus-minutes" type="number" min="1" value="25"><input id="break-minutes" type="number" min="1" value="5"></div></div><div class="timer" id="timer-display">25:00</div><div class="modal-actions"><button class="btn-primary" id="timer-start">ابدأ التركيز</button><button class="btn-ghost" id="timer-reset">إعادة</button><button class="btn-ghost" id="study-log">تسجيل جلسة</button></div>
-   <div class="field" style="margin-top:12px"><label>المادة</label><input id="study-subject" placeholder="مثال: رياضيات"></div><div style="display:flex;gap:8px"><div class="field"><label>الأسئلة المحلولة</label><input id="study-questions" type="number" min="0" value="0"></div><div class="field"><label>الأخطاء المراجعة</label><input id="study-mistakes" type="number" min="0" value="0"></div></div><p id="study-status" class="muted"></p></div></section>
+  <div class="section-card"><h3>🍅 التركيز والدراسة</h3><div class="study-tools">
+    <div><h4>مؤقت بومودورو</h4><div class="field"><div style="display:flex;gap:8px"><label style="flex:1">تركيز (دقيقة)<input id="focus-minutes" type="number" min="1" value="25"></label><label style="flex:1">راحة (دقيقة)<input id="break-minutes" type="number" min="1" value="5"></label></div></div><div class="timer" id="timer-display">25:00</div><p class="timer-subtitle" id="timer-status">جلسة تركيز</p><div class="timer-controls"><button class="btn-primary" id="timer-start">ابدأ التركيز</button><button class="btn-ghost" id="timer-reset">إعادة</button><button class="btn-ghost" id="study-log">تسجيل جلسة</button></div>
+      <div class="sound-controls" style="margin-top:12px"><div class="field"><label for="timer-sound">صوت نهاية المؤقت</label><select id="timer-sound"><option value="bell">جرس</option><option value="chime">نغمة هادئة</option><option value="digital">تنبيه رقمي</option><option value="custom">صوتي المرفوع</option></select></div><button type="button" class="btn-ghost" id="sound-test">تجربة الصوت</button></div>
+      <div class="sound-controls" style="margin-top:8px"><div class="field"><label for="sound-file">إضافة صوت من الجهاز (حتى 5MB)</label><input id="sound-file" type="file" accept="audio/*"></div><button type="button" class="btn-ghost" id="sound-upload">رفع الصوت</button></div><audio id="custom-timer-audio" class="timer-audio" preload="none"></audio>
+    </div>
+    <div><h4>ساعة إيقاف</h4><div class="timer" id="stopwatch-display">00:00:00</div><p class="timer-subtitle" id="stopwatch-status">جاهزة</p><div class="timer-controls"><button class="btn-primary" id="stopwatch-start">ابدأ</button><button class="btn-ghost" id="stopwatch-reset">إعادة</button><button class="btn-ghost" id="stopwatch-log">سجل الوقت</button></div></div>
+  </div>
+  <div class="field" style="margin-top:12px"><label>المادة</label><input id="study-subject" placeholder="مثال: رياضيات"></div><div style="display:flex;gap:8px"><div class="field"><label>الأسئلة المحلولة</label><input id="study-questions" type="number" min="0" value="0"></div><div class="field"><label>الأخطاء المراجعة</label><input id="study-mistakes" type="number" min="0" value="0"></div></div><p id="study-status" class="muted"></p></div></section>
   <section class="page-panel" id="reports-page">
   <div class="month-nav"><button id="prev-month" type="button">‹</button><span id="month-label"></span><button id="next-month" type="button">›</button></div>
   <div class="challenge-banner" id="challenge-banner" style="display:none;"></div>
@@ -420,8 +434,10 @@ let checks={};     // {"habitId|YYYY-MM-DD": true}
 let tasks=[];
 let studySessions=[];
 let editingTaskId=null;
-let timerRemaining=25*60, timerHandle=null, timerIsBreak=false;
-const DEFAULT_SETTINGS={ theme:'bw', started:false, startDate:null, quoteIndex:-1, quotes:DEFAULT_QUOTES.slice(), durationDays:null, endDate:null, lockedEditDays:[] };
+let timerRemaining=25*60, timerHandle=null, timerIsBreak=false, timerDeadline=0;
+let stopwatchHandle=null,stopwatchElapsed=0,stopwatchStartedAt=0;
+let aiMode='chat',aiHistory=[],aiGeneratedTasks=[];
+const DEFAULT_SETTINGS={ theme:'bw', started:false, startDate:null, quoteIndex:-1, quotes:DEFAULT_QUOTES.slice(), durationDays:null, endDate:null, lockedEditDays:[],timerSound:'bell',customSoundPath:null };
 let settings=Object.assign({}, DEFAULT_SETTINGS);
 let view=(()=>{ const t=todayParts(); return {y:t.y, m:t.m}; })();
 const DURATION_PRESETS=[7,14,21,30,60,90];
@@ -486,18 +502,20 @@ async function persistSettings(){
     quote_index: settings.quoteIndex,
     quotes: settings.quotes,
     locked_edit_days: settings.lockedEditDays,
+    timer_sound: settings.timerSound,
+    custom_sound_path: settings.customSoundPath,
   };
   const {error}=await sb.from('habit_settings').upsert(payload,{onConflict:'user_id'});
   if(error){ console.error(error); toast('حصل خطأ في حفظ الإعدادات: '+describeError(error)); }
   return error;
 }
 async function persistHabitInsert(h){
-  const {error}=await sb.from('habits').insert({id:h.id, user_id:currentUser.id, name:h.name, created_at:h.createdAt, repeat_days:h.repeatDays, weekly_goal:h.weeklyGoal});
+  const {error}=await sb.from('habits').insert({id:h.id, user_id:currentUser.id, name:h.name, created_at:h.createdAt, repeat_days:h.repeatDays, weekly_goal:h.weeklyGoal, sort_order:h.sortOrder});
   if(error){ console.error(error); toast('حصل خطأ في إضافة العادة: '+describeError(error)); }
   return !error;
 }
 async function persistHabitUpdate(h){
-  const {data,error}=await sb.from('habits').update({name:h.name,repeat_days:h.repeatDays,weekly_goal:h.weeklyGoal}).eq('id',h.id).eq('user_id',currentUser.id).select('id');
+  const {data,error}=await sb.from('habits').update({name:h.name,repeat_days:h.repeatDays,weekly_goal:h.weeklyGoal,sort_order:h.sortOrder}).eq('id',h.id).eq('user_id',currentUser.id).select('id');
   if(error){ console.error(error); toast('حصل خطأ في تعديل العادة: '+describeError(error)); }
   if(!error&&(!data||!data.length))toast('لم يتم العثور على العادة لحفظ التعديل.');
   return !error&&!!data?.length;
@@ -537,9 +555,9 @@ async function loadFromSupabase(){
   const {data:settingsRow, error:sErr}=await sb.from('habit_settings').select('*').eq('user_id',currentUser.id).maybeSingle();
   if(sErr){ console.error(sErr); toast('حصل خطأ في تحميل الإعدادات: '+describeError(sErr)); }
 
-  const {data:habitRows, error:hErr}=await sb.from('habits').select('*').eq('user_id',currentUser.id).order('inserted_at',{ascending:true});
+  const {data:habitRows, error:hErr}=await sb.from('habits').select('*').eq('user_id',currentUser.id).order('sort_order',{ascending:true}).order('inserted_at',{ascending:true});
   if(hErr){ console.error(hErr); toast('حصل خطأ في تحميل العادات: '+describeError(hErr)); }
-  habits=(habitRows||[]).map(r=>({id:r.id, name:r.name, createdAt:r.created_at, repeatDays:Array.isArray(r.repeat_days)?r.repeat_days:null, weeklyGoal:r.weekly_goal||null}));
+  habits=(habitRows||[]).map((r,i)=>({id:r.id, name:r.name, createdAt:r.created_at, repeatDays:Array.isArray(r.repeat_days)?r.repeat_days:null, weeklyGoal:r.weekly_goal||null,sortOrder:Number.isFinite(Number(r.sort_order))?Number(r.sort_order):i}));
 
   if(!settingsRow){
     // أول دخول على الإطلاق: نزرع الإعدادات والعادات الافتراضية
@@ -547,19 +565,19 @@ async function loadFromSupabase(){
     if(!habits.length){
       const createdAt=todayISOFor();
       habits=[
-        {id:uid(), name:'🌅 الاستيقاظ الساعة 4:30', createdAt},
-        {id:uid(), name:'🌙 النوم الساعة 10', createdAt},
-        {id:uid(), name:'📝 حل ساتات', createdAt},
-        {id:uid(), name:'🏋️ كاليستينكس', createdAt},
-        {id:uid(), name:'📵 بعيد عن الـ Shorts', createdAt},
-        {id:uid(), name:'🕌 ألف صلاة على النبي', createdAt},
-        {id:uid(), name:'📿 ألف استغفار', createdAt},
-        {id:uid(), name:'📖 ورد يومي من القرآن', createdAt},
-        {id:uid(), name:'🕋 الصلاة في المسجد', createdAt},
-        {id:uid(), name:'⌨️ تدريب الكتابة السريعة (نص ساعة)', createdAt},
-        {id:uid(), name:'🚫 الامتناع عن العادة السرية', createdAt},
+        {id:uid(), name:'🌅 الاستيقاظ الساعة 4:30', createdAt,sortOrder:0},
+        {id:uid(), name:'🌙 النوم الساعة 10', createdAt,sortOrder:1},
+        {id:uid(), name:'📝 حل ساتات', createdAt,sortOrder:2},
+        {id:uid(), name:'🏋️ كاليستينكس', createdAt,sortOrder:3},
+        {id:uid(), name:'📵 بعيد عن الـ Shorts', createdAt,sortOrder:4},
+        {id:uid(), name:'🕌 ألف صلاة على النبي', createdAt,sortOrder:5},
+        {id:uid(), name:'📿 ألف استغفار', createdAt,sortOrder:6},
+        {id:uid(), name:'📖 ورد يومي من القرآن', createdAt,sortOrder:7},
+        {id:uid(), name:'🕋 الصلاة في المسجد', createdAt,sortOrder:8},
+        {id:uid(), name:'⌨️ تدريب الكتابة السريعة (نص ساعة)', createdAt,sortOrder:9},
+        {id:uid(), name:'🚫 الامتناع عن العادة السرية', createdAt,sortOrder:10},
       ];
-      const rows=habits.map(h=>({id:h.id, user_id:currentUser.id, name:h.name, created_at:h.createdAt}));
+      const rows=habits.map(h=>({id:h.id, user_id:currentUser.id, name:h.name, created_at:h.createdAt,sort_order:h.sortOrder}));
       const {error:insErr}=await sb.from('habits').insert(rows);
       if(insErr){ console.error(insErr); toast('حصل خطأ في إنشاء العادات الافتراضية: '+describeError(insErr)); }
     }
@@ -574,6 +592,8 @@ async function loadFromSupabase(){
       quoteIndex: settingsRow.quote_index,
       quotes: (settingsRow.quotes && settingsRow.quotes.length) ? settingsRow.quotes : DEFAULT_QUOTES.slice(),
       lockedEditDays: Array.isArray(settingsRow.locked_edit_days) ? settingsRow.locked_edit_days : [],
+      timerSound:settingsRow.timer_sound||'bell',
+      customSoundPath:settingsRow.custom_sound_path||null,
     });
   }
 
@@ -835,9 +855,9 @@ function renderHabitGrid(){
     dayRow+='<th class="'+(isToday?'today-col':'')+'">'+Number(iso.split('-')[2])+'</th>';
   });
   dayRow+='</tr>';
-  let body='<tbody>'+habits.map(h=>{
+  let body='<tbody>'+habits.map((h,habitIndex)=>{
     const startISO=habitStartISO(h);
-    let cells='<td><div class="grid-habit"><b title="'+escapeHtml(h.name)+'">'+escapeHtml(h.name)+'</b><button type="button" class="edit-ic" data-edit="'+h.id+'">✎</button></div></td>';
+    let cells='<td><div class="grid-habit"><span class="habit-order-controls"><button type="button" class="habit-drag" draggable="true" data-habit-drag="'+h.id+'" aria-label="اسحب لترتيب العادة">⠿</button><button type="button" data-move-habit="'+h.id+'" data-delta="-1" aria-label="تحريك لأعلى" '+(habitIndex===0?'disabled':'')+'>↑</button><button type="button" data-move-habit="'+h.id+'" data-delta="1" aria-label="تحريك لأسفل" '+(habitIndex===habits.length-1?'disabled':'')+'>↓</button></span><b title="'+escapeHtml(h.name)+'">'+escapeHtml(h.name)+'</b><button type="button" class="edit-ic" data-edit="'+h.id+'">✎</button></div></td>';
     dates.forEach(iso=>{
       const isToday=iso===today;
       const future=iso>today;
@@ -851,7 +871,7 @@ function renderHabitGrid(){
       const on=isChecked(h.id,iso);
       cells+='<td class="'+(isToday?'today-col':'')+'"><button type="button" title="'+(notScheduled?'غير مستحقة اليوم':'')+'" class="chk'+(on?' on':'')+(future?' future':'')+(prestart?' prestart':'')+(pastDimmed||notScheduled?' prestart':'')+(editableNow&&!notScheduled?' catchup-open':'')+'" data-habit="'+h.id+'" data-date="'+iso+'" '+(disabled?'disabled':'')+'>'+(on?'✓':'')+'</button></td>';
     });
-    return '<tr>'+cells+'</tr>';
+    return '<tr data-habit-row="'+h.id+'">'+cells+'</tr>';
   }).join('')+'</tbody>';
   grid.innerHTML='<thead>'+weekRow+dowRow+dayRow+'</thead>'+body;
 }
@@ -865,6 +885,25 @@ function renderAnalysisTable(){
       '<td><div class="mini-bar"><div class="mini-bar-fill" style="width:'+s.pct+'%"></div></div></td>'+
       '<td>'+s.pct+'%</td><td>'+currentStreak(h)+'</td><td>'+longestStreak(h)+'</td></tr>';
   }).join('');
+}
+
+async function saveHabitOrder(){
+  for(let i=0;i<habits.length;i++){
+    habits[i].sortOrder=i;
+    const {data,error}=await sb.from('habits').update({sort_order:i}).eq('id',habits[i].id).eq('user_id',currentUser.id).select('id');
+    if(error||!data?.length){if(error)console.error(error);toast('تعذر حفظ ترتيب العادات'+(error?': '+describeError(error):'.'));return false;}
+  }
+  return true;
+}
+async function reorderHabit(id,deltaOrTarget){
+  const old=habits.slice(),oldOrders=new Map(habits.map(h=>[h.id,h.sortOrder])),from=habits.findIndex(h=>h.id===id);
+  if(from<0)return;
+  let to=typeof deltaOrTarget==='number'?from+deltaOrTarget:habits.findIndex(h=>h.id===deltaOrTarget);
+  if(to<0||to>=habits.length||from===to)return;
+  const moved=habits.splice(from,1)[0];habits.splice(to,0,moved);
+  const ok=await saveHabitOrder();
+  if(!ok){habits=old;old.forEach(h=>{h.sortOrder=oldOrders.get(h.id);});for(const h of old)await sb.from('habits').update({sort_order:oldOrders.get(h.id)}).eq('id',h.id).eq('user_id',currentUser.id);}
+  renderAll();
 }
 
 function renderTopHabits(){
@@ -931,7 +970,104 @@ function renderWeeklyReport(){
 function openTaskModal(task){editingTaskId=task?task.id:null;$('#task-modal-title').textContent=task?'تعديل المهمة':'مهمة جديدة';$('#task-title').value=task?.title||'';$('#task-description').value=task?.description||'';$('#task-priority').value=task?.priority||'medium';$('#task-due').value=task?.due_date||'';$('#task-estimate').value=task?.estimated_minutes||'';$('#task-category').value=task?.category||'';$('#task-delete').style.display=task?'':'none';$('#task-modal').classList.add('show');}
 async function saveTask(){const title=$('#task-title').value.trim();if(!title){toast('اكتب عنوان المهمة');return;}const old=editingTaskId?tasks.find(t=>t.id===editingTaskId):null,task=Object.assign({},old||{id:null,completed:false,sort_order:tasks.length,created_at:new Date().toISOString()},{title,description:$('#task-description').value.trim(),priority:$('#task-priority').value,due_date:$('#task-due').value||null,estimated_minutes:Number($('#task-estimate').value)||0,category:$('#task-category').value.trim()});if(await persistTask(task)){if(old)Object.assign(old,task);else tasks.push(task);$('#task-modal').classList.remove('show');renderAll();}}
 async function deleteTask(id){if(!await confirmDialog('حذف هذه المهمة؟'))return;const {data,error}=await sb.from('daily_tasks').delete().eq('id',id).eq('user_id',currentUser.id).select('id');if(error){toast('تعذر حذف المهمة: '+describeError(error));return;}if(!data||!data.length){toast('لم يتم العثور على المهمة لحذفها.');return;}tasks=tasks.filter(t=>t.id!==id);renderAll();}
+let timerPhaseMinutes=25,timerEndBusy=false,audioContext=null;
 function paintTimer(){const m=Math.floor(timerRemaining/60),s=timerRemaining%60;$('#timer-display').textContent=pad2(m)+':'+pad2(s);}
+function timerPhaseLength(){return (Number(timerIsBreak?$('#break-minutes').value:$('#focus-minutes').value)|| (timerIsBreak?5:25));}
+function setTimerPhase(minutes){timerPhaseMinutes=minutes;timerRemaining=minutes*60;paintTimer();}
+function unlockAudio(){try{const AudioCtx=window.AudioContext||window.webkitAudioContext;if(AudioCtx){if(!audioContext)audioContext=new AudioCtx();if(audioContext.state==='suspended')audioContext.resume();}}catch(e){console.warn('Audio unavailable',e);}}
+function tone(freq,when,duration,type){if(!audioContext)return;const osc=audioContext.createOscillator(),gain=audioContext.createGain();osc.type=type||'sine';osc.frequency.value=freq;gain.gain.setValueAtTime(.0001,when);gain.gain.exponentialRampToValueAtTime(.2,when+.015);gain.gain.exponentialRampToValueAtTime(.0001,when+duration);osc.connect(gain);gain.connect(audioContext.destination);osc.start(when);osc.stop(when+duration+.02);}
+async function playTimerSound(){
+  const choice=$('#timer-sound').value||settings.timerSound||'bell';
+  if(choice==='custom'){
+    const audio=$('#custom-timer-audio');
+    if(!settings.customSoundPath){toast('ارفع ملف صوتي أولًا من الجهاز.');return;}
+    const {data,error}=await sb.storage.from('habit-timer-sounds').createSignedUrl(settings.customSoundPath,300);
+    if(error){toast('تعذر تحميل الصوت المخصص: '+describeError(error));return;}
+    audio.src=data.signedUrl;
+    try{audio.currentTime=0;await audio.play();}catch(e){toast('المتصفح منع تشغيل الصوت. جرّب زر «تجربة الصوت» أولًا.');}
+    return;
+  }
+  unlockAudio();if(!audioContext)return;
+  const now=audioContext.currentTime+.03;
+  const notes=choice==='chime'?[[660,0],[880,.24],[1100,.48]]:choice==='digital'?[[880,0],[880,.18],[660,.42]]:[[1046,0],[784,.22],[1046,.44]];
+  notes.forEach(n=>tone(n[0],now+n[1],.16,choice==='digital'?'square':'sine'));
+}
+function loadCustomTimerSound(){
+  if(!settings.customSoundPath||!sb)return;
+  sb.storage.from('habit-timer-sounds').createSignedUrl(settings.customSoundPath,3600).then(({data,error})=>{
+    if(error){console.warn(error);return;}$('#custom-timer-audio').src=data.signedUrl;
+  }).catch(console.warn);
+}
+async function saveTimerSoundChoice(value){
+  if(value==='custom'&&!settings.customSoundPath){$('#timer-sound').value=settings.timerSound||'bell';toast('ارفع ملفًا صوتيًا أولًا.');return;}
+  const old=settings.timerSound;settings.timerSound=value;
+  if(await persistSettings()){settings.timerSound=old;$('#timer-sound').value=old;return;}
+  toast('تم حفظ صوت التنبيه.');
+}
+async function uploadTimerSound(){
+  const input=$('#sound-file'),file=input.files&&input.files[0];if(!file){toast('اختر ملفًا صوتيًا أولًا.');return;}
+  if(!file.type||!file.type.toLowerCase().startsWith('audio/')){toast('مسموح بملفات الصوت فقط، وليس الفيديو.');input.value='';return;}
+  if(file.size>5*1024*1024){toast('حجم الملف أكبر من 5 ميجابايت.');return;}
+  const ext=(file.name.split('.').pop()||'audio').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,8)||'audio';
+  const path=currentUser.id+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,7)+'.'+ext;
+  const {error}=await sb.storage.from('habit-timer-sounds').upload(path,file,{upsert:false,contentType:file.type,cacheControl:'3600'});
+  if(error){toast('تعذر رفع الصوت: '+describeError(error));return;}
+  const previous=settings.customSoundPath,oldSound=settings.timerSound;
+  settings.customSoundPath=path;settings.timerSound='custom';
+  if(await persistSettings()){
+    settings.customSoundPath=previous;settings.timerSound=oldSound;
+    await sb.storage.from('habit-timer-sounds').remove([path]);
+    $('#timer-sound').value=oldSound;toast('تم رفع الصوت لكن تعذر حفظ الإعداد. راجع ملف SQL.');return;
+  }
+  $('#timer-sound').value='custom';loadCustomTimerSound();
+  if(previous)await sb.storage.from('habit-timer-sounds').remove([previous]);
+  input.value='';toast('تم حفظ الصوت المخصص.');
+}
+function renderStopwatch(){
+  const seconds=Math.floor((stopwatchElapsed+(stopwatchHandle?(Date.now()-stopwatchStartedAt):0))/1000),h=Math.floor(seconds/3600),m=Math.floor(seconds%3600/60),s=seconds%60;
+  $('#stopwatch-display').textContent=pad2(h)+':'+pad2(m)+':'+pad2(s);
+  $('#stopwatch-status').textContent=stopwatchHandle?'يعمل الآن':seconds?'متوقفة مؤقتًا':'جاهزة';
+}
+function toggleStopwatch(){
+  if(stopwatchHandle){stopwatchElapsed+=Date.now()-stopwatchStartedAt;clearInterval(stopwatchHandle);stopwatchHandle=null;$('#stopwatch-start').textContent='استئناف';}
+  else{unlockAudio();stopwatchStartedAt=Date.now();stopwatchHandle=setInterval(renderStopwatch,250);$('#stopwatch-start').textContent='إيقاف مؤقت';}
+  renderStopwatch();
+}
+function resetStopwatch(){if(stopwatchHandle)clearInterval(stopwatchHandle);stopwatchHandle=null;stopwatchElapsed=0;stopwatchStartedAt=0;$('#stopwatch-start').textContent='ابدأ';renderStopwatch();}
+async function logStopwatch(){
+  const elapsed=stopwatchElapsed+(stopwatchHandle?(Date.now()-stopwatchStartedAt):0),minutes=Math.round(elapsed/60000),subject=$('#study-subject').value.trim();
+  if(elapsed<1000){toast('شغّل ساعة الإيقاف وسجل وقتًا أولًا.');return;}
+  if(!subject){toast('اكتب اسم المادة أولًا.');return;}
+  if(!await saveStudySession({subject,duration_minutes:Math.max(1,minutes),questions_solved:Number($('#study-questions').value)||0,mistakes_reviewed:Number($('#study-mistakes').value)||0}))return;
+  studySessions.push({subject,session_date:todayISOFor(),duration_minutes:Math.max(1,minutes),questions_solved:Number($('#study-questions').value)||0,mistakes_reviewed:Number($('#study-mistakes').value)||0});
+  resetStopwatch();$('#study-status').textContent='تم حفظ وقت ساعة الإيقاف.';renderWeeklyReport();
+}
+async function finishTimer(){
+  if(timerEndBusy)return;timerEndBusy=true;
+  if(timerHandle)clearInterval(timerHandle);timerHandle=null;timerRemaining=0;paintTimer();$('#timer-start').textContent=timerIsBreak?'ابدأ الراحة':'ابدأ التركيز';unlockAudio();
+  try{await playTimerSound();}catch(error){console.warn(error);toast('انتهى المؤقت لكن تعذر تشغيل الصوت.');}
+  if(!timerIsBreak){
+    const subject=$('#study-subject').value.trim();
+    if(!subject){toast('انتهت جلسة التركيز. اكتب المادة ثم سجّلها يدويًا.');$('#study-status').textContent='انتهت الجلسة ولم تُحفظ؛ اكتب المادة وسجّلها يدويًا.';}
+    else try{if(await saveStudySession({subject,duration_minutes:timerPhaseMinutes,questions_solved:Number($('#study-questions').value)||0,mistakes_reviewed:Number($('#study-mistakes').value)||0})){
+        studySessions.push({subject,session_date:todayISOFor(),duration_minutes:timerPhaseMinutes,questions_solved:Number($('#study-questions').value)||0,mistakes_reviewed:Number($('#study-mistakes').value)||0});
+        renderWeeklyReport();$('#study-status').textContent='تم حفظ جلسة التركيز.';
+      }}catch(error){console.error(error);toast('انتهت الجلسة لكن تعذر حفظ سجل الدراسة.');}
+    timerIsBreak=true;setTimerPhase(Number($('#break-minutes').value)||5);$('#timer-status').textContent='وقت راحة';
+    toast('انتهت جلسة التركيز. حان وقت الراحة.');
+  }else{
+    timerIsBreak=false;setTimerPhase(Number($('#focus-minutes').value)||25);$('#timer-status').textContent='جلسة تركيز';toast('انتهت الراحة. حان وقت التركيز.');
+  }
+  timerEndBusy=false;
+}
+function timerTick(){if(!timerHandle)return;timerRemaining=Math.max(0,Math.ceil((timerDeadline-Date.now())/1000));paintTimer();if(timerRemaining===0)finishTimer();}
+function togglePomodoro(){
+  unlockAudio();
+  if(timerHandle){timerRemaining=Math.max(0,Math.ceil((timerDeadline-Date.now())/1000));clearInterval(timerHandle);timerHandle=null;$('#timer-start').textContent='استئناف';return;}
+  if(!timerRemaining)setTimerPhase(timerPhaseLength());
+  timerDeadline=Date.now()+timerRemaining*1000;$('#timer-start').textContent='إيقاف مؤقت';timerHandle=setInterval(timerTick,250);
+}
+function resetPomodoro(){if(timerHandle)clearInterval(timerHandle);timerHandle=null;timerIsBreak=false;$('#timer-status').textContent='جلسة تركيز';setTimerPhase(Number($('#focus-minutes').value)||25);$('#timer-start').textContent='ابدأ التركيز';}
 function renderAll(){
   renderRangeNav();
   renderChallengeBanner();
@@ -967,7 +1103,7 @@ async function saveHabitModal(){
     const h=habits.find(x=>x.id===editingHabitId);
     if(h){const previous={...h};h.name=name;h.repeatDays=selected.length?selected:null;h.weeklyGoal=Number($('#habit-weekly-goal').value)||null;if(!await persistHabitUpdate(h)){Object.assign(h,previous);return;}}
   }else{
-    const h={id:uid(), name, createdAt:todayISOFor(),repeatDays:selected.length?selected:null,weeklyGoal:Number($('#habit-weekly-goal').value)||null};
+    const h={id:uid(), name, createdAt:todayISOFor(),repeatDays:selected.length?selected:null,weeklyGoal:Number($('#habit-weekly-goal').value)||null,sortOrder:habits.length};
     if(!await persistHabitInsert(h))return;habits.push(h);
   }
   closeHabitModal();
@@ -1025,6 +1161,70 @@ function openSettingsModal(){
 }
 function closeSettingsModal(){ $('#settings-modal').classList.remove('show'); }
 
+function aiCurrentContext(){
+  const today=todayISOFor();
+  return {
+    today:today,
+    habits:habits.map(h=>({name:h.name,dueToday:habitDueOn(h,today),doneToday:isChecked(h.id,today),weeklyGoal:h.weeklyGoal||null})),
+    tasks:tasks.filter(t=>!t.completed).slice(0,30).map(t=>({title:t.title,dueDate:t.due_date||null,priority:t.priority})),
+    studyThisWeek:studySessions.filter(s=>s.session_date>=addDays(today,-6)&&s.session_date<=today).reduce((sum,s)=>sum+Number(s.duration_minutes||0),0)
+  };
+}
+function renderAIHistory(){
+  const log=$('#ai-log');
+  if(!aiHistory.length){log.innerHTML='<p class="muted">اسألني عن ترتيب يومك أو اكتب خطة تريد تقسيمها لمهام.</p>';return;}
+  log.innerHTML=aiHistory.map(m=>'<p class="ai-message '+(m.role==='user'?'user':'')+'"><b>'+(m.role==='user'?'أنت':'المساعد')+':</b> '+escapeHtml(m.text)+'</p>').join('');
+  log.scrollTop=log.scrollHeight;
+}
+function setAIMode(mode){
+  aiMode=mode;$('#ai-mode-chat').classList.toggle('btn-primary',mode==='chat');$('#ai-mode-chat').classList.toggle('btn-ghost',mode!=='chat');
+  $('#ai-mode-tasks').classList.toggle('btn-primary',mode==='tasks');$('#ai-mode-tasks').classList.toggle('btn-ghost',mode!=='tasks');
+  $('#ai-message').placeholder=mode==='tasks'?'مثال: قسم مذاكرة الأحياء إلى مهام صغيرة هذا الأسبوع…':'اسأل عن تنظيم يومك أو الالتزام بعاداتك…';
+  $('#ai-save-tasks').style.display='none';$('#ai-task-preview').innerHTML='';
+}
+function renderAITaskPreview(){
+  const box=$('#ai-task-preview'),save=$('#ai-save-tasks');
+  if(!aiGeneratedTasks.length){box.innerHTML='';save.style.display='none';return;}
+  box.innerHTML='<p class="ai-disclosure">راجع الاقتراحات وحدد ما تريد حفظه:</p>'+aiGeneratedTasks.map((t,i)=>
+    '<div class="ai-task-preview"><label><input type="checkbox" data-ai-task="'+i+'" checked><span><b>'+escapeHtml(t.title)+'</b><br>الأولوية: '+({high:'عالية',medium:'متوسطة',low:'منخفضة'}[t.priority]||'متوسطة')+(t.due_date?' · الاستحقاق: '+escapeHtml(t.due_date):'')+(t.estimated_minutes?' · '+t.estimated_minutes+' دقيقة':'')+(t.category?' · '+escapeHtml(t.category):'')+'</span></label></div>'
+  ).join('');
+  save.style.display='block';
+}
+async function sendAIMessage(){
+  const input=$('#ai-message'),prompt=input.value.trim();if(!prompt)return;
+  const send=$('#ai-send');send.disabled=true;send.textContent='جارٍ التفكير…';input.value='';
+  if(aiMode==='chat'){aiHistory.push({role:'user',text:prompt});renderAIHistory();}
+  const {data,error}=await sb.functions.invoke('habit-assistant',{body:{mode:aiMode,prompt,history:aiHistory.slice(-12),context:aiCurrentContext()}});
+  send.disabled=false;send.textContent='إرسال';
+  if(error){
+    let msg='المساعد غير متاح الآن. تأكد من نشر وظيفة habit-assistant وإضافة مفتاح Gemini في أسرار Supabase.';
+    try{const response=error.context;if(response&&typeof response.clone==='function'){const body=await response.clone().json();if(body.error==='free_quota_or_rate_limit'||body.error==='local_rate_limit')msg='وصلت لحد الطلبات المتاح حاليًا. جرّب مرة أخرى لاحقًا.';}}catch(_){}
+    if(aiMode==='chat'){aiHistory.push({role:'model',text:msg});renderAIHistory();}else toast(msg);
+    return;
+  }
+  if(aiMode==='tasks'){
+    aiGeneratedTasks=Array.isArray(data?.tasks)?data.tasks.map(t=>({
+      title:String(t.title||'').trim().slice(0,160),description:String(t.description||'').trim().slice(0,1000),
+      priority:['high','medium','low'].includes(t.priority)?t.priority:'medium',
+      due_date:/^\d{4}-\d{2}-\d{2}$/.test(String(t.due_date||''))?t.due_date:null,
+      estimated_minutes:Math.max(0,Math.min(1440,Number(t.estimated_minutes)||0)),category:String(t.category||'').trim().slice(0,60)
+    })).filter(t=>t.title):[];
+    if(!aiGeneratedTasks.length){toast('لم يقترح المساعد مهام قابلة للحفظ. جرّب وصفًا أوضح.');return;}
+    aiHistory.push({role:'user',text:'إنشاء مهام: '+prompt},{role:'model',text:data.reply||'جهزت مسودة المهام. راجعها وحدد ما تريد حفظه.'});
+    renderAIHistory();renderAITaskPreview();return;
+  }
+  aiHistory.push({role:'model',text:String(data?.reply||'لم يصل رد واضح.')});renderAIHistory();
+}
+async function saveGeneratedAITasks(){
+  const selected=[...document.querySelectorAll('[data-ai-task]:checked')].map(el=>aiGeneratedTasks[Number(el.dataset.aiTask)]).filter(Boolean);
+  if(!selected.length){toast('حدد مهمة واحدة على الأقل.');return;}
+  let saved=0;
+  for(const item of selected){
+    const task=Object.assign({id:null,completed:false,sort_order:tasks.length,created_at:new Date().toISOString()},item);
+    if(await persistTask(task)){tasks.push(task);saved++;}
+  }
+  if(saved){renderAll();$('#ai-task-preview').innerHTML='';$('#ai-save-tasks').style.display='none';aiGeneratedTasks=[];toast('تم حفظ '+saved+' مهمة.');}
+}
 function bindEvents(){
   document.querySelectorAll('.tabs [data-page]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('active',b===btn));document.querySelectorAll('.page-panel').forEach(p=>p.classList.toggle('active',p.id===btn.dataset.page));}));
   $('#add-task-btn').onclick=()=>openTaskModal(null);
@@ -1032,11 +1232,20 @@ function bindEvents(){
   $('#task-modal-overlay').onclick=()=>$('#task-modal').classList.remove('show');
   $('#task-save').onclick=saveTask;
   $('#task-filter').onchange=renderTasks;$('#task-sort').onchange=renderTasks;
+  $('#ai-mode-chat').onclick=()=>setAIMode('chat');$('#ai-mode-tasks').onclick=()=>setAIMode('tasks');
+  $('#ai-send').onclick=sendAIMessage;$('#ai-save-tasks').onclick=saveGeneratedAITasks;
+  $('#ai-message').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAIMessage();}});
   $('#tasks-list').addEventListener('click',async e=>{const edit=e.target.closest('[data-task-edit]');if(edit){openTaskModal(tasks.find(t=>t.id===edit.dataset.taskEdit));return;}const del=e.target.closest('[data-task-delete]');if(del){deleteTask(del.dataset.taskDelete);return;}const check=e.target.closest('[data-task-done]');if(check){const t=tasks.find(x=>x.id===check.dataset.taskDone);const prev=t.completed;t.completed=check.checked;if(!await persistTask(t)){t.completed=prev;check.checked=prev;}renderAll();}});
   let dragged=null;$('#tasks-list').addEventListener('dragstart',e=>{const row=e.target.closest('[data-task-row]');if(row)dragged=row.dataset.taskRow;});$('#tasks-list').addEventListener('dragover',e=>{if(e.target.closest('[data-task-row]'))e.preventDefault();});$('#tasks-list').addEventListener('drop',async e=>{const row=e.target.closest('[data-task-row]');if(!row||!dragged||dragged===row.dataset.taskRow)return;e.preventDefault();const original=tasks.slice(),orders=new Map(tasks.map(t=>[t.id,t.sort_order])),from=tasks.findIndex(t=>t.id===dragged),to=tasks.findIndex(t=>t.id===row.dataset.taskRow),[item]=tasks.splice(from,1);tasks.splice(to,0,item);tasks.forEach((t,i)=>t.sort_order=i);let ok=true;for(const t of tasks)if(!await persistTask(t)){ok=false;break;}if(!ok){tasks=original;tasks.forEach(t=>t.sort_order=orders.get(t.id));toast('تعذر حفظ الترتيب اليدوي.');}dragged=null;renderAll();});
   $('#task-delete').onclick=async()=>{if(!editingTaskId)return;const id=editingTaskId,before=tasks.length;await deleteTask(id);if(tasks.length<before)$('#task-modal').classList.remove('show');};
-  $('#timer-start').onclick=()=>{if(timerHandle){clearInterval(timerHandle);timerHandle=null;$('#timer-start').textContent='استئناف';return;}$('#timer-start').textContent='إيقاف مؤقت';timerHandle=setInterval(async()=>{timerRemaining--;paintTimer();if(timerRemaining<=0){clearInterval(timerHandle);timerHandle=null;$('#timer-start').textContent='ابدأ التركيز';if(!timerIsBreak){const subject=$('#study-subject').value.trim();if(!subject){toast('انتهت الجلسة، اكتب المادة لتسجيل وقتها.');$('#study-status').textContent='انتهت الجلسة ولم تحفظ؛ اكتب اسم المادة ثم سجّلها يدويًا.';}else if(await saveStudySession({subject,duration_minutes:Number($('#focus-minutes').value)||25,questions_solved:Number($('#study-questions').value)||0,mistakes_reviewed:Number($('#study-mistakes').value)||0})){const {data}=await sb.from('study_sessions').select('*').eq('user_id',currentUser.id).gte('session_date',addDays(todayISOFor(),-13));studySessions=data||studySessions;renderWeeklyReport();$('#study-status').textContent='تم حفظ جلسة التركيز.';}timerIsBreak=true;timerRemaining=(Number($('#break-minutes').value)||5)*60;toast('انتهت جلسة التركيز. حان وقت الراحة.');}else{timerIsBreak=false;timerRemaining=(Number($('#focus-minutes').value)||25)*60;toast('انتهت الراحة.');}paintTimer();}},1000);};
-  $('#timer-reset').onclick=()=>{if(timerHandle)clearInterval(timerHandle);timerHandle=null;timerIsBreak=false;timerRemaining=(Number($('#focus-minutes').value)||25)*60;paintTimer();$('#timer-start').textContent='ابدأ التركيز';};
+  $('#timer-start').onclick=togglePomodoro;
+  $('#timer-reset').onclick=resetPomodoro;
+  $('#focus-minutes').addEventListener('change',()=>{if(!timerHandle&&!timerIsBreak){setTimerPhase(Number($('#focus-minutes').value)||25);}});
+  $('#break-minutes').addEventListener('change',()=>{if(!timerHandle&&timerIsBreak){setTimerPhase(Number($('#break-minutes').value)||5);}});
+  $('#timer-sound').onchange=()=>saveTimerSoundChoice($('#timer-sound').value);
+  $('#sound-test').onclick=()=>{unlockAudio();playTimerSound();};
+  $('#sound-upload').onclick=uploadTimerSound;
+  $('#stopwatch-start').onclick=toggleStopwatch;$('#stopwatch-reset').onclick=resetStopwatch;$('#stopwatch-log').onclick=logStopwatch;
   $('#study-log').onclick=async()=>{const subject=$('#study-subject').value.trim();if(!subject){toast('اكتب اسم المادة أولًا');return;}if(await saveStudySession({subject,duration_minutes:Number($('#focus-minutes').value)||25,questions_solved:Number($('#study-questions').value)||0,mistakes_reviewed:Number($('#study-mistakes').value)||0})){studySessions.push({subject,session_date:todayISOFor(),duration_minutes:Number($('#focus-minutes').value)||25,questions_solved:Number($('#study-questions').value)||0,mistakes_reviewed:Number($('#study-mistakes').value)||0});$('#study-status').textContent='تم حفظ الجلسة.';renderWeeklyReport();}};
   $('#gate-start-btn').onclick=dismissGate;
   $('#duration-chip-row').addEventListener('click', e=>{
@@ -1127,6 +1336,12 @@ function bindEvents(){
   $('#habit-modal-save').onclick=saveHabitModal;
   $('#habit-modal-delete').onclick=deleteHabitModal;
   $('#habit-name-input').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); saveHabitModal(); } });
+  const habitGrid=$('#habit-grid');let draggedHabit=null;
+  habitGrid.addEventListener('click',e=>{const move=e.target.closest('[data-move-habit]');if(move&&!move.disabled)reorderHabit(move.dataset.moveHabit,Number(move.dataset.delta));});
+  habitGrid.addEventListener('dragstart',e=>{const handle=e.target.closest('[data-habit-drag]');if(!handle){e.preventDefault();return;}draggedHabit=handle.dataset.habitDrag;e.dataTransfer?.setData('text/plain',draggedHabit);});
+  habitGrid.addEventListener('dragover',e=>{if(e.target.closest('[data-habit-row]'))e.preventDefault();});
+  habitGrid.addEventListener('drop',e=>{const row=e.target.closest('[data-habit-row]');if(!row||!draggedHabit)return;e.preventDefault();reorderHabit(draggedHabit,row.dataset.habitRow);draggedHabit=null;});
+  habitGrid.addEventListener('dragend',()=>{draggedHabit=null;});
   document.addEventListener('click', e=>{
     const chk=e.target.closest('.chk');
     if(chk && !chk.disabled){ toggleCheck(chk.dataset.habit, chk.dataset.date); return; }
@@ -1157,6 +1372,8 @@ async function doHandleSession(session){
     currentUser=session.user;
     showScreen('loading');
     await loadFromSupabase();
+    $('#timer-sound').value=settings.timerSound||'bell';
+    loadCustomTimerSound();
     applyTheme(settings.theme);
     if(settings.started){
       showScreen('app');
@@ -1166,6 +1383,9 @@ async function doHandleSession(session){
       showScreen('gate');
     }
   }else{
+    if(timerHandle)clearInterval(timerHandle);timerHandle=null;
+    if(stopwatchHandle)clearInterval(stopwatchHandle);stopwatchHandle=null;
+    aiHistory=[];aiGeneratedTasks=[];
     currentUser=null;
     showScreen('auth');
   }
