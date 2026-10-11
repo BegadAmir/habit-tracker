@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>متابعة العادات</title>
+<title>العادات والمذاكرة</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap">
 <style>
 :root{
@@ -232,10 +232,180 @@ input,select,textarea{border-radius:12px!important}select{min-height:40px;paddin
 @media(max-width:639px){header{padding:16px 16px 12px}header h1{font-size:1.3rem}main{padding:0 12px 32px}.section-card,.overview-card{padding:15px;border-radius:17px;margin-bottom:13px}.sound-toolbar{gap:6px}.sound-toolbar-label{font-size:.69rem}.sound-toolbar button{width:36px;height:36px}.sound-controls{grid-template-columns:minmax(0,1fr) auto}.sound-controls .btn-ghost{min-width:82px;padding-inline:10px}.sound-file-row{flex-wrap:wrap}.sound-file-name{flex-basis:100%}.timer-controls button{min-width:70px;padding-inline:8px;font-size:.77rem}}
 .study-page-card{min-height:420px}.study-page-note{font-size:.78rem;color:var(--muted);padding:5px 10px;border-radius:99px;background:var(--paper);border:1px solid var(--border)}
 .study-tools{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.study-tools>div{min-width:0}.study-entry-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px;padding:16px;border-radius:16px;background:color-mix(in srgb,var(--paper) 60%,var(--card));border:1px solid var(--border)}.study-entry-grid .field{margin:0}.study-subject-field{grid-column:1/-1}
+
 @media(min-width:980px){#today-page{grid-template-columns:minmax(0,1.35fr) minmax(300px,.8fr)}#today-page>.section-card:nth-child(4){grid-column:1/-1}.study-page-card{padding:26px}.study-tools{gap:20px}}
 @media(max-width:639px){.tabs{gap:7px;padding-inline:12px}.tabs button{font-size:.78rem;padding:9px 5px;min-height:44px}.study-tools{grid-template-columns:1fr}.study-page-card{min-height:0}.study-page-note{font-size:.68rem}.study-entry-grid{grid-template-columns:1fr;padding:12px}.study-subject-field{grid-column:auto}}
 /* The desktop grid must not override the tab's hidden state. */
 #today-page.page-panel:not(.active){display:none}
+</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style id="integrated-study-styles">
+.study-app-root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --ink:#1B1F3B; --paper:#F6F4EE; --card:#FFFFFF; --border:#E3E0D6;
+  --accent:#2C5F6F; --accent-ink:#FFFFFF;
+  --danger:#A63A2C; --success:#4C7A3F; --warn:#C08A2E; --muted:#6B7280;
+}
+@media (prefers-color-scheme: dark){
+  .study-app-root:not([data-theme="light"]){
+    --ink:#EDEBFF; --paper:#12141F; --card:#1B1E2E; --border:#2B2E42;
+    --accent:#6FB6CC; --accent-ink:#0B1420;
+    --danger:#E06A54; --success:#7FBF6E; --warn:#E0B24E; --muted:#9AA0B4;
+  }
+}
+.study-app-root[data-theme="dark"]{
+  --ink:#EDEBFF; --paper:#12141F; --card:#1B1E2E; --border:#2B2E42;
+  --accent:#6FB6CC; --accent-ink:#0B1420;
+  --danger:#E06A54; --success:#7FBF6E; --warn:#E0B24E; --muted:#9AA0B4;
+}
+.study-app-root *,.study-app-root *::before,.study-app-root *::after{box-sizing:inherit;}
+.study-app-root{scroll-padding-top:env(safe-area-inset-top,0px);}
+.study-app-root{margin:0;background:var(--paper);color:var(--ink);font-family:'Cairo',Tahoma,Arial,sans-serif;}
+.study-app-root header{padding:18px 16px 10px;}
+.study-app-root .header-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+.study-app-root header h1{font-size:1.3rem;margin:0 0 2px;font-weight:700;}
+.study-app-root header .date{color:var(--muted);font-size:.83rem;}
+.study-app-root .user-email{font-size:.72rem;color:var(--muted);margin-top:4px;}
+.study-app-root .btn-logout{flex:none;background:none;border:1px solid var(--border);border-radius:10px;padding:7px 12px;color:var(--muted);font-size:.74rem;font-family:inherit;}
+.study-app-root .stats{display:flex;gap:8px;padding:0 16px 12px;}
+.study-app-root .stat{flex:1;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:10px;text-align:center;}
+.study-app-root .stat b{display:block;font-size:1.35rem;}
+.study-app-root .stat span{font-size:.7rem;color:var(--muted);}
+.study-app-root .home-progress{padding:0 16px 14px;display:flex;flex-direction:column;gap:10px;}
+.study-app-root .progress-block{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:10px 12px;}
+.study-app-root .progress-block-label{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;font-size:.82rem;}
+.study-app-root .progress-block-label b{font-size:1rem;}
+.study-app-root .progress-block-sub{font-size:.7rem;color:var(--muted);margin-top:4px;}
+.study-app-root .progress-block .progress-bar{height:9px;}
+.study-app-root .progress-block .progress-fill.backlog-fill{background:var(--danger);}
+.study-app-root .study-main{padding:0 16px 96px;max-width:520px;margin:0 auto;}
+.study-app-root .view{display:none;}
+.study-app-root h2.sec-title{font-size:.92rem;margin:16px 0 8px;color:var(--muted);font-weight:600;}
+.study-app-root .chip{display:inline-flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--border);
+  border-radius:999px;padding:5px 10px;font-size:.78rem;margin:0 6px 6px 0;}
+.study-app-root .import-cta{display:block;width:100%;margin:6px 0 16px;padding:12px;border-radius:14px;
+  border:1.5px dashed var(--accent);background:transparent;color:var(--accent);font-size:.88rem;font-family:inherit;}
+.study-app-root .import-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:.83rem;}
+.study-app-root .import-item input{width:auto!important;}
+.study-app-root .import-item small{display:block;color:var(--muted);}
+.study-app-root .imp-card{border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px;background:var(--paper);}
+.study-app-root .imp-card .row2{gap:6px;margin-bottom:6px;}
+.study-app-root .imp-card input,.study-app-root .imp-card select{padding:7px 8px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--ink);font-family:inherit;font-size:.82rem;}
+.study-app-root .imp-card>input{width:100%;}
+.study-app-root .imp-card .row2>input,.study-app-root .imp-card .row2>select{flex:1;min-width:0;}
+.study-app-root .check-inline{display:flex;align-items:center;flex:0 0 auto!important;}
+.study-app-root .check-inline input{width:auto!important;}
+.study-app-root .dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none;}
+.study-app-root .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:12px 14px;margin-bottom:10px;}
+.study-app-root .card.backlog{border-inline-start:4px solid var(--danger);}
+.study-app-root .card.done{opacity:.6;}
+.study-app-root .card-top{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:6px;}
+.study-app-root .subj{font-size:.75rem;color:var(--muted);}
+.study-app-root .badge{font-size:.66rem;padding:2px 7px;border-radius:999px;background:var(--paper);border:1px solid var(--border);color:var(--muted);}
+.study-app-root .badge.overdue{background:var(--danger);color:#fff;border:none;}
+.study-app-root .badge.prio-high{background:var(--warn);color:#1B1F3B;border:none;}
+.study-app-root .card-title{font-weight:600;font-size:.97rem;}
+.study-app-root .card-title.strike{text-decoration:line-through;}
+.study-app-root .card-notes{color:var(--muted);font-size:.81rem;margin-top:3px;}
+.study-app-root .card-due{font-size:.77rem;color:var(--muted);margin-top:4px;}
+.study-app-root .progress-row{display:flex;align-items:center;gap:8px;margin-top:8px;}
+.study-app-root .progress-bar{flex:1;height:7px;background:var(--paper);border-radius:99px;overflow:hidden;border:1px solid var(--border);}
+.study-app-root .progress-fill{height:100%;background:var(--accent);}
+.study-app-root .progress-txt{font-size:.7rem;color:var(--muted);white-space:nowrap;}
+.study-app-root .stepper{display:flex;gap:6px;margin-top:6px;}
+.study-app-root .stepper button{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:var(--paper);color:var(--ink);font-size:1rem;}
+.study-app-root .card-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.study-app-root .card-actions button,.study-app-root .card-actions span.done-date{font-size:.77rem;padding:6px 10px;border-radius:10px;border:1px solid var(--border);background:var(--paper);color:var(--ink);}
+.study-app-root .btn-done:active{background:var(--success);color:#fff;border-color:var(--success);}
+.study-app-root .empty,.study-app-root .muted{color:var(--muted);font-size:.85rem;padding:10px 0;}
+.study-app-root .filters{display:flex;gap:8px;margin:14px 0 10px;flex-wrap:wrap;}
+.study-app-root .filters select{flex:1;}
+.study-app-root .filter-chip{padding:7px 14px;border-radius:999px;border:1px solid var(--border);background:var(--card);color:var(--ink);font-size:.81rem;font-family:inherit;}
+.study-app-root .filter-chip.active{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);}
+.study-app-root select.filter-select{padding:7px 10px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--ink);font-size:.81rem;font-family:inherit;}
+.study-app-root nav.tabbar{position:fixed;bottom:0;inset-inline:0;background:var(--card);border-top:1px solid var(--border);
+  display:flex;padding-bottom:env(safe-area-inset-bottom,0px);}
+.study-app-root nav.tabbar button{flex:1;background:none;border:none;padding:10px 0 8px;color:var(--muted);font-size:.68rem;font-family:inherit;}
+.study-app-root nav.tabbar button .ic{display:block;font-size:1.2rem;margin-bottom:2px;}
+.study-app-root nav.tabbar button.active{color:var(--accent);}
+.study-app-root .fab{position:fixed;bottom:calc(70px + env(safe-area-inset-bottom,0px));inset-inline-end:16px;
+  width:54px;height:54px;border-radius:50%;background:var(--accent);color:var(--accent-ink);
+  border:none;font-size:1.6rem;box-shadow:0 6px 16px rgba(0,0,0,.25);}
+.study-app-root .modal{position:fixed;inset:0;display:none;align-items:flex-end;z-index:50;}
+.study-app-root .modal.show{display:flex;}
+.study-app-root .modal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.5);}
+.study-app-root .modal-content{position:relative;background:var(--card);width:100%;max-height:88vh;overflow:auto;
+  border-radius:20px 20px 0 0;padding:18px 16px calc(20px + env(safe-area-inset-bottom,0px));}
+.study-app-root .modal-content h3{margin:0 0 12px;}
+.study-app-root .field{margin-bottom:12px;}
+.study-app-root .field label{display:block;font-size:.78rem;color:var(--muted);margin-bottom:4px;}
+.study-app-root .field input,.study-app-root .field select,.study-app-root .field textarea{width:100%;padding:9px 10px;border-radius:10px;border:1px solid var(--border);
+  background:var(--paper);color:var(--ink);font-family:inherit;font-size:.9rem;}
+.study-app-root .row2{display:flex;gap:10px;}
+.study-app-root .row2 .field{flex:1;}
+.study-app-root .modal-actions{display:flex;gap:10px;margin-top:6px;}
+.study-app-root .modal-actions button{flex:1;padding:11px;border-radius:12px;border:none;font-size:.92rem;font-family:inherit;}
+.study-app-root .btn-primary{background:var(--accent);color:var(--accent-ink);}
+.study-app-root .btn-ghost{background:var(--paper);color:var(--ink);border:1px solid var(--border)!important;}
+.study-app-root :focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+.study-app-root .loading-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.9rem;}
+.study-app-root .auth-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+.study-app-root .auth-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px 24px;max-width:360px;width:100%;text-align:center;}
+.study-app-root .auth-logo{font-size:2.6rem;margin-bottom:8px;}
+.study-app-root .auth-card h1{font-size:1.25rem;margin:0 0 10px;}
+.study-app-root .auth-card p{color:var(--muted);font-size:.88rem;margin:0 0 22px;line-height:1.6;}
+.study-app-root .btn-google{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px;border-radius:12px;
+  border:1px solid var(--border);background:var(--paper);color:var(--ink);font-family:inherit;font-size:.92rem;font-weight:600;}
+.study-app-root .btn-google:disabled{opacity:.5;}
+.study-app-root .btn-google svg{width:20px;height:20px;flex:none;}
+.study-app-root .config-warning{margin-top:18px;padding:12px;border-radius:10px;background:rgba(166,58,44,.1);border:1px solid var(--danger);
+  color:var(--danger);font-size:.78rem;text-align:start;line-height:1.7;}
+
+.study-app-root .analysis-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;margin-bottom:14px;}
+.study-app-root .analysis-card h3{margin:0 0 10px;font-size:.95rem;}
+.study-app-root .donut-row{display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+.study-app-root .study-donut-wrap{flex:none;line-height:0;}
+.study-app-root .donut-stats{display:flex;flex-direction:column;gap:6px;flex:1;min-width:140px;}
+.study-app-root .donut-stat-row{display:flex;justify-content:space-between;font-size:.82rem;}
+.study-app-root .donut-stat-row b{font-size:.95rem;}
+.study-app-root .subject-table{width:100%;border-collapse:collapse;font-size:.78rem;}
+.study-app-root .subject-table th,.study-app-root .subject-table td{padding:6px 4px;text-align:center;border-bottom:1px solid var(--border);}
+.study-app-root .subject-table th{color:var(--muted);font-weight:600;font-size:.7rem;}
+.study-app-root .subject-table td:first-child,.study-app-root .subject-table th:first-child{text-align:start;}
+.study-app-root .subject-table .mini-bar{height:6px;border-radius:99px;background:var(--paper);border:1px solid var(--border);overflow:hidden;min-width:44px;}
+.study-app-root .subject-table .mini-bar-fill{height:100%;background:var(--accent);}
+.study-app-root .study-daily-chart{display:flex;align-items:flex-end;gap:5px;height:118px;overflow-x:auto;padding:6px 2px 0;}
+.study-app-root .daily-bar-col{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;flex:0 0 auto;width:18px;height:100%;}
+.study-app-root .daily-bar{width:12px;background:var(--accent);border-radius:4px 4px 0 0;min-height:2px;}
+.study-app-root .daily-bar-col.today .daily-bar{background:var(--warn);}
+.study-app-root .daily-bar-label{font-size:.58rem;color:var(--muted);margin-top:4px;}
+.study-app-root .grid-wrap{overflow-x:auto;margin:0 -4px;}
+.study-app-root .study-habit-grid{border-collapse:collapse;font-size:.66rem;white-space:nowrap;}
+.study-app-root .study-habit-grid th,.study-app-root .study-habit-grid td{padding:4px 3px;text-align:center;border-bottom:1px solid var(--border);}
+.study-app-root .study-habit-grid th{color:var(--muted);font-weight:600;}
+.study-app-root .study-habit-grid td:first-child,.study-app-root .study-habit-grid th:first-child{position:sticky;right:0;background:var(--card);text-align:start;padding-inline-end:8px;}
+.study-app-root .study-habit-grid .grid-subj{display:flex;align-items:center;gap:5px;font-size:.7rem;}
+.study-app-root .study-habit-grid .grid-check{color:var(--success);font-weight:700;}
+.study-app-root .study-habit-grid td.today-col{background:rgba(44,95,111,.1);}
+.study-app-root .analysis-empty{color:var(--muted);font-size:.85rem;text-align:center;padding:16px 0;}
+
+.study-app-root{max-width:1320px;margin:0 auto;min-height:65vh;border-radius:18px;background:var(--paper);color:var(--ink);position:relative}.study-app-root .study-main{max-width:100%;}
+.study-app-root .homework-plan-card,.study-app-root .homework-note{margin-top:12px}
+.study-app-root .homework-intro,.study-app-root .homework-example,.study-app-root .homework-note p{font-size:.82rem;line-height:1.75;color:var(--muted)}
+.study-app-root .homework-example{border-inline-start:3px solid var(--accent);padding:8px 12px;background:var(--paper);border-radius:10px}
+.study-app-root .homework-status{min-height:1.5rem;font-size:.82rem;color:var(--muted);margin-top:10px}
+.study-app-root .homework-rule{display:flex;align-items:flex-start;gap:9px;padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--paper);margin:8px 0}
+.study-app-root .homework-rule input{width:auto!important;min-height:auto;margin-top:4px}
+.study-app-root .homework-rule-body{flex:1;min-width:0;font-size:.82rem;line-height:1.65}
+.study-app-root .homework-rule-body small{display:block;color:var(--muted);margin-top:3px}
+.study-app-root .homework-saved-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.study-app-root .homework-saved-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.study-app-root .homework-saved-actions button{min-height:38px}
+.study-app-root nav.tabbar button{min-width:0;padding-inline:2px;font-size:.64rem}
+@media(min-width:700px){.study-app-root nav.tabbar{inset-inline:auto;left:50%;transform:translateX(-50%);width:min(760px,100%);border:1px solid var(--border);border-bottom:0;border-radius:16px 16px 0 0;box-shadow:0 -8px 22px rgba(0,0,0,.08)}.study-app-root .study-main{padding-bottom:112px}}
 </style>
 </head>
 <body>
@@ -277,7 +447,7 @@ input,select,textarea{border-radius:12px!important}select{min-height:40px;paddin
 
 <div id="app-root" style="display:none;">
 <header>
-  <h1>🔥 متابعة العادات</h1>
+  <h1>🔥 العادات والمذاكرة</h1>
   <button class="icon-btn" id="settings-btn" type="button" aria-label="الإعدادات">⚙️</button>
 </header>
 <main>
@@ -314,7 +484,216 @@ input,select,textarea{border-radius:12px!important}select{min-height:40px;paddin
     </div>
     <div><h4>ساعة إيقاف</h4><div class="timer" id="stopwatch-display">00:00:00</div><p class="timer-subtitle" id="stopwatch-status">جاهزة</p><div class="timer-controls"><button class="btn-primary" id="stopwatch-start">ابدأ</button><button class="btn-ghost" id="stopwatch-reset">إعادة</button><button class="btn-ghost" id="stopwatch-log">سجل الوقت</button></div></div>
   </div>
-  <div class="study-entry-grid"><div class="field study-subject-field"><label for="study-subject">المادة</label><input id="study-subject" placeholder="مثال: رياضيات"></div><div class="field"><label for="study-questions">الأسئلة المحلولة</label><input id="study-questions" type="number" min="0" value="0"></div><div class="field"><label for="study-mistakes">الأخطاء المراجعة</label><input id="study-mistakes" type="number" min="0" value="0"></div></div><p id="study-status" class="muted" aria-live="polite"></p></div></section>
+  <div class="study-entry-grid"><div class="field study-subject-field"><label for="study-subject">المادة</label><input id="study-subject" placeholder="مثال: رياضيات"></div><div class="field"><label for="study-questions">الأسئلة المحلولة</label><input id="study-questions" type="number" min="0" value="0"></div><div class="field"><label for="study-mistakes">الأخطاء المراجعة</label><input id="study-mistakes" type="number" min="0" value="0"></div></div><p id="study-status" class="muted" aria-live="polite"></p></div>
+  <div id="study-app-root" class="study-app-root">
+<header>
+  <div class="header-top">
+    <div>
+      <h1>📚 متابعة المذاكرة</h1>
+      <div class="date" id="today-label"></div>
+      <div class="user-email" id="user-email"></div>
+    </div>
+    
+  </div>
+</header>
+<div class="stats">
+  <div class="stat"><b id="stat-backlog">0</b><span>متراكم</span></div>
+  <div class="stat"><b id="stat-due">0</b><span>تاسكات اليوم</span></div>
+  <div class="stat"><b id="stat-teacher">0</b><span>واجبات الدروس</span></div>
+</div>
+<div class="home-progress">
+  <div class="progress-block">
+    <div class="progress-block-label"><span>نسبة إنجاز المهام</span><b id="task-progress-pct">0%</b></div>
+    <div class="progress-bar"><div class="progress-fill" id="task-progress-fill" style="width:0%"></div></div>
+    <div class="progress-block-sub" id="task-progress-sub"></div>
+  </div>
+  <div class="progress-block">
+    <div class="progress-block-label"><span>تقدم المتراكم</span><b id="backlog-progress-pct">0%</b></div>
+    <div class="progress-bar"><div class="progress-fill backlog-fill" id="backlog-progress-fill" style="width:0%"></div></div>
+    <div class="progress-block-sub" id="backlog-progress-sub"></div>
+  </div>
+</div>
+<div class="study-main">
+  <section id="view-home" class="view">
+    <button class="import-cta" id="import-btn" type="button">📥 استيراد تاسكات من واتساب</button>
+    <h2 class="sec-title">🧱 المتراكم</h2>
+    <div id="home-backlog-list"></div>
+    <h2 class="sec-title">📝 المطلوب دلوقتي</h2>
+    <div id="home-study-tasks-list"></div>
+  </section>
+
+  <section id="view-tasks" class="view">
+    <div class="filters">
+      <button class="filter-chip active" data-filter="all" type="button">الكل</button>
+      <button class="filter-chip" data-filter="teacher" type="button">واجبات المدرسين</button>
+      <button class="filter-chip" data-filter="doctor" type="button">مهام الدكتور</button>
+    </div>
+    <div id="study-tasks-list"></div>
+  </section>
+
+  <section id="view-backlog" class="view">
+    <button class="import-cta" id="share-btn" type="button">📤 ابعت المتراكم للدكتور</button>
+    <div class="filters">
+      <select id="bl-subject" class="filter-select">
+        <option value="all">كل المواد</option>
+        <option value="عربي">عربي</option><option value="كيمياء">كيمياء</option>
+        <option value="فيزياء">فيزياء</option><option value="بحتة">بحتة</option>
+        <option value="ميكانيكا">ميكانيكا</option><option value="إنجليزي">إنجليزي</option>
+        <option value="ألماني">ألماني</option><option value="عام">عام/آخر</option>
+      </select>
+      <select id="bl-type" class="filter-select">
+        <option value="all">كل الأنواع</option>
+        <option value="واجب">واجب</option><option value="مراجعة">مراجعة</option>
+        <option value="حفظ">حفظ</option><option value="متراكم">متراكم</option>
+        <option value="مذاكرة مطلوبة">مذاكرة مطلوبة</option><option value="أخرى">أخرى</option>
+      </select>
+    </div>
+    <div id="backlog-list"></div>
+  </section>
+
+  <section id="view-homework" class="view">
+    <h2 class="sec-title">🗓️ واجبات الدروس التلقائية</h2>
+    <div class="analysis-card homework-plan-card">
+      <p class="homework-intro">اكتب جدول دروسك والواجب الذي تريد إضافته بعد كل حصة. الذكاء الاصطناعي سيحوّل البرومبت إلى قواعد تراجعها قبل الحفظ.</p>
+      <p class="homework-example">مثال: «كل يوم الاثنين ينتهي درس الرياضيات الساعة ٧ مساءً. بعده أضف أولوية عالية: حل ٢٠ سؤالًا في العربي، والموعد في نفس اليوم».</p>
+      <div class="field"><label for="homework-prompt">برومبت جدول الدروس</label><textarea id="homework-prompt" rows="5" placeholder="اكتب الأيام ووقت انتهاء كل درس والواجب الذي تريد إضافته بعده..."></textarea></div>
+      <p class="ai-disclosure">سيُرسل البرومبت إلى مساعد Google عبر Supabase لتحليله. أوقات الجدول حسب المنطقة الزمنية لجهازك: <b id="homework-timezone">Africa/Cairo</b>.</p>
+      <div class="modal-actions"><button type="button" class="btn-primary" id="homework-analyze">حلّل الجدول</button><button type="button" class="btn-ghost" id="homework-save" disabled>حفظ القواعد المحددة</button></div>
+      <div id="homework-status" class="homework-status" aria-live="polite"></div>
+      <div id="homework-preview"></div>
+    </div>
+    <div id="homework-saved"></div>
+    <div class="analysis-card"><h3>الواجبات التي أُضيفت لمهام اليوم</h3><div id="homework-generated-list" class="homework-generated-list"></div></div>
+    <div class="analysis-card homework-note"><b>كيف يعمل؟</b><p>بعد حفظ الجدول، يضيف Supabase الواجب عند انتهاء الحصة، حتى لو كان الموقع مغلقًا. سيظهر الواجب في مهام اليوم وأولوياته، مرة واحدة لكل حصة.</p></div>
+  </section>
+
+  <section id="view-analysis" class="view">
+    <h2 class="sec-title">📊 نظرة عامة</h2>
+    <div class="analysis-card">
+      <h3>الإحصائيات العامة</h3>
+      <div class="donut-row">
+        <div class="study-donut-wrap" id="study-donut-wrap"></div>
+        <div class="donut-stats">
+          <div class="donut-stat-row"><span>الهدف</span><b id="an-goal">0</b></div>
+          <div class="donut-stat-row"><span>المنجز</span><b id="an-done">0</b></div>
+          <div class="donut-stat-row"><span>المتبقي</span><b id="an-left">0</b></div>
+        </div>
+      </div>
+    </div>
+    <div class="analysis-card">
+      <h3>📅 الإنجاز اليومي (آخر 14 يوم)</h3>
+      <div class="study-daily-chart" id="study-daily-chart"></div>
+    </div>
+    <div class="analysis-card">
+      <h3>تحليل حسب المادة</h3>
+      <table class="subject-table">
+        <thead><tr><th>المادة</th><th>الهدف</th><th>المنجز</th><th>المتبقي</th><th>التقدم</th><th>%</th></tr></thead>
+        <tbody id="subject-table-body"></tbody>
+      </table>
+    </div>
+    <div class="analysis-card">
+      <h3>🗓️ سجل الإنجاز الشهري حسب المادة</h3>
+      <div class="grid-wrap"><table class="study-habit-grid" id="study-habit-grid"></table></div>
+    </div>
+  </section>
+
+  <section id="view-archive" class="view">
+    <h2 class="sec-title">الأرشيف</h2>
+    <div id="archive-list"></div>
+  </section>
+</div>
+
+<button class="fab" id="fab" aria-label="إضافة مهمة" type="button">+</button>
+
+<nav class="tabbar">
+  <button id="nav-home" class="active" type="button"><span class="ic">🏠</span>الرئيسية</button>
+  <button id="nav-tasks" type="button"><span class="ic">📝</span>المهام</button>
+  <button id="nav-backlog" type="button"><span class="ic">🧱</span>المتراكم</button>
+  <button id="nav-homework" type="button"><span class="ic">📚</span>الواجبات</button>
+  <button id="nav-analysis" type="button"><span class="ic">📊</span>التحليل</button>
+  <button id="nav-archive" type="button"><span class="ic">📦</span>الأرشيف</button>
+</nav>
+
+<div class="modal" id="modal">
+  <div class="modal-backdrop" id="modal-overlay"></div>
+  <div class="modal-content">
+    <h3 id="modal-title">إضافة مهمة جديدة</h3>
+    <form id="task-form">
+      <div class="row2">
+        <div class="field"><label>المصدر</label>
+          <select id="f-origin"><option value="teacher">مدرسة</option><option value="doctor">الدكتور</option></select>
+        </div>
+        <div class="field"><label>النوع</label>
+          <select id="f-type">
+            <option value="واجب">واجب</option><option value="مراجعة">مراجعة</option>
+            <option value="حفظ">حفظ</option><option value="متراكم">متراكم</option>
+            <option value="مذاكرة مطلوبة">مذاكرة مطلوبة</option><option value="أخرى">أخرى</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label>المادة</label>
+        <select id="f-subject">
+          <option value="عربي">عربي</option><option value="كيمياء">كيمياء</option>
+          <option value="فيزياء">فيزياء</option><option value="بحتة">بحتة</option>
+          <option value="ميكانيكا">ميكانيكا</option><option value="إنجليزي">إنجليزي</option>
+          <option value="ألماني">ألماني</option><option value="عام">عام/آخر</option>
+        </select>
+      </div>
+      <div class="field"><label>العنوان</label><input id="f-title" type="text" placeholder="مثال: حل تمارين الوحدة 3" required></div>
+      <div class="field"><label>تفاصيل (اختياري)</label><textarea id="f-notes" rows="2"></textarea></div>
+      <div class="row2">
+        <div class="field"><label>تاريخ الاستحقاق (اختياري)</label><input id="f-due" type="date"></div>
+        <div class="field"><label>الأولوية</label>
+          <select id="f-priority"><option value="عالي">عالية</option><option value="متوسط" selected>متوسطة</option><option value="منخفض">منخفضة</option></select>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>العدد الكلي (اختياري)</label><input id="f-total" type="number" min="0" placeholder="مثال: 30"></div>
+        <div class="field"><label>المنجز</label><input id="f-done" type="number" min="0" placeholder="0"></div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-ghost" id="modal-close">إلغاء</button>
+        <button type="submit" class="btn-primary">حفظ</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal" id="import-modal">
+  <div class="modal-backdrop" id="import-overlay"></div>
+  <div class="modal-content">
+    <h3>استيراد تاسكات من واتساب</h3>
+    <div class="field"><label>المصدر</label>
+      <select id="imp-origin"><option value="doctor" selected>الدكتور</option><option value="teacher">مدرسة</option></select>
+    </div>
+    <div class="field"><label>ملف PDF بالواجب (اختياري)</label>
+      <input type="file" id="imp-pdf" accept="application/pdf">
+      <div class="muted" id="imp-pdf-status" style="font-size:.75rem;margin-top:4px;padding:0;"></div>
+    </div>
+    <div class="field"><label>أو الصق نص الرسالة هنا</label>
+      <textarea id="imp-text" rows="6" placeholder="مثلا: بكرة عايزك تحل تمارين الوحدة 3 كيمياء وتحفظ درس 5 ألماني..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-ghost" id="import-close">إلغاء</button>
+      <button type="button" class="btn-primary" id="imp-analyze">🔍 حلل الرسالة</button>
+    </div>
+    <div id="imp-results"></div>
+  </div>
+</div>
+
+<div class="modal" id="share-modal">
+  <div class="modal-backdrop" id="share-overlay"></div>
+  <div class="modal-content">
+    <h3>مشاركة المتراكم</h3>
+    <div class="field"><textarea id="share-text" rows="10" readonly style="font-size:.85rem;"></textarea></div>
+    <div class="modal-actions">
+      <button type="button" class="btn-ghost" id="share-close">إغلاق</button>
+      <button type="button" class="btn-primary" id="share-copy">📋 نسخ</button>
+    </div>
+    <button type="button" class="import-cta" id="share-native" style="margin-top:10px;">📤 مشاركة مباشرة (واتساب وغيره)</button>
+  </div>
+</div>
+</div></section>
   <section class="page-panel" id="reports-page">
   <div class="month-nav"><button id="prev-month" type="button">‹</button><span id="month-label"></span><button id="next-month" type="button">›</button></div>
   <div class="challenge-banner" id="challenge-banner" style="display:none;"></div>
@@ -467,6 +846,7 @@ let habits=[];     // [{id, name, createdAt:'YYYY-MM-DD'}]
 let checks={};     // {"habitId|YYYY-MM-DD": true}
 let tasks=[];
 let studySessions=[];
+let lessonHomeworkPlan=null,lessonHomeworkDraft=[],lessonHomeworkPlanError='',lessonHomeworkBusy=false,lessonHomeworkSyncHandle=null;
 let editingTaskId=null;
 let timerRemaining=25*60, timerHandle=null, timerIsBreak=false, timerDeadline=0;
 let stopwatchHandle=null,stopwatchElapsed=0,stopwatchStartedAt=0;
@@ -585,6 +965,90 @@ async function saveStudySession(session){
  if(error){console.error(error);toast('تعذر حفظ جلسة الدراسة: '+describeError(error));return false;}return true;
 }
 
+async function refreshDailyTasksFromSupabase(showError=false){
+  if(!sb||!currentUser)return false;
+  const {data,error}=await sb.from('daily_tasks').select('*').eq('user_id',currentUser.id).order('sort_order',{ascending:true});
+  if(error){console.error(error);if(showError)toast('تعذر تحديث أولويات اليوم: '+describeError(error));return false;}
+  const next=data||[];
+  if(JSON.stringify(next)!==JSON.stringify(tasks)){tasks=next;renderAll();}
+  return true;
+}
+function startDailyTasksRefresh(){
+  if(lessonHomeworkSyncHandle)clearInterval(lessonHomeworkSyncHandle);
+  lessonHomeworkSyncHandle=setInterval(()=>{if(!document.hidden)refreshDailyTasksFromSupabase(false);},60000);
+}
+function getLocalTimeZone(){
+  try{return Intl.DateTimeFormat().resolvedOptions().timeZone||'Africa/Cairo';}catch(_){return 'Africa/Cairo';}
+}
+function dayNameForHomework(day){return ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'][Number(day)]||'يوم غير معروف';}
+function validHomeworkRule(rule){
+  return !!(rule&&Number.isInteger(Number(rule.day_of_week))&&Number(rule.day_of_week)>=0&&Number(rule.day_of_week)<=6&&
+    /^([01]\d|2[0-3]):[0-5]\d$/.test(String(rule.lesson_end_time||''))&&String(rule.lesson_subject||'').trim()&&
+    String(rule.homework_subject||'').trim()&&String(rule.homework_title||'').trim());
+}
+function renderHomeworkPlan(){
+  const status=$('#homework-status'),preview=$('#homework-preview'),saved=$('#homework-saved'),saveBtn=$('#homework-save'),prompt=$('#homework-prompt'),generated=$('#homework-generated-list');
+  if(!status||!preview||!saved||!saveBtn||!prompt||!generated)return;
+  $('#homework-timezone').textContent=getLocalTimeZone();
+  if(!prompt.dataset.initialized){prompt.value=lessonHomeworkPlan?.prompt||'';prompt.dataset.initialized='true';}
+  if(lessonHomeworkPlanError){status.textContent=lessonHomeworkPlan?'تم حفظ الجدول، لكن تشغيله التلقائي لم يكتمل. راجع إعداد SQL والجدولة في Supabase.':'إعداد الواجبات التلقائية غير جاهز. شغّل migration 202610110004_lesson_homework_automation.sql في Supabase.';status.dataset.state='error';}
+  else if(!lessonHomeworkBusy&&!lessonHomeworkDraft.length){status.textContent=lessonHomeworkPlan?'الجدول محفوظ. تُضاف الواجبات بعد انتهاء الحصة في الموعد المحدد.':'اكتب الجدول والواجبات المطلوبة بعد كل حصة، ثم حلّله للمراجعة.';status.dataset.state='';}
+  preview.innerHTML=lessonHomeworkDraft.length?'<h3>راجع القواعد قبل الحفظ</h3>'+lessonHomeworkDraft.map((r,i)=>'<label class="homework-rule"><input type="checkbox" data-homework-rule="'+i+'" checked><span class="homework-rule-body"><b>'+escapeHtml(r.homework_title)+'</b><small>'+escapeHtml(dayNameForHomework(r.day_of_week))+' · انتهاء درس '+escapeHtml(r.lesson_subject)+' الساعة '+escapeHtml(r.lesson_end_time)+' · مادة الواجب: '+escapeHtml(r.homework_subject)+' · الأولوية: '+({high:'عالية',medium:'متوسطة',low:'منخفضة'}[r.priority]||'متوسطة')+'</small>'+(r.description?'<small>'+escapeHtml(r.description)+'</small>':'')+'</span></label>').join(''):'';
+  saveBtn.disabled=lessonHomeworkBusy||!lessonHomeworkDraft.length||!!lessonHomeworkPlanError;
+  const generatedTasks=tasks.filter(t=>String(t.category||'').startsWith('واجب بعد درس ')).sort((a,b)=>String(b.due_date||'').localeCompare(String(a.due_date||''))).slice(0,12);
+  generated.innerHTML=generatedTasks.length?generatedTasks.map(t=>'<div class="homework-rule"><span class="homework-rule-body"><b>'+escapeHtml(t.title)+'</b><small>'+escapeHtml(t.category||'واجب درس')+' · '+escapeHtml(t.due_date||'بدون موعد')+' · '+(t.completed?'منجز':'مفتوح')+'</small></span></div>').join(''):'<p class="muted">لم تُنشأ واجبات بعد. ستظهر هنا بعد موعد الحصة.</p>';
+  if(!lessonHomeworkPlan){saved.innerHTML='';return;}
+  const rules=Array.isArray(lessonHomeworkPlan.rules)?lessonHomeworkPlan.rules:[];
+  saved.innerHTML='<div class="analysis-card"><div class="homework-saved-head"><b>الجدول الحالي · '+(lessonHomeworkPlan.enabled?'مفعّل':'متوقف')+'</b><span class="chip">'+rules.length+' قاعدة</span></div><div>'+rules.map(r=>'<div class="homework-rule"><span class="homework-rule-body"><b>'+escapeHtml(r.homework_title||'واجب')+'</b><small>'+escapeHtml(dayNameForHomework(r.day_of_week))+' · بعد انتهاء '+escapeHtml(r.lesson_subject||'الحصة')+' الساعة '+escapeHtml(r.lesson_end_time||'')+'</small></span></div>').join('')+'</div><div class="homework-saved-actions"><button class="btn-ghost" type="button" id="homework-toggle">'+(lessonHomeworkPlan.enabled?'إيقاف الجدول':'تفعيل الجدول')+'</button><button class="btn-ghost" type="button" id="homework-edit">تعديل البرومبت</button><button class="btn-ghost" type="button" id="homework-delete">حذف الجدول</button></div></div>';
+  $('#homework-toggle').onclick=toggleHomeworkPlan;
+  $('#homework-edit').onclick=()=>{prompt.value=lessonHomeworkPlan?.prompt||'';prompt.dataset.initialized='true';prompt.focus();};
+  $('#homework-delete').onclick=deleteHomeworkPlan;
+}
+async function analyzeHomeworkPrompt(){
+  const prompt=$('#homework-prompt').value.trim();
+  if(!prompt){toast('اكتب جدول الدروس والواجبات أولًا.');return;}
+  lessonHomeworkBusy=true;lessonHomeworkDraft=[];$('#homework-analyze').disabled=true;$('#homework-analyze').textContent='جارٍ تحليل الجدول…';$('#homework-status').textContent='الذكاء الاصطناعي يحلل أيام الدروس ومواعيدها…';renderHomeworkPlan();
+  let data,error;try{({data,error}=await sb.functions.invoke('habit-assistant',{body:{mode:'schedule',prompt,context:{today:todayISOFor(),timezone:getLocalTimeZone()}}}));}catch(e){error=e;}
+  lessonHomeworkBusy=false;$('#homework-analyze').disabled=false;$('#homework-analyze').textContent='حلّل الجدول';
+  if(error){console.error(error);const msg='تعذر تحليل الجدول. حدّث وانشر وظيفة habit-assistant الجديدة في Supabase.';renderHomeworkPlan();$('#homework-status').textContent=msg;$('#homework-status').dataset.state='error';toast(msg);return;}
+  lessonHomeworkDraft=(Array.isArray(data?.lesson_rules)?data.lesson_rules:[]).filter(validHomeworkRule).map(r=>({
+    day_of_week:Number(r.day_of_week),lesson_subject:String(r.lesson_subject).trim().slice(0,80),lesson_end_time:String(r.lesson_end_time),
+    homework_subject:String(r.homework_subject).trim().slice(0,80),homework_title:String(r.homework_title).trim().slice(0,160),
+    description:String(r.description||'').trim().slice(0,1000),priority:['high','medium','low'].includes(r.priority)?r.priority:'medium',
+    estimated_minutes:Math.max(0,Math.min(1440,Number(r.estimated_minutes)||0))
+  }));
+  const analysisNote=lessonHomeworkDraft.length?(data.reply||'راجع القواعد ثم احفظها.'):(data.reply||'لم أجد قواعد مكتملة. اذكر يوم الحصة ووقت انتهائها والواجب المطلوب بوضوح.');
+  renderHomeworkPlan();
+  $('#homework-status').textContent=analysisNote;$('#homework-status').dataset.state=lessonHomeworkDraft.length?'':'error';
+}
+async function saveHomeworkPlan(){
+  const picked=[...document.querySelectorAll('[data-homework-rule]:checked')].map(e=>lessonHomeworkDraft[Number(e.dataset.homeworkRule)]).filter(Boolean);
+  if(!picked.length){toast('حدد قاعدة واحدة على الأقل.');return;}
+  const oldRules=Array.isArray(lessonHomeworkPlan?.rules)?lessonHomeworkPlan.rules:[],usedIds=new Set();
+  const occurrenceKey=r=>[r.day_of_week,r.lesson_end_time,String(r.lesson_subject||'').trim().toLocaleLowerCase(),String(r.homework_subject||'').trim().toLocaleLowerCase(),String(r.homework_title||'').trim().toLocaleLowerCase()].join('|');
+  const row={user_id:currentUser.id,prompt:$('#homework-prompt').value.trim(),timezone:getLocalTimeZone(),enabled:true,updated_at:new Date().toISOString(),rules:picked.map(r=>{const prior=oldRules.find(old=>old.id&&!usedIds.has(old.id)&&occurrenceKey(old)===occurrenceKey(r));const id=prior?.id||uid();usedIds.add(id);return {...r,id};})};
+  $('#homework-save').disabled=true;
+  const {error}=await sb.from('lesson_homework_plans').upsert(row,{onConflict:'user_id'});
+  if(error){console.error(error);lessonHomeworkPlanError=describeError(error);toast('تعذر حفظ جدول الدروس: '+describeError(error));renderHomeworkPlan();return;}
+  lessonHomeworkPlan=row;lessonHomeworkPlanError='';lessonHomeworkDraft=[];$('#homework-prompt').dataset.initialized='true';
+  const {data:inserted,error:processError}=await sb.rpc('process_due_lesson_homework');
+  if(processError){console.error(processError);lessonHomeworkPlanError=describeError(processError);}
+  await refreshDailyTasksFromSupabase(true);renderHomeworkPlan();
+  if(processError)toast('حُفظ الجدول، لكن تعذر تشغيل قواعده الآن. راجع إعداد SQL في Supabase.');
+  else toast(Number(inserted)>0?'تم حفظ الجدول وإضافة '+Number(inserted)+' واجب مستحق.':'تم حفظ الجدول. ستُضاف الواجبات تلقائيًا عند انتهاء مواعيد الدروس.');
+}
+async function toggleHomeworkPlan(){
+  if(!lessonHomeworkPlan)return;const next={...lessonHomeworkPlan,enabled:!lessonHomeworkPlan.enabled,updated_at:new Date().toISOString()};
+  const {error}=await sb.from('lesson_homework_plans').upsert(next,{onConflict:'user_id'});
+  if(error){toast('تعذر تحديث حالة الجدول: '+describeError(error));return;}lessonHomeworkPlan=next;renderHomeworkPlan();
+}
+async function deleteHomeworkPlan(){
+  if(!lessonHomeworkPlan||!await confirmDialog('حذف جدول التكرار؟ الواجبات التي أُنشئت سابقًا ستظل محفوظة.'))return;
+  const {error}=await sb.from('lesson_homework_plans').delete().eq('user_id',currentUser.id);
+  if(error){toast('تعذر حذف الجدول: '+describeError(error));return;}
+  lessonHomeworkPlan=null;lessonHomeworkPlanError='';lessonHomeworkDraft=[];$('#homework-prompt').value='';$('#homework-prompt').dataset.initialized='true';renderHomeworkPlan();toast('تم حذف جدول التكرار.');
+}
+
 async function loadFromSupabase(){
   const {data:settingsRow, error:sErr}=await sb.from('habit_settings').select('*').eq('user_id',currentUser.id).maybeSingle();
   if(sErr){ console.error(sErr); toast('حصل خطأ في تحميل الإعدادات: '+describeError(sErr)); }
@@ -637,6 +1101,17 @@ async function loadFromSupabase(){
   (checkRows||[]).forEach(r=>{ checks[r.habit_id+'|'+r.check_date]=true; });
   const {data:taskRows,error:tErr}=await sb.from('daily_tasks').select('*').eq('user_id',currentUser.id).order('sort_order',{ascending:true});
   if(tErr){console.error(tErr);tasks=[];toast('تعذر تحميل المهام (شغّل ملف migration الخاص بالمهام): '+describeError(tErr));}else tasks=taskRows||[];
+  const {data:homeworkRow,error:homeworkErr}=await sb.from('lesson_homework_plans').select('*').eq('user_id',currentUser.id).maybeSingle();
+  lessonHomeworkPlanError=homeworkErr?describeError(homeworkErr):'';
+  lessonHomeworkPlan=homeworkRow||null;
+  if(!homeworkErr){
+    const {data:inserted,error:processError}=await sb.rpc('process_due_lesson_homework');
+    if(processError){console.error(processError);lessonHomeworkPlanError=describeError(processError);}
+    else if(Number(inserted)>0){
+      const {data:refreshed,error:refreshError}=await sb.from('daily_tasks').select('*').eq('user_id',currentUser.id).order('sort_order',{ascending:true});
+      if(refreshError)console.error(refreshError);else tasks=refreshed||[];
+    }
+  }
   const {data:studyRows,error:stErr}=await sb.from('study_sessions').select('*').eq('user_id',currentUser.id).gte('session_date',addDays(todayISOFor(),-13)).order('session_date',{ascending:false});
   if(stErr){console.error(stErr);studySessions=[];toast('تعذر تحميل جلسات الدراسة: '+describeError(stErr));}else studySessions=studyRows||[];
 }
@@ -1119,6 +1594,7 @@ function renderAll(){
   renderTopHabits();
   renderTasks();
   renderWeeklyReport();
+  renderHomeworkPlan();
 }
 
 /* ---------------- add/edit/delete habit modal ---------------- */
@@ -1265,7 +1741,7 @@ async function saveGeneratedAITasks(){
   if(saved){renderAll();$('#ai-task-preview').innerHTML='';$('#ai-save-tasks').style.display='none';aiGeneratedTasks=[];toast('تم حفظ '+saved+' مهمة.');}
 }
 function bindEvents(){
-  document.querySelectorAll('.tabs [data-page]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('active',b===btn));document.querySelectorAll('.page-panel').forEach(p=>p.classList.toggle('active',p.id===btn.dataset.page));}));
+  document.querySelectorAll('.tabs [data-page]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('active',b===btn));document.querySelectorAll('.page-panel').forEach(p=>p.classList.toggle('active',p.id===btn.dataset.page));if(btn.dataset.page==='study-page'&&typeof globalThis.initializeStudyTracker==='function')globalThis.initializeStudyTracker(sb,currentUser).catch(err=>{console.error(err);toast('تعذر تحميل صفحة المذاكرة.');});}));
   $('#add-task-btn').onclick=()=>openTaskModal(null);
   $('#task-cancel').onclick=()=>$('#task-modal').classList.remove('show');
   $('#task-modal-overlay').onclick=()=>$('#task-modal').classList.remove('show');
@@ -1274,6 +1750,9 @@ function bindEvents(){
   $('#ai-mode-chat').onclick=()=>setAIMode('chat');$('#ai-mode-tasks').onclick=()=>setAIMode('tasks');
   $('#ai-send').onclick=sendAIMessage;$('#ai-save-tasks').onclick=saveGeneratedAITasks;
   $('#ai-message').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAIMessage();}});
+  $('#homework-analyze').onclick=analyzeHomeworkPrompt;$('#homework-save').onclick=saveHomeworkPlan;
+  $('#homework-prompt').addEventListener('input',()=>{lessonHomeworkDraft=[];renderHomeworkPlan();});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshDailyTasksFromSupabase(false);});
   $('#tasks-list').addEventListener('click',async e=>{const edit=e.target.closest('[data-task-edit]');if(edit){openTaskModal(tasks.find(t=>t.id===edit.dataset.taskEdit));return;}const del=e.target.closest('[data-task-delete]');if(del){deleteTask(del.dataset.taskDelete);return;}const check=e.target.closest('[data-task-done]');if(check){const t=tasks.find(x=>x.id===check.dataset.taskDone);const prev=t.completed;t.completed=check.checked;if(!await persistTask(t)){t.completed=prev;check.checked=prev;}renderAll();}});
   let dragged=null;$('#tasks-list').addEventListener('dragstart',e=>{const row=e.target.closest('[data-task-row]');if(row)dragged=row.dataset.taskRow;});$('#tasks-list').addEventListener('dragover',e=>{if(e.target.closest('[data-task-row]'))e.preventDefault();});$('#tasks-list').addEventListener('drop',async e=>{const row=e.target.closest('[data-task-row]');if(!row||!dragged||dragged===row.dataset.taskRow)return;e.preventDefault();const original=tasks.slice(),orders=new Map(tasks.map(t=>[t.id,t.sort_order])),from=tasks.findIndex(t=>t.id===dragged),to=tasks.findIndex(t=>t.id===row.dataset.taskRow),[item]=tasks.splice(from,1);tasks.splice(to,0,item);tasks.forEach((t,i)=>t.sort_order=i);let ok=true;for(const t of tasks)if(!await persistTask(t)){ok=false;break;}if(!ok){tasks=original;tasks.forEach(t=>t.sort_order=orders.get(t.id));toast('تعذر حفظ الترتيب اليدوي.');}dragged=null;renderAll();});
   $('#task-delete').onclick=async()=>{if(!editingTaskId)return;const id=editingTaskId,before=tasks.length;await deleteTask(id);if(tasks.length<before)$('#task-modal').classList.remove('show');};
@@ -1416,6 +1895,7 @@ async function doHandleSession(session){
     showScreen('loading');
     loadAudioPreferences();
     await loadFromSupabase();
+    startDailyTasksRefresh();
     $('#timer-sound').value=settings.timerSound||'bell';
     loadCustomTimerSound();
     applyTheme(settings.theme);
@@ -1427,9 +1907,13 @@ async function doHandleSession(session){
       showScreen('gate');
     }
   }else{
+    if(lessonHomeworkSyncHandle)clearInterval(lessonHomeworkSyncHandle);lessonHomeworkSyncHandle=null;
     if(timerHandle)clearInterval(timerHandle);timerHandle=null;
     if(stopwatchHandle)clearInterval(stopwatchHandle);stopwatchHandle=null;
     aiHistory=[];aiGeneratedTasks=[];
+    lessonHomeworkPlan=null;lessonHomeworkDraft=[];lessonHomeworkPlanError='';lessonHomeworkBusy=false;
+    $('#homework-prompt').value='';delete $('#homework-prompt').dataset.initialized;
+    if(typeof globalThis.resetIntegratedStudyTracker==='function')globalThis.resetIntegratedStudyTracker();
     currentUser=null;
     timerVolume=70;timerMuted=false;paintAudioControls();
     showScreen('auth');
@@ -1481,7 +1965,614 @@ async function boot(){
   await handleSession(session);
   bootHandled=true;
 }
+(function(){
+const studyRoot=document.querySelector('#study-app-root');
+const $=(s,p=studyRoot)=>p.querySelector(s);
+const $$=(s,p=studyRoot)=>[...p.querySelectorAll(s)];
+const SUBJECTS=[
+ {key:'عربي',label:'عربي',color:'#6f9c76'},
+ {key:'كيمياء',label:'كيمياء',color:'#4285f4'},
+ {key:'فيزياء',label:'فيزياء',color:'#16a2a2'},
+ {key:'بحتة',label:'بحتة',color:'#8e44ad'},
+ {key:'ميكانيكا',label:'ميكانيكا',color:'#b39ddb'},
+ {key:'إنجليزي',label:'إنجليزي',color:'#ec7c8d'},
+ {key:'ألماني',label:'ألماني',color:'#e0b400'},
+ {key:'عام',label:'عام/آخر',color:'#9ca3af'},
+];
+const PRIORITY_W={'عالي':3,'متوسط':2,'منخفض':1};
+const TYPES=['واجب','مراجعة','حفظ','متراكم','مذاكرة مطلوبة','أخرى'];
+
+let sb=null;
+let currentUser=null;
+let state={tasks:[]};
+let editingId=null;
+let taskFilter='all';
+let backlogFilter={subject:'all',type:'all'};
+let importCandidates=[];
+
+function todayISO(){return new Date().toISOString().slice(0,10);}
+function fmtDate(v){
+  if(!v) return '';
+  const d=typeof v==='number'?new Date(v):new Date(v+'T00:00:00');
+  const months=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  return d.getDate()+' '+months[d.getMonth()];
+}
+function escapeHtml(s){return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function subjectInfo(key){return SUBJECTS.find(s=>s.key===key)||{label:key||'عام',color:'#9ca3af'};}
+
+function toast(msg){
+  let t=$('#study-app-toast');
+  if(!t){
+    t=document.createElement('div');
+    t.id='study-app-toast';
+    t.style.cssText='position:fixed;bottom:78px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:10px;font-size:.82rem;z-index:200;max-width:88%;text-align:center;box-shadow:0 6px 16px rgba(0,0,0,.3);';
+    studyRoot.appendChild(t);
+  }
+  t.textContent=msg;
+  t.style.display='block';
+  clearTimeout(t._timer);
+  t._timer=setTimeout(()=>{ t.style.display='none'; },3200);
+}
+
+function confirmDialog(message){
+  return new Promise(resolve=>{
+    let m=$('#study-confirm-modal');
+    if(!m){
+      m=document.createElement('div');
+      m.id='study-confirm-modal';
+      m.className='modal';
+      m.innerHTML='<div class="modal-backdrop"></div><div class="modal-content"><p id="study-confirm-msg" style="margin:0 0 16px;"></p><div class="modal-actions"><button type="button" class="btn-ghost" id="study-confirm-no">إلغاء</button><button type="button" class="btn-primary" id="study-confirm-yes">تأكيد</button></div></div>';
+      studyRoot.appendChild(m);
+    }
+    $('#study-confirm-msg').textContent=message;
+    m.classList.add('show');
+    const done=val=>{ m.classList.remove('show'); resolve(val); };
+    $('#study-confirm-yes').onclick=()=>done(true);
+    $('#study-confirm-no').onclick=()=>done(false);
+    m.querySelector('.modal-backdrop').onclick=()=>done(false);
+  });
+}
+
+// ---------- row <-> task mapping (DB uses snake_case) ----------
+function rowToTask(r){
+  return {
+    id:r.id, origin:r.origin, type:r.type, subject:r.subject, title:r.title,
+    notes:r.notes||'', dueDate:r.due_date||'', priority:r.priority,
+    total:r.total, done:r.done_count||0,
+    backlog:!!r.backlog, wasBacklog:!!r.was_backlog, isDone:!!r.is_done,
+    createdAt:r.created_at?new Date(r.created_at).getTime():Date.now(),
+    completedAt:r.completed_at?new Date(r.completed_at).getTime():null,
+  };
+}
+function formToRow(){
+  const totalVal=$('#f-total').value, doneVal=$('#f-done').value;
+  return {
+    origin:$('#f-origin').value, type:$('#f-type').value, subject:$('#f-subject').value,
+    title:$('#f-title').value.trim(), notes:$('#f-notes').value.trim(),
+    due_date:$('#f-due').value||null, priority:$('#f-priority').value,
+    total: totalVal!==''?parseInt(totalVal,10):null,
+    done_count: doneVal!==''?parseInt(doneVal,10):0,
+  };
+}
+
+async function normalizeAndSync(){
+  const today=todayISO();
+  const jobs=[];
+  state.tasks.forEach(t=>{
+    let changed=false;
+    if(!t.isDone){
+      const shouldBL=(t.dueDate && t.dueDate<today) || t.type==='متراكم';
+      if(shouldBL && !t.backlog){ t.backlog=true; changed=true; }
+    }
+    if(t.backlog && !t.wasBacklog){ t.wasBacklog=true; changed=true; }
+    if(changed) jobs.push(sb.from('tasks').update({backlog:t.backlog,was_backlog:t.wasBacklog}).eq('id',t.id).eq('user_id',currentUser.id));
+  });
+  if(jobs.length) await Promise.allSettled(jobs);
+}
+
+async function loadAndRender(){
+  const {data,error}=await sb.from('tasks').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:true});
+  if(error){ console.error(error); toast('معرفتش أجيب التاسكات، حدّث الصفحة'); return false; }
+  state.tasks=(data||[]).map(rowToTask);
+  await normalizeAndSync();
+  $('#today-label').textContent=new Intl.DateTimeFormat('ar-EG',{weekday:'long',day:'numeric',month:'long'}).format(new Date());
+  $('#user-email').textContent=currentUser.email||'';
+  render();
+  showTab('home');
+  return true;
+}
+
+// ---------- Gemini (free-tier AI parsing) ----------
+async function callGemini(prompt){
+  const {data,error}=await sb.functions.invoke('habit-assistant',{body:{
+    mode:'tasks',prompt,
+    context:{today:todayISO(),habits:[],tasks:[],studyThisWeek:0}
+  }});
+  if(error) throw new Error('مساعد الذكاء الاصطناعي غير متاح. تأكد من نشر وظيفة habit-assistant في Supabase.');
+  return (Array.isArray(data?.tasks)?data.tasks:[]).map(t=>{
+    const [type,subject]=String(t.category||'').split('|');
+    const priority=({high:'عالي',medium:'متوسط',low:'منخفض'})[t.priority]||'متوسط';
+    return {type,subject,title:t.title,notes:t.description,dueDate:t.due_date,priority};
+  });
+}
+
+function computeProgress(){
+  const total=state.tasks.length;
+  const done=state.tasks.filter(t=>t.isDone).length;
+  const taskPct=total?Math.round(done/total*100):0;
+  const blTasks=state.tasks.filter(t=>t.wasBacklog);
+  const blDone=blTasks.filter(t=>t.isDone).length;
+  const blPct=blTasks.length?Math.round(blDone/blTasks.length*100):0;
+  return {total,done,taskPct,blTotal:blTasks.length,blDone,blPct};
+}
+function renderProgress(){
+  const p=computeProgress();
+  $('#task-progress-fill').style.width=p.taskPct+'%';
+  $('#task-progress-pct').textContent=p.taskPct+'%';
+  $('#task-progress-sub').textContent=p.done+' من '+p.total;
+  $('#backlog-progress-fill').style.width=p.blPct+'%';
+  $('#backlog-progress-pct').textContent=p.blPct+'%';
+  $('#backlog-progress-sub').textContent=p.blTotal?(p.blDone+' من '+p.blTotal):'مفيش متراكم اتسجل لحد دلوقتي';
+}
+
+function taskCardHTML(t){
+  const subj=subjectInfo(t.subject);
+  const overdue=!t.isDone && t.dueDate && t.dueDate<todayISO();
+  const hasTotal=t.total!==null && t.total!==undefined && t.total>0;
+  const pct=hasTotal?Math.min(100,Math.round(((t.done||0)/t.total)*100)):null;
+  return `<div class="card ${t.isDone?'done':''} ${(t.backlog&&!t.isDone)?'backlog':''}">
+    <div class="card-top">
+      <span class="dot" style="background:${subj.color}"></span>
+      <span class="subj">${escapeHtml(subj.label)}</span>
+      <span class="badge">${t.origin==='doctor'?'الدكتور':'مدرسة'}</span>
+      <span class="badge">${escapeHtml(t.type)}</span>
+      ${overdue?'<span class="badge overdue">متأخر</span>':''}
+      ${t.priority==='عالي'?'<span class="badge prio-high">أولوية عالية</span>':''}
+    </div>
+    <div class="card-title ${t.isDone?'strike':''}">${escapeHtml(t.title)}</div>
+    ${t.notes?`<div class="card-notes">${escapeHtml(t.notes)}</div>`:''}
+    ${t.dueDate?`<div class="card-due">📅 ${fmtDate(t.dueDate)}</div>`:''}
+    ${(hasTotal && !t.isDone)?`
+      <div class="progress-row">
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <span class="progress-txt">${t.done||0}/${t.total} (${pct}%)</span>
+      </div>
+      <div class="stepper">
+        <button data-action="dec" data-id="${t.id}">−</button>
+        <button data-action="inc" data-id="${t.id}">+</button>
+      </div>`:''}
+    <div class="card-actions">
+      ${!t.isDone?`<button class="btn-done" data-action="done" data-id="${t.id}">تم</button>`:`<span class="done-date">اتعمل يوم ${fmtDate(t.completedAt)}</span>`}
+      ${!t.isDone?`<button data-action="backlog-toggle" data-id="${t.id}">${t.backlog?'إلغاء المتراكم':'ضعها بالمتراكم'}</button>`:''}
+      <button data-action="edit" data-id="${t.id}">تعديل</button>
+      <button data-action="delete" data-id="${t.id}">حذف</button>
+    </div>
+  </div>`;
+}
+function renderList(id,list){
+  $('#'+id).innerHTML = list.length? list.map(taskCardHTML).join('') : '<p class="empty">مفيش عناصر هنا حاليًا</p>';
+}
+function renderHome(){
+  const active=state.tasks.filter(t=>!t.isDone);
+  const backlog=active.filter(t=>t.backlog).sort((a,b)=>PRIORITY_W[b.priority]-PRIORITY_W[a.priority]);
+  const rest=active.filter(t=>!t.backlog).sort((a,b)=>(a.dueDate||'9999').localeCompare(b.dueDate||'9999'));
+  const today=todayISO();
+  const dueToday=active.filter(t=>t.dueDate===today);
+  const teacherCount=active.filter(t=>t.origin==='teacher').length;
+  $('#stat-backlog').textContent=backlog.length;
+  $('#stat-due').textContent=dueToday.length;
+  $('#stat-teacher').textContent=teacherCount;
+  renderList('home-backlog-list', backlog);
+  renderList('home-study-tasks-list', rest);
+}
+function renderTasks(){
+  let list=state.tasks.filter(t=>!t.isDone);
+  if(taskFilter==='teacher') list=list.filter(t=>t.origin==='teacher');
+  if(taskFilter==='doctor') list=list.filter(t=>t.origin==='doctor');
+  list.sort((a,b)=>(PRIORITY_W[b.priority]-PRIORITY_W[a.priority])||((a.dueDate||'9999').localeCompare(b.dueDate||'9999')));
+  renderList('study-tasks-list', list);
+}
+function renderBacklog(){
+  let list=state.tasks.filter(t=>!t.isDone && t.backlog);
+  if(backlogFilter.subject!=='all') list=list.filter(t=>t.subject===backlogFilter.subject);
+  if(backlogFilter.type!=='all') list=list.filter(t=>t.type===backlogFilter.type);
+  list.sort((a,b)=>PRIORITY_W[b.priority]-PRIORITY_W[a.priority]);
+  renderList('backlog-list', list);
+}
+function renderArchive(){
+  const list=state.tasks.filter(t=>t.isDone).sort((a,b)=>(b.completedAt||0)-(a.completedAt||0));
+  renderList('archive-list', list);
+}
+
+// ---------- analysis (habit-tracker style: goal/actual/left table, daily bars, monthly grid, donut) ----------
+function dateISO(ms){ return new Date(ms).toISOString().slice(0,10); }
+function computeSubjectStats(){
+  return SUBJECTS.map(s=>{
+    const list=state.tasks.filter(t=>t.subject===s.key);
+    const goal=list.length;
+    const done=list.filter(t=>t.isDone).length;
+    const left=goal-done;
+    const pct=goal?Math.round(done/goal*100):0;
+    return {...s, goal, done, left, pct};
+  }).filter(s=>s.goal>0);
+}
+function computeDailyCompletions(days){
+  const out=[]; const now=new Date();
+  for(let i=days-1;i>=0;i--){
+    const d=new Date(now.getFullYear(),now.getMonth(),now.getDate()-i);
+    const iso=todayISOFor(d);
+    const count=state.tasks.filter(t=>t.isDone && t.completedAt && dateISO(t.completedAt)===iso).length;
+    out.push({iso, day:d.getDate(), count, isToday:i===0});
+  }
+  return out;
+}
+function todayISOFor(d){
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function computeMonthGrid(){
+  const now=new Date();
+  const year=now.getFullYear(), month=now.getMonth();
+  const daysInMonth=new Date(year,month+1,0).getDate();
+  const todayDate=now.getDate();
+  const subjects=computeSubjectStats();
+  const rows=subjects.map(s=>{
+    const cells=[];
+    for(let day=1;day<=daysInMonth;day++){
+      const iso=todayISOFor(new Date(year,month,day));
+      const has=state.tasks.some(t=>t.subject===s.key && t.isDone && t.completedAt && dateISO(t.completedAt)===iso);
+      cells.push({day, has, isToday:day===todayDate});
+    }
+    return {subject:s, cells};
+  });
+  return {daysInMonth, rows};
+}
+function renderDonut(pct){
+  const r=50, c=Math.round(2*Math.PI*r*100)/100;
+  const offset=Math.round(c*(1-pct/100)*100)/100;
+  $('#study-donut-wrap').innerHTML=
+    '<svg viewBox="0 0 120 120" width="112" height="112">'+
+    '<circle cx="60" cy="60" r="'+r+'" fill="none" stroke="var(--border)" stroke-width="14"/>'+
+    '<circle cx="60" cy="60" r="'+r+'" fill="none" stroke="var(--accent)" stroke-width="14" '+
+    'stroke-dasharray="'+c+'" stroke-dashoffset="'+offset+'" stroke-linecap="round" transform="rotate(-90 60 60)"/>'+
+    '<text x="60" y="67" text-anchor="middle" font-size="24" font-weight="700" fill="var(--ink)">'+pct+'%</text>'+
+    '</svg>';
+}
+function renderDailyChart(){
+  const data=computeDailyCompletions(14);
+  const max=Math.max(1,...data.map(d=>d.count));
+  $('#study-daily-chart').innerHTML=data.map(d=>
+    '<div class="daily-bar-col'+(d.isToday?' today':'')+'">'+
+    '<div class="daily-bar" style="height:'+Math.max(4,Math.round(d.count/max*96))+'px" title="'+d.count+' مهمة"></div>'+
+    '<span class="daily-bar-label">'+d.day+'</span></div>'
+  ).join('');
+}
+function renderSubjectTable(){
+  const stats=computeSubjectStats();
+  const body=$('#subject-table-body');
+  if(!stats.length){ body.innerHTML='<tr><td colspan="6" class="analysis-empty">مفيش تاسكات متسجلة لسه</td></tr>'; return; }
+  body.innerHTML=stats.map(s=>
+    '<tr><td><span class="dot" style="background:'+s.color+'"></span> '+escapeHtml(s.label)+'</td>'+
+    '<td>'+s.goal+'</td><td>'+s.done+'</td><td>'+s.left+'</td>'+
+    '<td><div class="mini-bar"><div class="mini-bar-fill" style="width:'+s.pct+'%"></div></div></td>'+
+    '<td>'+s.pct+'%</td></tr>'
+  ).join('');
+}
+function renderHabitGrid(){
+  const {daysInMonth, rows}=computeMonthGrid();
+  const grid=$('#study-habit-grid');
+  if(!rows.length){ grid.innerHTML='<tr><td class="analysis-empty">مفيش بيانات كفاية لسه</td></tr>'; return; }
+  let head='<thead><tr><th>المادة</th>';
+  for(let d=1;d<=daysInMonth;d++) head+='<th>'+d+'</th>';
+  head+='</tr></thead>';
+  let body='<tbody>'+rows.map(r=>{
+    let cells='<td class="grid-subj"><span class="dot" style="background:'+r.subject.color+'"></span>'+escapeHtml(r.subject.label)+'</td>';
+    cells+=r.cells.map(c=>'<td class="'+(c.isToday?'today-col':'')+'">'+(c.has?'<span class="grid-check">✓</span>':'')+'</td>').join('');
+    return '<tr>'+cells+'</tr>';
+  }).join('')+'</tbody>';
+  grid.innerHTML=head+body;
+}
+function renderAnalysis(){
+  const p=computeProgress();
+  $('#an-goal').textContent=p.total;
+  $('#an-done').textContent=p.done;
+  $('#an-left').textContent=p.total-p.done;
+  renderDonut(p.taskPct);
+  renderDailyChart();
+  renderSubjectTable();
+  renderHabitGrid();
+}
+
+function render(){ renderHome(); renderTasks(); renderBacklog(); renderArchive(); renderProgress(); renderAnalysis(); }
+
+function showTab(name){
+  ['home','tasks','backlog','homework','analysis','archive'].forEach(n=>{
+    $('#view-'+n).style.display = n===name?'block':'none';
+    $('#nav-'+n).classList.toggle('active', n===name);
+  });
+}
+
+function openModal(task){
+  editingId=task?task.id:null;
+  $('#modal-title').textContent=task?'تعديل المهمة':'إضافة مهمة جديدة';
+  $('#f-origin').value=task?.origin||'teacher';
+  $('#f-type').value=task?.type||'واجب';
+  $('#f-subject').value=task?.subject||'عربي';
+  $('#f-title').value=task?.title||'';
+  $('#f-notes').value=task?.notes||'';
+  $('#f-due').value=task?.dueDate||'';
+  $('#f-priority').value=task?.priority||'متوسط';
+  $('#f-total').value=(task&&task.total!=null)?task.total:'';
+  $('#f-done').value=(task&&task.done!=null)?task.done:'';
+  $('#modal').classList.add('show');
+}
+function closeModal(){ $('#modal').classList.remove('show'); }
+
+async function submitForm(e){
+  e.preventDefault();
+  const title=$('#f-title').value.trim();
+  if(!title){ toast('اكتب عنوان المهمة الأول'); return; }
+  const subject=$('#f-subject').value;
+  const dup=state.tasks.find(t=>!t.isDone && t.id!==editingId && t.title.trim().toLowerCase()===title.toLowerCase() && t.subject===subject);
+  if(dup){
+    const ok=await confirmDialog('في مهمة شبهها موجودة بالفعل: "'+dup.title+'". تضيفها برضو؟');
+    if(!ok) return;
+  }
+  const row=formToRow();
+  const isBacklogType=row.type==='متراكم';
+  if(editingId){
+    const existing=state.tasks.find(x=>x.id===editingId);
+    const patch={...row};
+    if(isBacklogType){ patch.backlog=true; patch.was_backlog=true; }
+    const {error}=await sb.from('tasks').update(patch).eq('id',editingId).eq('user_id',currentUser.id);
+    if(error){ console.error(error); toast('حصل خطأ، جرب تاني'); return; }
+    existing.origin=row.origin; existing.type=row.type; existing.subject=row.subject;
+    existing.title=row.title; existing.notes=row.notes; existing.dueDate=row.due_date||'';
+    existing.priority=row.priority; existing.total=row.total; existing.done=row.done_count;
+    if(isBacklogType){ existing.backlog=true; existing.wasBacklog=true; }
+  }else{
+    const insertRow={...row, user_id:currentUser.id, is_done:false, backlog:isBacklogType, was_backlog:isBacklogType};
+    const {data,error}=await sb.from('tasks').insert(insertRow).select().single();
+    if(error){ console.error(error); toast('حصل خطأ، جرب تاني'); return; }
+    state.tasks.push(rowToTask(data));
+  }
+  closeModal();
+  render();
+}
+
+async function onCardAction(e){
+  const btn=e.target.closest('[data-action]');
+  if(!btn) return;
+  const id=btn.dataset.id;
+  const t=state.tasks.find(x=>x.id===id);
+  if(!t) return;
+  const action=btn.dataset.action;
+  if(action==='done'){
+    const completedAt=new Date();
+    const {error}=await sb.from('tasks').update({is_done:true,completed_at:completedAt.toISOString(),backlog:false}).eq('id',id).eq('user_id',currentUser.id);
+    if(error){ console.error(error); toast('حصل خطأ، جرب تاني'); return; }
+    t.isDone=true; t.completedAt=completedAt.getTime(); t.backlog=false;
+    render();
+  }else if(action==='delete'){
+    const ok=await confirmDialog('متأكد إنك عايز تمسح "'+t.title+'"؟');
+    if(!ok) return;
+    const {error}=await sb.from('tasks').delete().eq('id',id).eq('user_id',currentUser.id);
+    if(error){ console.error(error); toast('حصل خطأ، جرب تاني'); return; }
+    state.tasks=state.tasks.filter(x=>x.id!==id);
+    render();
+  }else if(action==='edit'){ openModal(t); }
+  else if(action==='inc' || action==='dec'){
+    const newDone = action==='inc' ? Math.min((t.total!=null?t.total:Infinity),(t.done||0)+1) : Math.max(0,(t.done||0)-1);
+    const {error}=await sb.from('tasks').update({done_count:newDone}).eq('id',id).eq('user_id',currentUser.id);
+    if(error){ console.error(error); toast('حصل خطأ، جرب تاني'); return; }
+    t.done=newDone; render();
+  }else if(action==='backlog-toggle'){
+    const newBl=!t.backlog;
+    const patch={backlog:newBl}; if(newBl) patch.was_backlog=true;
+    const {error}=await sb.from('tasks').update(patch).eq('id',id).eq('user_id',currentUser.id);
+    if(error){ console.error(error); toast('حصل خطأ، جرب تاني'); return; }
+    t.backlog=newBl; if(newBl) t.wasBacklog=true;
+    render();
+  }
+}
+
+function openImportModal(){
+  $('#imp-text').value='';
+  $('#imp-pdf').value='';
+  $('#imp-pdf-status').textContent='';
+  $('#imp-results').innerHTML='';
+  importCandidates=[];
+  $('#import-modal').classList.add('show');
+}
+function closeImportModal(){ $('#import-modal').classList.remove('show'); }
+
+async function handlePdfFile(e){
+  const file=e.target.files[0];
+  if(!file) return;
+  const status=$('#imp-pdf-status');
+  status.textContent='بستخرج النص من الملف...';
+  try{
+    if(!window.pdfjsLib){ status.textContent='مكتبة قراءة الـ PDF لسه بتحمل، جرب تاني بعد شوية.'; return; }
+    pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    const buf=await file.arrayBuffer();
+    const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+    let text='';
+    for(let i=1;i<=pdf.numPages;i++){
+      const page=await pdf.getPage(i);
+      const content=await page.getTextContent();
+      text+=content.items.map(it=>it.str).join(' ')+'\n';
+    }
+    text=text.trim();
+    if(!text){ status.textContent='الملف مش فيه نص واضح (ممكن يكون صفحات ماسحة ضوئيًا).'; return; }
+    const ta=$('#imp-text');
+    ta.value=ta.value.trim()?(ta.value.trim()+'\n\n'+text):text;
+    status.textContent='✅ اتحط نص الملف، دلوقتي دوس "حلل الرسالة"';
+  }catch(err){ console.error(err); status.textContent='معرفتش أقرأ الملف ده.'; }
+}
+
+async function analyzeImport(){
+  const text=$('#imp-text').value.trim();
+  if(!text){ toast('الصق الرسالة الأول'); return; }
+
+  const btn=$('#imp-analyze');
+  btn.disabled=true; btn.textContent='بحلل...';
+  try{
+    const prompt='التاريخ النهارده: '+todayISO()+'. حلل رسالة واتساب إلى مهام دراسة. أعد كل مهمة بعنوان عربي واضح، وضع الوصف في description، وتاريخ YYYY-MM-DD في due_date إذا ورد صراحة، وأولوية high أو medium أو low. ضع في category النوع ثم علامة | ثم المادة، مثل واجب|عربي أو مراجعة|كيمياء. لا تخترع موعدًا. الرسالة:\n"""'+text+'"""';
+    const result=await callGemini(prompt);
+    const arr=Array.isArray(result)?result:(Array.isArray(result&&result.tasks)?result.tasks:[]);
+    if(!arr.length){ toast('معرفتش أستخرج تاسكات واضحة من الرسالة دي، جرب تضيفها يدويًا.'); return; }
+    const origin=$('#imp-origin').value;
+    importCandidates=arr.map(x=>({
+      origin,
+      type: TYPES.includes(x.type)?x.type:'أخرى',
+      subject: SUBJECTS.some(s=>s.key===x.subject)?x.subject:'عام',
+      title:(x.title||'تاسك بدون عنوان').toString().slice(0,120),
+      notes:(x.notes||'').toString().slice(0,300),
+      dueDate:/^\d{4}-\d{2}-\d{2}$/.test(x.dueDate)?x.dueDate:'',
+      priority: PRIORITY_W[x.priority]?x.priority:'متوسط',
+      include:true,
+    }));
+    renderImportResults();
+  }catch(e){ console.error(e); toast('حصل خطأ أثناء التحليل: '+(e.message||'')); }
+  finally{ btn.disabled=false; btn.textContent='🔍 حلل الرسالة'; }
+}
+
+function renderImportResults(){
+  const el=$('#imp-results');
+  if(!importCandidates.length){ el.innerHTML=''; return; }
+  const subjOpts=c=>SUBJECTS.map(s=>'<option value="'+s.key+'"'+(s.key===c.subject?' selected':'')+'>'+s.label+'</option>').join('');
+  const typeOpts=c=>TYPES.map(t=>'<option value="'+t+'"'+(t===c.type?' selected':'')+'>'+t+'</option>').join('');
+  el.innerHTML='<h4 style="margin:14px 0 8px;font-size:.85rem;color:var(--muted);">اتلاقى '+importCandidates.length+' تاسك — راجعها وعدّل أي غلط قبل الإضافة</h4>'+
+    importCandidates.map((c,i)=>`
+      <div class="imp-card" data-idx="${i}">
+        <div class="row2">
+          <label class="check-inline"><input type="checkbox" class="imp-f-include" ${c.include?'checked':''}></label>
+          <input type="text" class="imp-f-title" value="${escapeHtml(c.title)}" placeholder="العنوان">
+        </div>
+        <div class="row2">
+          <select class="imp-f-subject">${subjOpts(c)}</select>
+          <select class="imp-f-type">${typeOpts(c)}</select>
+        </div>
+        <div class="row2">
+          <input type="date" class="imp-f-due" value="${c.dueDate||''}">
+          <select class="imp-f-priority">
+            <option value="عالي"${c.priority==='عالي'?' selected':''}>عالية</option>
+            <option value="متوسط"${c.priority==='متوسط'?' selected':''}>متوسطة</option>
+            <option value="منخفض"${c.priority==='منخفض'?' selected':''}>منخفضة</option>
+          </select>
+        </div>
+        <input type="text" class="imp-f-notes" value="${escapeHtml(c.notes)}" placeholder="تفاصيل (اختياري)">
+      </div>`).join('')+
+    '<div class="modal-actions" style="margin-top:12px;">'+
+    '<button type="button" class="btn-ghost" id="imp-cancel-results">إلغاء</button>'+
+    '<button type="button" class="btn-primary" id="imp-add-selected">➕ ضيف المحدد</button></div>';
+  $$('.imp-card').forEach(card=>{
+    const idx=+card.dataset.idx;
+    card.querySelector('.imp-f-include').onchange=e=>{ importCandidates[idx].include=e.target.checked; };
+    card.querySelector('.imp-f-title').oninput=e=>{ importCandidates[idx].title=e.target.value; };
+    card.querySelector('.imp-f-subject').onchange=e=>{ importCandidates[idx].subject=e.target.value; };
+    card.querySelector('.imp-f-type').onchange=e=>{ importCandidates[idx].type=e.target.value; };
+    card.querySelector('.imp-f-due').onchange=e=>{ importCandidates[idx].dueDate=e.target.value; };
+    card.querySelector('.imp-f-priority').onchange=e=>{ importCandidates[idx].priority=e.target.value; };
+    card.querySelector('.imp-f-notes').oninput=e=>{ importCandidates[idx].notes=e.target.value; };
+  });
+  $('#imp-add-selected').onclick=confirmImport;
+  $('#imp-cancel-results').onclick=()=>{ importCandidates=[]; renderImportResults(); };
+}
+
+async function confirmImport(){
+  const toAdd=importCandidates.filter(c=>c.include);
+  let skipped=0;
+  const rows=[];
+  toAdd.forEach(c=>{
+    const dup=state.tasks.find(t=>!t.isDone && t.title.trim().toLowerCase()===c.title.trim().toLowerCase() && t.subject===c.subject);
+    if(dup){ skipped++; return; }
+    rows.push({
+      origin:c.origin, type:c.type, subject:c.subject, title:c.title, notes:c.notes,
+      due_date:c.dueDate||null, priority:c.priority, total:null, done_count:0,
+      is_done:false, backlog:c.type==='متراكم', was_backlog:c.type==='متراكم',
+      user_id:currentUser.id,
+    });
+  });
+  importCandidates=[];
+  closeImportModal();
+  if(!rows.length){ toast(skipped?('كل التاسكات دي كانت مكررة ('+skipped+')'):'مفيش تاسكات للإضافة'); return; }
+  const {data,error}=await sb.from('tasks').insert(rows).select();
+  if(error){ console.error(error); toast('حصل خطأ في الحفظ'); return; }
+  data.forEach(r=>state.tasks.push(rowToTask(r)));
+  render();
+  toast('اتضاف '+data.length+' تاسك'+(skipped?(' (وفيه '+skipped+' مكرر اتجاهله)'):'')+'.');
+}
+
+function buildBacklogText(){
+  const list=state.tasks.filter(t=>!t.isDone && t.backlog).sort((a,b)=>PRIORITY_W[b.priority]-PRIORITY_W[a.priority]);
+  if(!list.length) return 'مفيش متراكم دلوقتي 🎉';
+  const icon={'عالي':'🔴','متوسط':'🟡','منخفض':'🟢'};
+  let out='📋 المتراكم بتاريخ '+fmtDate(todayISO())+':\n';
+  list.forEach(t=>{
+    const s=subjectInfo(t.subject);
+    out+=(icon[t.priority]||'⚪')+' '+s.label+' — '+t.title+(t.notes?(' ('+t.notes+')'):'')+'\n';
+  });
+  return out.trim();
+}
+function openShareModal(){
+  $('#share-text').value=buildBacklogText();
+  $('#share-native').style.display=(navigator.share?'block':'none');
+  $('#share-modal').classList.add('show');
+}
+function closeShareModal(){ $('#share-modal').classList.remove('show'); }
+async function copyShareText(){
+  const text=$('#share-text').value;
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){ await navigator.clipboard.writeText(text); toast('✅ اتنسخ، الصقه في واتساب'); return; }
+  }catch(e){}
+  try{ $('#share-text').select(); document.execCommand('copy'); toast('✅ اتنسخ، الصقه في واتساب'); }
+  catch(e){ toast('حدد النص فوق يدويًا وانسخه'); }
+}
+async function nativeShare(){
+  try{ if(navigator.share){ await navigator.share({text:$('#share-text').value,title:'المتراكم'}); } }catch(e){}
+}
+
+function bindEvents(){
+  $('#nav-home').onclick=()=>showTab('home');
+  $('#nav-tasks').onclick=()=>showTab('tasks');
+  $('#nav-backlog').onclick=()=>showTab('backlog');
+  $('#nav-homework').onclick=()=>showTab('homework');
+  $('#nav-analysis').onclick=()=>showTab('analysis');
+  $('#nav-archive').onclick=()=>showTab('archive');
+  $('#fab').onclick=()=>openModal(null);
+  $('#modal-close').onclick=closeModal;
+  $('#modal-overlay').onclick=closeModal;
+  $('#task-form').onsubmit=submitForm;
+  $$('.filter-chip').forEach(b=>{
+    b.onclick=()=>{
+      taskFilter=b.dataset.filter;
+      $$('.filter-chip').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      renderTasks();
+    };
+  });
+  $('#bl-subject').onchange=e=>{ backlogFilter.subject=e.target.value; renderBacklog(); };
+  $('#bl-type').onchange=e=>{ backlogFilter.type=e.target.value; renderBacklog(); };
+  $('#import-btn').onclick=openImportModal;
+  $('#import-close').onclick=closeImportModal;
+  $('#import-overlay').onclick=closeImportModal;
+  $('#imp-analyze').onclick=analyzeImport;
+  $('#imp-pdf').onchange=handlePdfFile;
+  $('#share-btn').onclick=openShareModal;
+  $('#share-close').onclick=closeShareModal;
+  $('#share-overlay').onclick=closeShareModal;
+  $('#share-copy').onclick=copyShareText;
+  $('#share-native').onclick=nativeShare;
+  studyRoot.addEventListener('click', onCardAction);
+}
+
+let studyEventsBound=false,integratedStudyUserId=null;
+globalThis.initializeStudyTracker=async function(client,user){if(!client||!user)return;sb=client;currentUser=user;if(!studyEventsBound){bindEvents();studyEventsBound=true;}if(integratedStudyUserId===user.id)return;state.tasks=[];const loaded=await loadAndRender();if(loaded)integratedStudyUserId=user.id;};
+globalThis.resetIntegratedStudyTracker=function(){integratedStudyUserId=null;state.tasks=[];};
+})();
+
 boot();
 </script>
 </body>
 </html>
+
