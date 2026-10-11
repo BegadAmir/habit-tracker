@@ -1,15 +1,5 @@
-# Habit Tracker + Study Tracker — الواجبات حسب جدول الدروس
+# Habit Tracker المستقل
 
-## الملفات
-- `habits.html`: الموقع الموحّد؛ اليوم والتركيز والدراسة والواجبات والتقارير.
-- `supabase/migrations/202610110004_lesson_homework_automation.sql`: إضافة آمنة لقواعد جدول الدروس والجدولة؛ لا تحذف بياناتك.
-- `supabase/functions/habit-assistant/index.ts`: نسخة مساعد الذكاء الاصطناعي لتحليل برومبت الجدول.
+استبدل `habits.html` في مستودع Habit Tracker. مشروع Study Tracker يظل منفصلًا، وملفه لم يتغير.
 
-## التفعيل
-1. ارفع `habits.html` إلى مجلد Habit Tracker على GitHub واستبدل النسخة القديمة.
-2. في Supabase افتح SQL Editor والصق ملف SQL وشغّله مرة واحدة. يفترض أن migrations المهام السابقة التي شغّلتها موجودة.
-3. من Edge Functions افتح `habit-assistant`، حدّث الكود من ملف `index.ts` واضغط Deploy updates.
-4. اترك `GEMINI_API_KEY` محفوظًا في Supabase Secrets؛ لا تضفه إلى HTML أو GitHub.
-5. افتح الموقع: التركيز والدراسة ← الواجبات. اكتب الجدول، حلّله، راجع القواعد، ثم احفظها.
-
-بعد انتهاء موعد الحصة، يضيف Supabase الواجب مرة واحدة حتى لو كان الموقع مغلقًا، ويظهر ضمن مهام وأولويات اليوم. يستخدم التوقيت المحلي الظاهر بجانب البرومبت. الذكاء الاصطناعي يحلل البرومبت عند الطلب فقط؛ إنشاء الواجب بعد الدرس يتم من جدولة Supabase.
+لو كنت قد شغّلت migration `202610110004_lesson_homework_automation.sql`، شغّل `202610120007_disable_lesson_homework.sql` مرة واحدة في Supabase لإيقاف إنشاء الواجبات التلقائي. يحتفظ SQL بخططك والمهام الموجودة ولا يحذفها. لو لم تشغّل migration 004، تجاهل SQL.
