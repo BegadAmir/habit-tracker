@@ -3,7 +3,7 @@
 ## التثبيت
 
 1. استبدل ملف habits.html في مستودع GitHub Pages بهذا الملف.
-2. من Supabase → SQL Editor، شغّل ملفي SQL بالترتيب إذا لم تكن شغّلت الملف الأول سابقًا. لا يحذفان بياناتك.
+2. من Supabase → SQL Editor، شغّل ملفات SQL بالترتيب إذا لم تكن شغّلتها. إذا كنت شغّلت الملفين الأول والثاني بالفعل، شغّل الملف الثالث لإصلاح إعدادات العادات. لا تحذف الملفات أي بيانات.
 3. لتفعيل AI: أنشئ مفتاح Gemini من [Google AI Studio](https://aistudio.google.com/apikey)، ثم أضفه في Supabase → Edge Functions → Secrets باسم GEMINI_API_KEY. لا تضعه في HTML.
 4. انشر الوظيفة من مجلد الحزمة:
 

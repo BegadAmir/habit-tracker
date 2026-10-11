@@ -204,6 +204,31 @@ main{padding:0 16px 40px;max-width:560px;margin:0 auto;}
 .page-panel{display:none}.page-panel.active{display:block} .today-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.today-metrics .pill{display:block;text-align:center}.today-metrics .pill b{display:block}
 .task-row{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}.task-row:last-child{border:0}.task-row .task-main{flex:1;min-width:0}.task-row h4{margin:0;font-size:.9rem}.task-row p{margin:3px 0;color:var(--muted);font-size:.75rem}.task-row.overdue:before,.task-row.due-today:before{font-weight:700;white-space:nowrap;font-size:.72rem}.task-row.overdue:before{content:'متأخرة';color:var(--danger)}.task-row.due-today:before{content:'اليوم';color:var(--warn)}.task-actions{display:flex;gap:4px}.task-actions button{border:1px solid var(--border);background:var(--paper);color:var(--ink);border-radius:8px;padding:6px;font:inherit}.priority-high{font-weight:700}.priority-medium{font-weight:600}.timer{font-size:2rem;font-weight:700;text-align:center;padding:8px}.field select,.field textarea{width:100%;padding:9px 10px;border-radius:10px;border:1px solid var(--border);background:var(--paper);color:var(--ink);font:inherit}
 .study-tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:14px}.timer-controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}.timer-controls button{flex:1;min-width:100px}.timer-subtitle{text-align:center;color:var(--muted);font-size:.78rem;margin:0}.sound-controls{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:end}.sound-controls .field{margin:0}.sound-controls input[type=file]{font-size:.72rem;padding:6px}.habit-order-controls{display:flex;align-items:center;gap:3px}.habit-order-controls button{border:1px solid var(--border);background:var(--paper);color:var(--ink);border-radius:6px;padding:1px 5px;font:inherit}.habit-drag{cursor:grab;touch-action:none}.habit-grid tbody tr[draggable=true]{cursor:grab}.ai-chat{display:flex;flex-direction:column;gap:8px}.ai-log{min-height:90px;max-height:260px;overflow:auto;border:1px solid var(--border);border-radius:10px;padding:10px;background:var(--paper)}.ai-message{white-space:pre-wrap;line-height:1.6;font-size:.82rem;margin:0 0 8px}.ai-message.user{font-weight:700}.ai-compose{display:flex;gap:8px}.ai-compose textarea{flex:1;resize:vertical}.ai-task-preview{padding:9px;border-bottom:1px solid var(--border);font-size:.82rem}.ai-task-preview label{display:flex;gap:7px;align-items:flex-start}.ai-disclosure{font-size:.72rem;color:var(--muted);line-height:1.6}.timer-audio{display:none}
+/* polished responsive layer */
+body{background:radial-gradient(ellipse at 12% 0%,color-mix(in srgb,var(--accent) 7%,transparent),transparent 34rem),var(--paper);font-size:16px}
+header{max-width:1320px;margin:0 auto;padding:24px 28px 16px}header h1{font-size:1.65rem;letter-spacing:-.025em}
+main{max-width:1320px;padding:0 28px 52px}
+.section-card,.overview-card{border-radius:20px;padding:20px;margin-bottom:18px;box-shadow:0 8px 24px rgba(15,20,30,.045);transition:box-shadow .2s,border-color .2s}
+.section-card:hover,.overview-card:hover{box-shadow:0 12px 30px rgba(15,20,30,.075)}
+.section-card h3,.overview-card h3{font-size:1.05rem;margin-bottom:14px}
+.tabs{gap:10px;margin-bottom:18px}.tabs button{border-radius:14px;min-height:48px;font-size:.95rem;transition:transform .16s,background .16s,box-shadow .16s}.tabs button:hover{transform:translateY(-1px)}
+button,select,input,textarea{font-family:inherit}button{cursor:pointer;transition:transform .16s,filter .16s,box-shadow .16s}button:hover:not(:disabled){filter:brightness(1.06);box-shadow:0 4px 12px rgba(0,0,0,.1)}button:active:not(:disabled){transform:scale(.98)}
+.btn-primary,.btn-add,.btn-ghost,.btn-edit-day{border-radius:12px;font-weight:700;min-height:40px;padding:9px 14px}
+.btn-primary,.btn-add{box-shadow:0 4px 10px color-mix(in srgb,var(--accent) 16%,transparent)}
+input,select,textarea{border-radius:12px!important}select{min-height:40px;padding:8px 34px 8px 12px!important;color:var(--ink)!important;background-color:var(--card)!important;border:1px solid var(--border)!important;font-size:.85rem!important;max-width:100%}
+.field input,.field textarea{background:var(--card);min-height:42px}.field label{font-weight:700}
+.overview-card{background:linear-gradient(140deg,var(--card),color-mix(in srgb,var(--accent) 4%,var(--card)))}
+.pill{border-radius:14px;padding:12px 16px}.pill b{font-size:1.2rem}
+.section-head{margin-bottom:14px}.task-row{gap:12px;padding:12px 10px;border:1px solid transparent;border-radius:13px;transition:background .18s,border-color .18s}.task-row:hover{background:color-mix(in srgb,var(--paper) 65%,var(--card));border-color:var(--border)}
+.task-row.overdue,.task-row.due-today{padding-inline-start:12px}.task-row.overdue{background:color-mix(in srgb,var(--danger) 6%,var(--card))}.task-row.due-today{background:color-mix(in srgb,var(--warn) 7%,var(--card))}
+.task-actions button,.habit-order-controls button{min-width:34px;min-height:34px;border-radius:10px}
+.study-tools>div{padding:18px;border:1px solid var(--border);border-radius:18px;background:linear-gradient(145deg,var(--card),color-mix(in srgb,var(--paper) 55%,var(--card)))}
+.study-tools h4{font-size:1rem;margin:0 0 14px}.timer{font-size:clamp(2.4rem,5vw,3.3rem);font-variant-numeric:tabular-nums;letter-spacing:.06em;padding:12px 8px;color:var(--accent);font-weight:700}.timer-subtitle{margin:0 0 12px;font-size:.84rem}
+.timer-controls{gap:9px}.timer-controls button{min-height:44px}.sound-toolbar{display:flex;align-items:center;gap:8px;margin:14px 0;padding:9px;border:1px solid var(--border);background:color-mix(in srgb,var(--paper) 68%,var(--card));border-radius:14px}.sound-toolbar-label{font-size:.75rem;color:var(--muted);font-weight:700;margin-inline-end:auto}.sound-toolbar button{width:38px;height:38px;border-radius:11px;border:1px solid var(--border);background:var(--card);color:var(--ink);font-size:1rem}.sound-toolbar button[aria-pressed="true"]{background:color-mix(in srgb,var(--danger) 12%,var(--card));border-color:color-mix(in srgb,var(--danger) 35%,var(--border))}.sound-volume{min-width:38px;text-align:center;color:var(--muted);font-size:.72rem;font-weight:700;direction:ltr}
+.sound-controls{grid-template-columns:minmax(0,1fr) auto;margin-top:12px!important;align-items:center}.sound-controls .field label{margin-bottom:6px}.sound-controls .btn-ghost{min-width:104px}.sound-file-row{display:flex;align-items:center;gap:8px;min-height:42px}.sound-file-picker{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:7px 12px;border-radius:11px;border:1px solid var(--border);background:var(--card);color:var(--ink);font-size:.78rem;font-weight:700;cursor:pointer;white-space:nowrap}.sound-file-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font-size:.73rem}.visually-hidden-file{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}.visually-hidden-file:focus-visible+.sound-file-picker{outline:2px solid var(--accent);outline-offset:2px}
+.ai-log{border-radius:14px;padding:14px}.ai-compose textarea{min-height:46px}.modal-content{box-shadow:0 24px 70px rgba(0,0,0,.2)}
+@media(min-width:1400px){main{padding-inline:36px}.section-card,.overview-card{padding:24px}body{font-size:17px}.habit-grid{font-size:.9rem}}
+@media(max-width:639px){header{padding:16px 16px 12px}header h1{font-size:1.3rem}main{padding:0 12px 32px}.section-card,.overview-card{padding:15px;border-radius:17px;margin-bottom:13px}.sound-toolbar{gap:6px}.sound-toolbar-label{font-size:.69rem}.sound-toolbar button{width:36px;height:36px}.sound-controls{grid-template-columns:minmax(0,1fr) auto}.sound-controls .btn-ghost{min-width:82px;padding-inline:10px}.sound-file-row{flex-wrap:wrap}.sound-file-name{flex-basis:100%}.timer-controls button{min-width:70px;padding-inline:8px;font-size:.77rem}}
 </style>
 </head>
 <body>
@@ -275,8 +300,9 @@ main{padding:0 16px 40px;max-width:560px;margin:0 auto;}
     <div id="tasks-list" class="empty">جار التحميل…</div></div>
   <div class="section-card"><h3>🍅 التركيز والدراسة</h3><div class="study-tools">
     <div><h4>مؤقت بومودورو</h4><div class="field"><div style="display:flex;gap:8px"><label style="flex:1">تركيز (دقيقة)<input id="focus-minutes" type="number" min="1" value="25"></label><label style="flex:1">راحة (دقيقة)<input id="break-minutes" type="number" min="1" value="5"></label></div></div><div class="timer" id="timer-display">25:00</div><p class="timer-subtitle" id="timer-status">جلسة تركيز</p><div class="timer-controls"><button class="btn-primary" id="timer-start">ابدأ التركيز</button><button class="btn-ghost" id="timer-reset">إعادة</button><button class="btn-ghost" id="study-log">تسجيل جلسة</button></div>
-      <div class="sound-controls" style="margin-top:12px"><div class="field"><label for="timer-sound">صوت نهاية المؤقت</label><select id="timer-sound"><option value="bell">جرس</option><option value="chime">نغمة هادئة</option><option value="digital">تنبيه رقمي</option><option value="custom">صوتي المرفوع</option></select></div><button type="button" class="btn-ghost" id="sound-test">تجربة الصوت</button></div>
-      <div class="sound-controls" style="margin-top:8px"><div class="field"><label for="sound-file">إضافة صوت من الجهاز (حتى 5MB)</label><input id="sound-file" type="file" accept="audio/*"></div><button type="button" class="btn-ghost" id="sound-upload">رفع الصوت</button></div><audio id="custom-timer-audio" class="timer-audio" preload="none"></audio>
+      <div class="sound-toolbar" role="group" aria-label="التحكم في صوت المؤقت"><span class="sound-toolbar-label">الصوت</span><button type="button" id="sound-toggle" aria-label="كتم صوت المؤقت" aria-pressed="false" title="كتم الصوت">🔔</button><button type="button" id="sound-volume-up" aria-label="رفع الصوت" title="رفع الصوت">＋</button><span class="sound-volume" id="sound-volume-label" aria-live="polite">70%</span><button type="button" id="sound-volume-down" aria-label="خفض الصوت" title="خفض الصوت">−</button></div>
+      <div class="sound-controls"><div class="field"><label for="timer-sound">نغمة انتهاء المؤقت</label><select id="timer-sound"><option value="bell">جرس</option><option value="chime">نغمة هادئة</option><option value="digital">تنبيه رقمي</option><option value="custom">صوتي المرفوع</option></select></div><button type="button" class="btn-ghost" id="sound-test">▶ تجربة</button></div>
+      <div class="sound-controls"><div class="field"><label>أضف نغمتك (ملف صوت حتى 5MB)</label><div class="sound-file-row"><input id="sound-file" class="visually-hidden-file" type="file" accept="audio/*"><label for="sound-file" class="sound-file-picker">🎵 اختيار ملف</label><span id="sound-file-name" class="sound-file-name">لم يتم اختيار ملف</span></div></div><button type="button" class="btn-ghost" id="sound-upload">حفظ الصوت</button></div><audio id="custom-timer-audio" class="timer-audio" preload="none"></audio>
     </div>
     <div><h4>ساعة إيقاف</h4><div class="timer" id="stopwatch-display">00:00:00</div><p class="timer-subtitle" id="stopwatch-status">جاهزة</p><div class="timer-controls"><button class="btn-primary" id="stopwatch-start">ابدأ</button><button class="btn-ghost" id="stopwatch-reset">إعادة</button><button class="btn-ghost" id="stopwatch-log">سجل الوقت</button></div></div>
   </div>
@@ -970,13 +996,18 @@ function renderWeeklyReport(){
 function openTaskModal(task){editingTaskId=task?task.id:null;$('#task-modal-title').textContent=task?'تعديل المهمة':'مهمة جديدة';$('#task-title').value=task?.title||'';$('#task-description').value=task?.description||'';$('#task-priority').value=task?.priority||'medium';$('#task-due').value=task?.due_date||'';$('#task-estimate').value=task?.estimated_minutes||'';$('#task-category').value=task?.category||'';$('#task-delete').style.display=task?'':'none';$('#task-modal').classList.add('show');}
 async function saveTask(){const title=$('#task-title').value.trim();if(!title){toast('اكتب عنوان المهمة');return;}const old=editingTaskId?tasks.find(t=>t.id===editingTaskId):null,task=Object.assign({},old||{id:null,completed:false,sort_order:tasks.length,created_at:new Date().toISOString()},{title,description:$('#task-description').value.trim(),priority:$('#task-priority').value,due_date:$('#task-due').value||null,estimated_minutes:Number($('#task-estimate').value)||0,category:$('#task-category').value.trim()});if(await persistTask(task)){if(old)Object.assign(old,task);else tasks.push(task);$('#task-modal').classList.remove('show');renderAll();}}
 async function deleteTask(id){if(!await confirmDialog('حذف هذه المهمة؟'))return;const {data,error}=await sb.from('daily_tasks').delete().eq('id',id).eq('user_id',currentUser.id).select('id');if(error){toast('تعذر حذف المهمة: '+describeError(error));return;}if(!data||!data.length){toast('لم يتم العثور على المهمة لحذفها.');return;}tasks=tasks.filter(t=>t.id!==id);renderAll();}
-let timerPhaseMinutes=25,timerEndBusy=false,audioContext=null;
+let timerPhaseMinutes=25,timerEndBusy=false,audioContext=null,timerVolume=70,timerMuted=false;
+function paintAudioControls(){const toggle=$('#sound-toggle');if(!toggle)return;const isMuted=timerMuted||timerVolume===0;toggle.textContent=isMuted?'🔕':'🔔';toggle.setAttribute('aria-pressed',String(isMuted));toggle.setAttribute('aria-label',isMuted?'تشغيل صوت المؤقت':'كتم صوت المؤقت');toggle.title=isMuted?'تشغيل الصوت':'كتم الصوت';$('#sound-volume-label').textContent=timerVolume+'%';}
+function loadAudioPreferences(){timerVolume=70;timerMuted=false;try{const saved=JSON.parse(localStorage.getItem('habit-timer-audio:'+currentUser.id)||'{}')||{};if(Number.isFinite(saved.volume))timerVolume=Math.max(0,Math.min(100,saved.volume));timerMuted=saved.muted===true;}catch(e){console.warn('Audio preferences unavailable',e);}paintAudioControls();}
+function saveAudioPreferences(){try{if(currentUser)localStorage.setItem('habit-timer-audio:'+currentUser.id,JSON.stringify({volume:timerVolume,muted:timerMuted}));}catch(e){console.warn('Audio preferences could not be saved',e);}paintAudioControls();}
+function adjustTimerVolume(amount){timerVolume=Math.max(0,Math.min(100,timerVolume+amount));if(timerVolume>0&&timerMuted)timerMuted=false;saveAudioPreferences();}
 function paintTimer(){const m=Math.floor(timerRemaining/60),s=timerRemaining%60;$('#timer-display').textContent=pad2(m)+':'+pad2(s);}
 function timerPhaseLength(){return (Number(timerIsBreak?$('#break-minutes').value:$('#focus-minutes').value)|| (timerIsBreak?5:25));}
 function setTimerPhase(minutes){timerPhaseMinutes=minutes;timerRemaining=minutes*60;paintTimer();}
 function unlockAudio(){try{const AudioCtx=window.AudioContext||window.webkitAudioContext;if(AudioCtx){if(!audioContext)audioContext=new AudioCtx();if(audioContext.state==='suspended')audioContext.resume();}}catch(e){console.warn('Audio unavailable',e);}}
-function tone(freq,when,duration,type){if(!audioContext)return;const osc=audioContext.createOscillator(),gain=audioContext.createGain();osc.type=type||'sine';osc.frequency.value=freq;gain.gain.setValueAtTime(.0001,when);gain.gain.exponentialRampToValueAtTime(.2,when+.015);gain.gain.exponentialRampToValueAtTime(.0001,when+duration);osc.connect(gain);gain.connect(audioContext.destination);osc.start(when);osc.stop(when+duration+.02);}
+function tone(freq,when,duration,type){if(!audioContext||timerMuted||timerVolume===0)return;const osc=audioContext.createOscillator(),gain=audioContext.createGain();osc.type=type||'sine';osc.frequency.value=freq;gain.gain.setValueAtTime(.0001,when);gain.gain.exponentialRampToValueAtTime(.2*(timerVolume/100),when+.015);gain.gain.exponentialRampToValueAtTime(.0001,when+duration);osc.connect(gain);gain.connect(audioContext.destination);osc.start(when);osc.stop(when+duration+.02);}
 async function playTimerSound(){
+  if(timerMuted||timerVolume===0)return;
   const choice=$('#timer-sound').value||settings.timerSound||'bell';
   if(choice==='custom'){
     const audio=$('#custom-timer-audio');
@@ -984,7 +1015,7 @@ async function playTimerSound(){
     const {data,error}=await sb.storage.from('habit-timer-sounds').createSignedUrl(settings.customSoundPath,300);
     if(error){toast('تعذر تحميل الصوت المخصص: '+describeError(error));return;}
     audio.src=data.signedUrl;
-    try{audio.currentTime=0;await audio.play();}catch(e){toast('المتصفح منع تشغيل الصوت. جرّب زر «تجربة الصوت» أولًا.');}
+    try{audio.volume=timerVolume/100;audio.currentTime=0;await audio.play();}catch(e){toast('المتصفح منع تشغيل الصوت. جرّب زر «تجربة الصوت» أولًا.');}
     return;
   }
   unlockAudio();if(!audioContext)return;
@@ -1021,7 +1052,7 @@ async function uploadTimerSound(){
   }
   $('#timer-sound').value='custom';loadCustomTimerSound();
   if(previous)await sb.storage.from('habit-timer-sounds').remove([previous]);
-  input.value='';toast('تم حفظ الصوت المخصص.');
+  input.value='';$('#sound-file-name').textContent='لم يتم اختيار ملف';toast('تم حفظ الصوت المخصص.');
 }
 function renderStopwatch(){
   const seconds=Math.floor((stopwatchElapsed+(stopwatchHandle?(Date.now()-stopwatchStartedAt):0))/1000),h=Math.floor(seconds/3600),m=Math.floor(seconds%3600/60),s=seconds%60;
@@ -1244,6 +1275,10 @@ function bindEvents(){
   $('#break-minutes').addEventListener('change',()=>{if(!timerHandle&&timerIsBreak){setTimerPhase(Number($('#break-minutes').value)||5);}});
   $('#timer-sound').onchange=()=>saveTimerSoundChoice($('#timer-sound').value);
   $('#sound-test').onclick=()=>{unlockAudio();playTimerSound();};
+  $('#sound-toggle').onclick=()=>{if(timerMuted||timerVolume===0){if(timerVolume===0)timerVolume=70;timerMuted=false;}else timerMuted=true;saveAudioPreferences();};
+  $('#sound-volume-up').onclick=()=>adjustTimerVolume(10);
+  $('#sound-volume-down').onclick=()=>adjustTimerVolume(-10);
+  $('#sound-file').addEventListener('change',e=>{$('#sound-file-name').textContent=e.target.files?.[0]?.name||'لم يتم اختيار ملف';});
   $('#sound-upload').onclick=uploadTimerSound;
   $('#stopwatch-start').onclick=toggleStopwatch;$('#stopwatch-reset').onclick=resetStopwatch;$('#stopwatch-log').onclick=logStopwatch;
   $('#study-log').onclick=async()=>{const subject=$('#study-subject').value.trim();if(!subject){toast('اكتب اسم المادة أولًا');return;}if(await saveStudySession({subject,duration_minutes:Number($('#focus-minutes').value)||25,questions_solved:Number($('#study-questions').value)||0,mistakes_reviewed:Number($('#study-mistakes').value)||0})){studySessions.push({subject,session_date:todayISOFor(),duration_minutes:Number($('#focus-minutes').value)||25,questions_solved:Number($('#study-questions').value)||0,mistakes_reviewed:Number($('#study-mistakes').value)||0});$('#study-status').textContent='تم حفظ الجلسة.';renderWeeklyReport();}};
@@ -1371,6 +1406,7 @@ async function doHandleSession(session){
   if(session && session.user){
     currentUser=session.user;
     showScreen('loading');
+    loadAudioPreferences();
     await loadFromSupabase();
     $('#timer-sound').value=settings.timerSound||'bell';
     loadCustomTimerSound();
@@ -1387,6 +1423,7 @@ async function doHandleSession(session){
     if(stopwatchHandle)clearInterval(stopwatchHandle);stopwatchHandle=null;
     aiHistory=[];aiGeneratedTasks=[];
     currentUser=null;
+    timerVolume=70;timerMuted=false;paintAudioControls();
     showScreen('auth');
   }
 }
