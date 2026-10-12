@@ -255,6 +255,31 @@ input,select,textarea{border-radius:12px!important}select{min-height:40px;paddin
 .home-deadline-title{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:.84rem}
 .home-deadline-title span{color:var(--muted)}
 .home-deadline-item .deadline-wrap{margin-top:8px}
+.deadline-label-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.deadline-done-control{display:inline-flex;align-items:center;gap:5px;cursor:pointer;color:var(--ink);font-weight:700}.deadline-done-control input{width:17px;height:17px;accent-color:#31865b;cursor:pointer}.deadline-tone-green .deadline-done-control{color:#31865b}.deadline-tone-yellow .deadline-done-control{color:#b78213}.deadline-tone-red .deadline-done-control{color:#c8443b}.deadline-done-control span{font-size:.74rem}
+
+/* Persistent assistant side dock */
+.ai-dock{position:fixed;z-index:1200;right:0;top:42%;display:flex;align-items:center;direction:rtl;font-family:inherit}
+.ai-dock-tab{writing-mode:vertical-rl;display:flex;align-items:center;gap:9px;border:1px solid var(--border);border-right:0;border-radius:14px 0 0 14px;padding:14px 10px;background:var(--accent);color:#fff;box-shadow:0 8px 28px #0002;font:inherit;font-weight:800;cursor:pointer;transition:transform .18s ease}
+.ai-dock-tab:hover{transform:translateX(-3px)}.ai-dock-spark{font-size:1.15rem}
+.ai-drawer{position:absolute;right:48px;top:50%;transform:translate(12px,-50%);width:min(390px,calc(100vw - 70px));height:min(650px,82vh);display:flex;flex-direction:column;gap:10px;padding:14px;background:var(--card,var(--paper));color:var(--ink);border:1px solid var(--border);border-radius:18px;box-shadow:0 18px 60px #0003;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .18s ease,transform .18s ease,visibility .18s;}
+.ai-dock.open .ai-drawer,.ai-dock:hover .ai-drawer,.ai-dock:focus-within .ai-drawer{opacity:1;visibility:visible;pointer-events:auto;transform:translate(0,-50%)}
+.ai-drawer-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.ai-drawer-head>div{display:grid;gap:3px}.ai-drawer-head small,.ai-drawer-foot{font-size:.72rem;color:var(--muted)}.ai-dock-close{border:0;background:transparent;color:var(--ink);font-size:1.7rem;cursor:pointer;padding:0 6px}.ai-drawer-disclosure{margin:0}.ai-drawer-modes{display:flex;gap:6px;flex-wrap:wrap}.ai-drawer-modes button{flex:1;min-width:90px;padding:8px 6px;font-size:.8rem}.ai-drawer .ai-log{flex:1;min-height:100px;max-height:none;overflow:auto}.ai-drawer .ai-compose textarea{min-width:0;max-height:120px}.ai-drawer-compose button{align-self:stretch}.ai-drawer-foot{line-height:1.5}
+@media(max-width:520px){.ai-dock{top:auto;bottom:18px}.ai-dock-tab{writing-mode:horizontal-tb;border:1px solid var(--border);border-radius:24px 0 0 24px;padding:12px}.ai-drawer{position:fixed;right:10px;bottom:72px;top:auto;transform:translateY(10px);width:calc(100vw - 20px);height:min(75vh,650px)}.ai-dock.open .ai-drawer,.ai-dock:hover .ai-drawer,.ai-dock:focus-within .ai-drawer{transform:translateY(0)}}
+
+/* Swipeable daily/weekly achievement widget */
+.achievement-slider-wrap{grid-column:1/-1;min-width:0;width:100%;margin-bottom:14px;direction:rtl;}
+.achievement-slider-viewport{overflow:hidden;border-radius:20px;touch-action:pan-y;}
+.achievement-slider-track{display:flex;direction:rtl;transition:transform .32s cubic-bezier(.22,.75,.25,1);will-change:transform;}
+.achievement-slide{flex:0 0 100%;width:100%;min-width:0;box-sizing:border-box;margin:0!important;}
+.achievement-slider-controls{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 4px 0;}
+.achievement-arrow{width:38px;height:38px;display:grid;place-items:center;border:1px solid var(--border);border-radius:50%;background:var(--card);color:var(--ink);font:inherit;font-size:1.65rem;line-height:1;cursor:pointer;transition:background .18s,transform .18s,border-color .18s;}
+.achievement-arrow:hover{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
+.achievement-arrow:active{transform:scale(.94)}
+.achievement-slider-dots{display:flex;align-items:center;justify-content:center;gap:7px;flex:1;}
+.achievement-dot{width:7px;height:7px;border-radius:99px;background:var(--border);transition:width .2s,background .2s;}
+.achievement-dot.active{width:20px;background:var(--accent);}
+@media(min-width:980px){.achievement-slider-wrap{grid-column:1/-1!important;}}
+@media(prefers-reduced-motion:reduce){.achievement-slider-track,.achievement-arrow,.achievement-dot{transition:none!important}}
 </style>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style id="integrated-study-styles">
@@ -470,25 +495,42 @@ input,select,textarea{border-radius:12px!important}select{min-height:40px;paddin
 <main>
   <nav class="tabs" aria-label="أقسام الموقع"><button class="active" data-page="today-page">اليوم</button><button data-page="study-page">الدراسة</button><button data-page="reports-page">التقارير</button></nav>
   <section class="page-panel active" id="today-page">
-  <div class="overview-card">
-    <h3>✅ إنجاز اليوم</h3>
-    <div class="overview-row">
-      <div class="pill-stack">
-        <div class="pill"><span>المستحقة اليوم</span><b id="ov-goal">0</b></div>
-        <div class="pill"><span>المنجزة اليوم</span><b id="ov-done">0</b></div>
-        <div class="pill"><span>المتبقية اليوم</span><b id="ov-left">0</b></div>
+  <div class="achievement-slider-wrap" id="achievement-slider" aria-label="ملخص الإنجازات">
+    <div class="achievement-slider-viewport" id="achievement-slider-viewport">
+      <div class="achievement-slider-track" id="achievement-slider-track">
+        <article class="overview-card achievement-slide" id="daily-achievements-card" aria-label="إنجازات اليوم">
+          <h3>✅ إنجاز اليوم</h3>
+          <div class="overview-row">
+            <div class="pill-stack">
+              <div class="pill"><span>المستحقة اليوم</span><b id="ov-goal">0</b></div>
+              <div class="pill"><span>المنجزة اليوم</span><b id="ov-done">0</b></div>
+              <div class="pill"><span>المتبقية اليوم</span><b id="ov-left">0</b></div>
+            </div>
+            <div class="donut-wrap" id="donut-wrap"></div>
+          </div>
+        </article>
+        <article class="overview-card achievement-slide" id="weekly-achievements-card" aria-label="إنجازات الأسبوع">
+          <h3>📅 إنجازات الأسبوع <span id="weekly-range-label" style="font-size:.78em;font-weight:500;color:var(--muted)"></span></h3>
+          <div class="overview-row">
+            <div class="pill-stack">
+              <div class="pill"><span>إجمالي أهداف الأسبوع</span><b id="ov-week-goal">0</b></div>
+              <div class="pill"><span>المنجز خلال الأسبوع</span><b id="ov-week-done">0</b></div>
+              <div class="pill"><span>المتبقي هذا الأسبوع</span><b id="ov-week-left">0</b></div>
+            </div>
+            <div class="donut-wrap" id="week-donut-wrap"></div>
+          </div>
+          <p style="margin:10px 0 0;color:var(--muted);font-size:.8rem">الحساب من الأحد إلى السبت، ويشمل العادات المستحقة خلال الأسبوع كله.</p>
+        </article>
       </div>
-      <div class="donut-wrap" id="donut-wrap"></div>
+    </div>
+    <div class="achievement-slider-controls" aria-label="التنقل بين ملخصات الإنجاز">
+      <button class="achievement-arrow" id="achievement-prev" type="button" aria-label="إنجازات اليوم" title="إنجازات اليوم"><span aria-hidden="true">›</span></button>
+      <div class="achievement-slider-dots" aria-hidden="true"><span class="achievement-dot active"></span><span class="achievement-dot"></span></div>
+      <button class="achievement-arrow" id="achievement-next" type="button" aria-label="إنجازات الأسبوع" title="إنجازات الأسبوع"><span aria-hidden="true">‹</span></button>
     </div>
   </div>
   <div class="section-card"><h3>أولويات اليوم</h3><div id="top-priorities" class="empty">لا توجد مهام بعد</div></div>
-  <div class="section-card" id="ai-card"><h3>مساعد AI</h3><p class="ai-disclosure">اكتب طلبًا لتحويله لمهام، أو اسأل عن تنظيم يومك. عند الإرسال سيصل ملخص عاداتك ومهامك إلى Google Gemini؛ في الخطة المجانية قد تُستخدم الطلبات لتحسين خدمات Google.</p>
-    <div class="modal-actions"><button type="button" class="btn-primary" id="ai-mode-chat">استشارة</button><button type="button" class="btn-ghost" id="ai-mode-tasks">إنشاء مهام</button></div>
-    <div id="ai-log" class="ai-log" aria-live="polite"><p class="muted">اسألني عن ترتيب يومك أو اكتب خطة تريد تقسيمها لمهام.</p></div>
-    <div id="ai-task-preview"></div>
-    <div class="ai-compose"><textarea id="ai-message" rows="2" placeholder="اكتب سؤالك أو البرومبت…"></textarea><button type="button" class="btn-primary" id="ai-send">إرسال</button></div>
-    <button type="button" class="btn-ghost" id="ai-save-tasks" style="display:none;width:100%;margin-top:8px">حفظ المهام المحددة</button>
-  </div>
+  <!-- AI assistant moved to the persistent side chat launcher. -->
   <div class="section-card"><div class="section-head"><h3>المهام</h3><button class="btn-add" id="add-task-btn">+ مهمة</button></div>
     <div class="section-head"><select id="task-filter" aria-label="تصفية المهام"><option value="all">الكل</option><option value="today">اليوم</option><option value="overdue">المتأخرة</option><option value="completed">المكتملة</option><option value="upcoming">القادمة</option></select><select id="task-sort" aria-label="ترتيب المهام"><option value="manual">ترتيبي</option><option value="priority">الأولوية</option><option value="due">الموعد النهائي</option><option value="status">الحالة</option><option value="created">وقت الإضافة</option></select></div>
     <div id="tasks-list" class="empty">جار التحميل…</div></div>
@@ -575,7 +617,7 @@ input,select,textarea{border-radius:12px!important}select{min-height:40px;paddin
       <div id="homework-preview"></div>
     </details>
     <div id="homework-saved"></div>
-    <div class="analysis-card homework-note"><b>موعد التسليم</b><p>المهمة تُضاف بعد انتهاء الدرس، وموعدها الساعة 12:00 صباحًا في اليوم السابق للحصة التالية للمادة نفسها.</p></div>
+    <div class="analysis-card homework-note"><b>موعد التسليم</b><p>المهمة تُضاف بعد انتهاء الدرس، وموعد انتهاء الـDeadline الساعة 12:00 صباحًا في بداية يوم الحصة التالية للمادة نفسها.</p></div>
   </section>
 
 </div>
@@ -680,6 +722,21 @@ input,select,textarea{border-radius:12px!important}select{min-height:40px;paddin
   </div>
 </div>
 
+<div id="ai-dock" class="ai-dock" aria-label="مساعد الموقع">
+  <button type="button" id="ai-dock-tab" class="ai-dock-tab" aria-expanded="false" aria-controls="ai-drawer"><span class="ai-dock-spark">✦</span><span>اسأل المساعد</span></button>
+  <aside id="ai-drawer" class="ai-drawer" aria-label="محادثة مساعد الموقع" aria-hidden="true">
+    <div class="ai-drawer-head"><div><b>مساعد الموقع ✦</b><small>المهام · العادات · الدراسة · جدول الدروس</small></div><button type="button" id="ai-dock-close" class="ai-dock-close" aria-label="إغلاق المحادثة">×</button></div>
+    <p class="ai-disclosure ai-drawer-disclosure">اسأل عن بيانات موقعك، اطلب اقتراح مهام، أو عدّل جدول الدروس. راجع أي تغييرات قبل حفظها.</p>
+    <div class="ai-drawer-modes" role="group" aria-label="نوع الطلب"><button type="button" id="ai-mode-chat" class="btn-primary">محادثة</button><button type="button" id="ai-mode-tasks" class="btn-ghost">مهام جديدة</button><button type="button" id="ai-mode-schedule" class="btn-ghost">جدول الدروس</button></div>
+    <div id="ai-log" class="ai-log" aria-live="polite"><p class="muted">أهلًا! اسألني عن عاداتك وواجباتك والمتراكم وجلسات المذاكرة، أو اطلب تعديل مهمة. سأعرض أي تغييرات قبل تطبيقها.</p></div>
+    <div id="ai-task-preview"></div>
+    <div id="ai-action-preview"></div>
+    <button type="button" class="btn-primary" id="ai-apply-actions" style="display:none;width:100%;margin-top:8px">تأكيد التعديلات على الموقع</button>
+    <div class="ai-compose ai-drawer-compose"><textarea id="ai-message" rows="2" placeholder="اكتب رسالتك…"></textarea><button type="button" class="btn-primary" id="ai-send">إرسال</button></div>
+    <button type="button" class="btn-ghost" id="ai-save-tasks" style="display:none;width:100%;margin-top:8px">حفظ المهام المحددة</button>
+    <small class="ai-drawer-foot">المساعد يعتمد على البيانات المتاحة في الموقع، وقد تحتاج مراجعة التغييرات قبل اعتمادها.</small>
+  </aside>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ======================= الإعدادات =======================
@@ -738,7 +795,7 @@ let lessonHomeworkPlan=null,lessonHomeworkDraft=[],lessonHomeworkPlanError='',le
 let editingTaskId=null;
 let timerRemaining=25*60, timerHandle=null, timerIsBreak=false, timerDeadline=0;
 let stopwatchHandle=null,stopwatchElapsed=0,stopwatchStartedAt=0;
-let aiMode='chat',aiHistory=[],aiGeneratedTasks=[];
+let aiMode='chat',aiHistory=[],aiGeneratedTasks=[],aiPendingActions=[];
 const DEFAULT_SETTINGS={ theme:'bw', started:false, startDate:null, quoteIndex:-1, quotes:DEFAULT_QUOTES.slice(), durationDays:null, endDate:null, lockedEditDays:[],timerSound:'bell',customSoundPath:null };
 let settings=Object.assign({}, DEFAULT_SETTINGS);
 let view=(()=>{ const t=todayParts(); return {y:t.y, m:t.m}; })();
@@ -869,7 +926,15 @@ function getLocalTimeZone(){
   try{return Intl.DateTimeFormat().resolvedOptions().timeZone||'Africa/Cairo';}catch(_){return 'Africa/Cairo';}
 }
 function dayNameForHomework(day){return ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'][Number(day)]||'يوم غير معروف';}
-function homeworkDeadlineMarkup(dueDate,createdAt){
+function getHomeworkDeadlineTone(dueDate,createdAt){
+  if(!dueDate)return 'empty';
+  const parts=String(dueDate).slice(0,10).split('-').map(Number);
+  if(parts.length!==3||parts.some(n=>!Number.isFinite(n)))return 'empty';
+  const deadline=new Date(parts[0],parts[1]-1,parts[2],0,0,0,0).getTime(),createdMs=typeof createdAt==='number'?createdAt:Date.parse(createdAt||''),remaining=deadline-Date.now(),total=Number.isFinite(createdMs)?deadline-createdMs:0;
+  const pct=remaining<=0?0:total>0?Math.max(0,Math.min(100,Math.ceil(remaining/total*100))):0;
+  return remaining<=0?'red':pct>50?'green':pct>20?'yellow':pct>0?'red':'red';
+}
+function homeworkDeadlineMarkup(dueDate,createdAt,taskId,completed){
   if(!dueDate)return '<div class="deadline-unset">لم يُحدد موعد التسليم</div>';
   const parts=String(dueDate).slice(0,10).split('-').map(Number);
   if(parts.length!==3||parts.some(n=>!Number.isFinite(n)))return '';
@@ -878,14 +943,15 @@ function homeworkDeadlineMarkup(dueDate,createdAt){
   const now=Date.now(),remaining=deadlineMs-now;
   const total=Number.isFinite(createdMs)?deadlineMs-createdMs:0;
   const pct=remaining<=0?0:total>0?Math.max(0,Math.min(100,Math.ceil(remaining/total*100))):0;
-  const tone=pct>50?'green':pct>20?'yellow':pct>0?'red':'empty';
+  const tone=remaining<=0?'red':pct>50?'green':pct>20?'yellow':pct>0?'red':'red';
   const deadlineLabel=new Intl.DateTimeFormat('ar-EG',{weekday:'long',day:'numeric',month:'long'}).format(deadline)+' · 12:00 ص';
   let remainingLabel='انتهى موعد التسليم';
   if(remaining>0){
     const minutes=Math.ceil(remaining/60000),days=Math.floor(minutes/1440),hours=Math.floor((minutes%1440)/60);
     remainingLabel=days?`متبقي ${days} يوم${hours?' و'+hours+' ساعة':''}`:hours?`متبقي ${hours} ساعة`:'متبقي أقل من ساعة';
   }
-  return '<div class="deadline-wrap"><div class="deadline-label"><span>'+remainingLabel+'</span><b>التسليم: '+escapeHtml(deadlineLabel)+'</b></div><div class="deadline-track '+tone+'" role="progressbar" aria-label="الوقت المتبقي للتسليم" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+pct+'"><span style="width:'+pct+'%"></span></div></div>';
+  const doneControl=taskId?'<label class="deadline-done-control" title="علّم الواجب كمكتمل"><input type="checkbox" data-deadline-done="'+escapeHtml(taskId)+'" '+(completed?'checked':'')+' aria-label="تم حل الواجب"><span>تم الحل ✓</span></label>':'';
+  return '<div class="deadline-wrap deadline-tone-'+tone+'"><div class="deadline-label"><span>'+remainingLabel+'</span><span class="deadline-label-right"><b>التسليم: '+escapeHtml(deadlineLabel)+'</b>'+doneControl+'</span></div><div class="deadline-track '+tone+'" role="progressbar" aria-label="الوقت المتبقي للتسليم" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+pct+'"><span style="width:'+pct+'%"></span></div></div>';
 }
 function validHomeworkRule(rule){
   return !!(rule&&Number.isInteger(Number(rule.day_of_week))&&Number(rule.day_of_week)>=0&&Number(rule.day_of_week)<=6&&
@@ -1173,6 +1239,20 @@ function longestStreak(h){let n=0,best=0,d=habitStartISO(h),cap=todayISOFor();wh
 function renderToday(){
  const today=todayISOFor(), due=habits.filter(h=>habitDueOn(h,today)), done=due.filter(h=>isChecked(h.id,today)).length, pct=due.length?Math.round(done/due.length*100):0;
  $('#ov-goal').textContent=due.length;$('#ov-done').textContent=done;$('#ov-left').textContent=due.length-done;renderDonut(pct);
+ // Weekly summary always runs Sunday through Saturday, independent of the selected month view.
+ const weekStart=addDays(today,-weekdayOf(today)), weekEnd=addDays(weekStart,6);
+ let weekGoal=0,weekDone=0;
+ for(let iso=weekStart;iso<=weekEnd;iso=addDays(iso,1)){
+   const eligible=habits.filter(h=>habitDueOn(h,iso));
+   weekGoal+=eligible.length;
+   weekDone+=eligible.filter(h=>isChecked(h.id,iso)).length;
+ }
+ const weekPct=weekGoal?Math.min(100,Math.round(weekDone/weekGoal*100)):0;
+ $('#ov-week-goal').textContent=weekGoal;
+ $('#ov-week-done').textContent=weekDone;
+ $('#ov-week-left').textContent=Math.max(0,weekGoal-weekDone);
+ $('#weekly-range-label').textContent='('+shortDateLabel(weekStart)+' – '+shortDateLabel(weekEnd)+')';
+ renderDonutInto('#week-donut-wrap',weekPct);
 }
 
 function monthLabel(){
@@ -1206,10 +1286,11 @@ function renderRangeNav(){
   $('#prev-month').disabled=prevDisabled;
 }
 
-function renderDonut(pct){
+function renderDonut(pct){ renderDonutInto('#donut-wrap',pct); }
+function renderDonutInto(selector,pct){
   const r=50, c=Math.round(2*Math.PI*r*100)/100;
   const offset=Math.round(c*(1-pct/100)*100)/100;
-  $('#donut-wrap').innerHTML=
+  $(selector).innerHTML=
     '<svg viewBox="0 0 120 120" width="108" height="108">'+
     '<circle cx="60" cy="60" r="'+r+'" fill="none" stroke="var(--border)" stroke-width="14"/>'+
     '<circle cx="60" cy="60" r="'+r+'" fill="none" stroke="var(--accent)" stroke-width="14" '+
@@ -1383,7 +1464,7 @@ function visibleTasks(){
 }
 function renderTasks(){
  const list=$('#tasks-list');if(!list)return;const rows=visibleTasks();list.className=rows.length?'':'empty';
- list.innerHTML=rows.length?rows.map(t=>{const cls=!t.completed&&t.due_date<todayISOFor()?'overdue':!t.completed&&t.due_date===todayISOFor()?'due-today':'';const homework=String(t.category||'').startsWith('واجب بعد درس ');return '<div class="task-row '+cls+'" draggable="'+($('#task-sort').value==='manual')+'" data-task-row="'+t.id+'"><input type="checkbox" data-task-done="'+t.id+'" '+(t.completed?'checked':'')+' aria-label="تغيير حالة المهمة"><div class="task-main"><h4 class="'+(t.priority==='high'?'priority-high':'')+'">'+escapeHtml(t.title)+'</h4><p>الصعوبة: '+({easy:'سهلة',medium:'متوسطة',hard:'صعبة'}[t.difficulty]||'متوسطة')+' · الأولوية: '+({high:'عالية',medium:'متوسطة',low:'منخفضة'}[t.priority]||'متوسطة')+' '+(t.description?' · '+escapeHtml(t.description):'')+' '+(t.category?' · '+escapeHtml(t.category):'')+' '+(t.due_date?' · '+t.due_date:'')+' '+(t.estimated_minutes?' · '+t.estimated_minutes+' دقيقة':'')+'</p>'+(homework?homeworkDeadlineMarkup(t.due_date,t.created_at):'')+'</div><div class="task-actions"><button data-task-edit="'+t.id+'" aria-label="تعديل">✎</button><button data-task-delete="'+t.id+'" aria-label="حذف">🗑</button></div></div>';}).join(''):'لا توجد مهام في هذا العرض.';
+ list.innerHTML=rows.length?rows.map(t=>{const cls=!t.completed&&t.due_date<todayISOFor()?'overdue':!t.completed&&t.due_date===todayISOFor()?'due-today':'';const homework=String(t.category||'').startsWith('واجب بعد درس ');return '<div class="task-row '+cls+'" draggable="'+($('#task-sort').value==='manual')+'" data-task-row="'+t.id+'"><input type="checkbox" data-task-done="'+t.id+'" '+(t.completed?'checked':'')+' aria-label="تغيير حالة المهمة"><div class="task-main"><h4 class="'+(t.priority==='high'?'priority-high':'')+'">'+escapeHtml(t.title)+'</h4><p>الصعوبة: '+({easy:'سهلة',medium:'متوسطة',hard:'صعبة'}[t.difficulty]||'متوسطة')+' · الأولوية: '+({high:'عالية',medium:'متوسطة',low:'منخفضة'}[t.priority]||'متوسطة')+' '+(t.description?' · '+escapeHtml(t.description):'')+' '+(t.category?' · '+escapeHtml(t.category):'')+' '+(t.due_date?' · '+t.due_date:'')+' '+(t.estimated_minutes?' · '+t.estimated_minutes+' دقيقة':'')+'</p>'+(homework?homeworkDeadlineMarkup(t.due_date,t.created_at,t.id,t.completed):'')+'</div><div class="task-actions"><button data-task-edit="'+t.id+'" aria-label="تعديل">✎</button><button data-task-delete="'+t.id+'" aria-label="حذف">🗑</button></div></div>';}).join(''):'لا توجد مهام في هذا العرض.';
  const today=todayISOFor(),top=tasks.filter(t=>!t.completed&&!t.is_backlog&&(!t.due_date||t.due_date<=today)).sort((a,b)=>({high:0,medium:1,low:2}[a.priority]-{high:0,medium:1,low:2}[b.priority])||(a.due_date||'9999').localeCompare(b.due_date||'9999')).slice(0,3);
  $('#top-priorities').className=top.length?'':'empty';$('#top-priorities').innerHTML=top.length?top.map((t,i)=>'<div class="top-habit-row"><span class="top-habit-rank">'+(i+1)+'</span><span>'+escapeHtml(t.title)+'</span><b>'+({high:'عالية',medium:'متوسطة',low:'منخفضة'}[t.priority])+'</b></div>').join(''):'لا توجد مهام مفتوحة لتحديد الأولويات.';
 }
@@ -1601,10 +1682,15 @@ function closeSettingsModal(){ $('#settings-modal').classList.remove('show'); }
 function aiCurrentContext(){
   const today=todayISOFor();
   return {
-    today:today,
-    habits:habits.map(h=>({name:h.name,dueToday:habitDueOn(h,today),doneToday:isChecked(h.id,today),weeklyGoal:h.weeklyGoal||null})),
-    tasks:tasks.filter(t=>!t.completed).slice(0,30).map(t=>({title:t.title,dueDate:t.due_date||null,priority:t.priority})),
-    studyThisWeek:studySessions.filter(s=>s.session_date>=addDays(today,-6)&&s.session_date<=today).reduce((sum,s)=>sum+Number(s.duration_minutes||0),0)
+    today:today, timezone:getLocalTimeZone(),
+    habits:habits.slice(0,60).map(h=>({id:h.id,name:h.name,dueToday:habitDueOn(h,today),doneToday:isChecked(h.id,today),weeklyGoal:h.weeklyGoal||null})),
+    tasks:tasks.slice(0,100).map(t=>({id:t.id,title:t.title,description:t.description||'',due_date:t.due_date||null,priority:t.priority||'medium',difficulty:t.difficulty||'medium',completed:!!t.completed,category:t.category||'',estimated_minutes:Number(t.estimated_minutes)||0,is_backlog:!!t.is_backlog,created_at:t.created_at||null})),
+    pageAreas:['العادات','المهام اليومية','الواجبات','المتراكم','جلسات المذاكرة','التحليل','جدول الدروس'],
+    studySessionsAll:studySessions.slice(-80).map(s=>({date:s.session_date,subject:s.subject||'',duration_minutes:Number(s.duration_minutes)||0,questions:Number(s.questions_solved)||0,mistakes:Number(s.mistakes_reviewed)||0})),
+    existing_lesson_rules:Array.isArray(lessonHomeworkPlan?.rules)?lessonHomeworkPlan.rules.slice(0,30):[],
+    lesson_plan_enabled:!!lessonHomeworkPlan?.enabled,
+    studyThisWeek:studySessions.filter(s=>s.session_date>=addDays(today,-6)&&s.session_date<=today).reduce((sum,s)=>sum+Number(s.duration_minutes||0),0),
+    studySessionsThisWeek:studySessions.filter(s=>s.session_date>=addDays(today,-6)&&s.session_date<=today).slice(0,80).map(s=>({date:s.session_date,subject:s.subject||'',duration_minutes:Number(s.duration_minutes)||0,questions:Number(s.questions_solved)||0,mistakes:Number(s.mistakes_reviewed)||0}))
   };
 }
 function renderAIHistory(){
@@ -1613,11 +1699,43 @@ function renderAIHistory(){
   log.innerHTML=aiHistory.map(m=>'<p class="ai-message '+(m.role==='user'?'user':'')+'"><b>'+(m.role==='user'?'أنت':'المساعد')+':</b> '+escapeHtml(m.text)+'</p>').join('');
   log.scrollTop=log.scrollHeight;
 }
+function renderAIActionPreview(){
+  const box=$('#ai-action-preview'),button=$('#ai-apply-actions');
+  if(!aiPendingActions.length){box.innerHTML='';button.style.display='none';return;}
+  const labels={update_task:'تعديل مهمة',move_to_backlog:'نقل إلى المتراكم',mark_complete:'إنهاء المهمة',delete_task:'حذف مهمة'};
+  box.innerHTML='<div class="ai-task-preview"><b>تغييرات مقترحة — راجعها قبل التطبيق:</b>'+aiPendingActions.map((a,i)=>{const t=tasks.find(x=>x.id===a.task_id);return '<p><b>'+(i+1)+'. '+escapeHtml(labels[a.type]||'تغيير')+'</b> · '+escapeHtml(t?.title||'مهمة غير موجودة')+(a.type==='update_task'&&a.title?' → '+escapeHtml(a.title):'')+(a.type==='update_task'&&a.due_date?' · الموعد '+escapeHtml(a.due_date):'')+'</p>';}).join('')+'</div>';
+  button.style.display='block';
+}
+async function applyAIActions(){
+  if(!aiPendingActions.length)return;
+  const actions=aiPendingActions.slice();
+  if(actions.some(a=>a.type==='delete_task')&&!await confirmDialog('فيه مهمة أو أكثر سيتم حذفها نهائيًا. هل تؤكد الحذف؟'))return;
+  let applied=0;
+  for(const action of actions){
+    const task=tasks.find(t=>t.id===action.task_id);if(!task)continue;
+    if(action.type==='delete_task'){
+      const {data,error}=await sb.from('daily_tasks').delete().eq('id',task.id).eq('user_id',currentUser.id).select('id');
+      if(error||!data?.length){toast('تعذر حذف '+task.title);continue;}
+      tasks=tasks.filter(t=>t.id!==task.id);applied++;continue;
+    }
+    let patch={};
+    if(action.type==='move_to_backlog')patch={is_backlog:true};
+    else if(action.type==='mark_complete')patch={completed:true};
+    else if(action.type==='update_task'){
+      for(const key of ['title','description','priority','due_date','estimated_minutes','category','is_backlog','completed'])if(Object.prototype.hasOwnProperty.call(action,key))patch[key]=action[key];
+    }
+    if(!Object.keys(patch).length)continue;
+    const next={...task,...patch};if(await persistTask(next)){Object.assign(task,next);applied++;}
+  }
+  aiPendingActions=[];renderAIActionPreview();renderAll();
+  const message=applied?'تم تطبيق '+applied+' تغيير على الموقع.':'لم يتم تطبيق أي تغييرات.';
+  aiHistory.push({role:'model',text:message});renderAIHistory();
+}
 function setAIMode(mode){
-  aiMode=mode;$('#ai-mode-chat').classList.toggle('btn-primary',mode==='chat');$('#ai-mode-chat').classList.toggle('btn-ghost',mode!=='chat');
-  $('#ai-mode-tasks').classList.toggle('btn-primary',mode==='tasks');$('#ai-mode-tasks').classList.toggle('btn-ghost',mode!=='tasks');
-  $('#ai-message').placeholder=mode==='tasks'?'مثال: قسم مذاكرة الأحياء إلى مهام صغيرة هذا الأسبوع…':'اسأل عن تنظيم يومك أو الالتزام بعاداتك…';
-  $('#ai-save-tasks').style.display='none';$('#ai-task-preview').innerHTML='';
+  aiMode=['chat','tasks','schedule'].includes(mode)?mode:'chat';
+  [['ai-mode-chat','chat'],['ai-mode-tasks','tasks'],['ai-mode-schedule','schedule']].forEach(([id,key])=>{const button=document.getElementById(id);if(!button)return;button.classList.toggle('btn-primary',aiMode===key);button.classList.toggle('btn-ghost',aiMode!==key);});
+  $('#ai-message').placeholder=aiMode==='tasks'?'مثال: أضف 3 مهام لمراجعة الكيمياء هذا الأسبوع…':aiMode==='schedule'?'مثال: غيّرت موعد درس العربي ليوم الثلاثاء الساعة 6 مساءً…':'اسأل عن يومك أو اطلب مساعدة في المهام والعادات والدراسة…';
+  $('#ai-save-tasks').style.display='none';$('#ai-task-preview').innerHTML='';aiPendingActions=[];renderAIActionPreview();
 }
 function renderAITaskPreview(){
   const box=$('#ai-task-preview'),save=$('#ai-save-tasks');
@@ -1650,6 +1768,21 @@ async function sendAIMessage(){
     aiHistory.push({role:'user',text:'إنشاء مهام: '+prompt},{role:'model',text:data.reply||'جهزت مسودة المهام. راجعها وحدد ما تريد حفظه.'});
     renderAIHistory();renderAITaskPreview();return;
   }
+  if(aiMode==='schedule'){
+    const rules=Array.isArray(data?.lesson_rules)?data.lesson_rules.filter(validHomeworkRule).map(r=>({
+      day_of_week:Number(r.day_of_week),next_lesson_day:r.next_lesson_day!==null&&r.next_lesson_day!==undefined&&Number.isInteger(Number(r.next_lesson_day))&&Number(r.next_lesson_day)>=0&&Number(r.next_lesson_day)<=6?Number(r.next_lesson_day):null,
+      lesson_subject:String(r.lesson_subject||'').trim().slice(0,80),lesson_end_time:String(r.lesson_end_time||''),homework_subject:String(r.homework_subject||'').trim().slice(0,80),homework_title:String(r.homework_title||'').trim().slice(0,160),
+      description:String(r.description||'').trim().slice(0,1000),priority:['high','medium','low'].includes(r.priority)?r.priority:'medium',estimated_minutes:Math.max(0,Math.min(1440,Number(r.estimated_minutes)||0))
+    })):[];
+    if(!rules.length){aiHistory.push({role:'model',text:String(data?.reply||'محتاج أعرف يوم الحصة ووقت انتهائها والواجب المطلوب قبل ما أقدر أعدّل الجدول.')});renderAIHistory();return;}
+    lessonHomeworkDraft=rules;$('#homework-prompt').value=prompt;$('#homework-prompt').dataset.initialized='true';
+    aiHistory.push({role:'model',text:(data?.reply||'جهزت التعديل.')+' جهزت نسخة للمراجعة. هفتح لك صفحة الواجبات عشان تراجع القواعد وتضغط «حفظ القواعد المحددة» قبل تطبيق التغيير.'});renderAIHistory();
+    document.querySelector('.tabs [data-page="study-page"]')?.click();showIntegratedStudyTab('homework');renderHomeworkPlan();$('#homework-preview').scrollIntoView({behavior:'smooth',block:'nearest'});return;
+  }
+  if(aiMode==='chat'&&Array.isArray(data?.actions)){
+    aiPendingActions=data.actions.filter(a=>a&&typeof a==='object'&&tasks.some(t=>t.id===String(a.task_id))&&['update_task','move_to_backlog','mark_complete','delete_task'].includes(a.type)).map(a=>({...a,task_id:String(a.task_id)}));
+    renderAIActionPreview();
+  }
   aiHistory.push({role:'model',text:String(data?.reply||'لم يصل رد واضح.')});renderAIHistory();
 }
 async function saveGeneratedAITasks(){
@@ -1669,14 +1802,33 @@ function bindEvents(){
   $('#task-modal-overlay').onclick=()=>$('#task-modal').classList.remove('show');
   $('#task-save').onclick=saveTask;
   $('#task-filter').onchange=renderTasks;$('#task-sort').onchange=renderTasks;
-  $('#ai-mode-chat').onclick=()=>setAIMode('chat');$('#ai-mode-tasks').onclick=()=>setAIMode('tasks');
-  $('#ai-send').onclick=sendAIMessage;$('#ai-save-tasks').onclick=saveGeneratedAITasks;
+  $('#ai-mode-chat').onclick=()=>setAIMode('chat');$('#ai-mode-tasks').onclick=()=>setAIMode('tasks');$('#ai-mode-schedule').onclick=()=>setAIMode('schedule');
+  const aiDock=$('#ai-dock'),aiDockTab=$('#ai-dock-tab');
+  const setAIDockOpen=open=>{aiDock.classList.toggle('open',!!open);aiDockTab.setAttribute('aria-expanded',String(!!open));$('#ai-drawer').setAttribute('aria-hidden',String(!open));};
+  aiDockTab.onclick=()=>setAIDockOpen(!aiDock.classList.contains('open'));$('#ai-dock-close').onclick=()=>setAIDockOpen(false);
+  aiDock.addEventListener('mouseenter',()=>setAIDockOpen(true));aiDock.addEventListener('mouseleave',()=>{if(!aiDock.contains(document.activeElement))setAIDockOpen(false);});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')setAIDockOpen(false);});
+  $('#ai-send').onclick=sendAIMessage;$('#ai-save-tasks').onclick=saveGeneratedAITasks;$('#ai-apply-actions').onclick=applyAIActions;
   $('#ai-message').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAIMessage();}});
   $('#homework-analyze').onclick=analyzeHomeworkPrompt;$('#homework-save').onclick=saveHomeworkPlan;
   $('#homework-prompt').addEventListener('input',()=>{lessonHomeworkDraft=[];renderHomeworkPlan();});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshDailyTasksFromSupabase(false);});
   const handleDailyTaskClick=async e=>{const edit=e.target.closest('[data-task-edit]');if(edit){openTaskModal(tasks.find(t=>t.id===edit.dataset.taskEdit));return;}const del=e.target.closest('[data-task-delete]');if(del){deleteTask(del.dataset.taskDelete);return;}const check=e.target.closest('[data-task-done]');if(check){const t=tasks.find(x=>x.id===check.dataset.taskDone);if(!t)return;const prev=t.completed;t.completed=check.checked;if(!await persistTask(t)){t.completed=prev;check.checked=prev;}renderAll();}};
   $('#tasks-list').addEventListener('click',handleDailyTaskClick);
+  document.addEventListener('change',async e=>{
+    const box=e.target.closest('[data-deadline-done]');if(!box)return;
+    const task=tasks.find(t=>t.id===box.dataset.deadlineDone);if(!task)return;
+    const previous=!!task.completed,next=!!box.checked;if(previous===next)return;
+    task.completed=next;
+    if(!await persistTask(task)){task.completed=previous;box.checked=previous;return;}
+    if(next){
+      const tone=getHomeworkDeadlineTone(task.due_date,task.created_at);
+      const phrases={green:['⚡ إنجاز سريع! خلصت الواجب بدري، كمل بنفس الحماس!','🔥 سرعة ممتازة — سبقت الوقت وكسبت وقتك!','🏆 برافو! خلصته بدري وده إنجاز يستاهل التقدير!'],yellow:['👏 أحسنت! المهم إنك خلصت الواجب، خطوة ناجحة اتضافت ليومك.','✅ واجب اتقفل من القائمة! خليك مستمر خطوة بخطوة.','💪 كويس إنك أنهيته — الاستمرارية أهم حاجة.'],red:['🚀 خلصته أخيرًا! ابدأ اللي بعده بدري المرة الجاية وهتكون أريح.','💪 المهم إنك أنجزت. خلّي الواجب الجاي يبدأ بدري عشان تلحق براحتك.','🎯 اتقفل الواجب! خُد الدرس منه وابدأ القادم قبل ما الوقت يضغط عليك.']};
+      const list=phrases[tone]||phrases.red;toast(list[Math.floor(Math.random()*list.length)]);
+    }
+    renderAll();
+  });
+
   let dragged=null;$('#tasks-list').addEventListener('dragstart',e=>{const row=e.target.closest('[data-task-row]');if(row)dragged=row.dataset.taskRow;});$('#tasks-list').addEventListener('dragover',e=>{if(e.target.closest('[data-task-row]'))e.preventDefault();});$('#tasks-list').addEventListener('drop',async e=>{const row=e.target.closest('[data-task-row]');if(!row||!dragged||dragged===row.dataset.taskRow)return;e.preventDefault();const original=tasks.slice(),orders=new Map(tasks.map(t=>[t.id,t.sort_order])),from=tasks.findIndex(t=>t.id===dragged),to=tasks.findIndex(t=>t.id===row.dataset.taskRow),[item]=tasks.splice(from,1);tasks.splice(to,0,item);tasks.forEach((t,i)=>t.sort_order=i);let ok=true;for(const t of tasks)if(!await persistTask(t)){ok=false;break;}if(!ok){tasks=original;tasks.forEach(t=>t.sort_order=orders.get(t.id));toast('تعذر حفظ الترتيب اليدوي.');}dragged=null;renderAll();});
   $('#task-delete').onclick=async()=>{if(!editingTaskId)return;const id=editingTaskId,before=tasks.length;await deleteTask(id);if(tasks.length<before)$('#task-modal').classList.remove('show');};
   $('#timer-start').onclick=togglePomodoro;
@@ -1903,7 +2055,7 @@ function isStudyHomeworkTask(task){return /واجب/.test(String(task.category||
 function studyTaskCardHTML(task){
   const today=todayISOFor(),late=!!(!task.completed&&task.due_date&&task.due_date<today),backlog=!!task.is_backlog;
   const priority=({high:'عالية',medium:'متوسطة',low:'منخفضة'}[task.priority]||'متوسطة');
-  return '<article class="task-row study-module-task '+(late?'overdue':'')+'"><input type="checkbox" data-study-done="'+task.id+'" '+(task.completed?'checked':'')+' aria-label="إنجاز المهمة"><div class="task-main"><h4 class="'+(task.priority==='high'?'priority-high':'')+'">'+escapeHtml(task.title)+'</h4><p>الصعوبة: '+({easy:'سهلة',medium:'متوسطة',hard:'صعبة'}[task.difficulty]||'متوسطة')+' · الأولوية: '+priority+(task.category?' · '+escapeHtml(task.category):'')+(task.due_date?' · موعدها '+escapeHtml(task.due_date):'')+(task.estimated_minutes?' · '+task.estimated_minutes+' دقيقة':'')+(late?' · متأخرة':'')+'</p>'+(isStudyHomeworkTask(task)?homeworkDeadlineMarkup(task.due_date,task.created_at):'')+'</div><div class="task-actions"><button type="button" data-study-backlog="'+task.id+'" aria-label="'+(backlog?'إخراج من المتراكم':'نقل للمتراكم')+'">'+(backlog?'إرجاع':'للمتراكم')+'</button><button type="button" data-study-edit="'+task.id+'" aria-label="تعديل المهمة">✎</button><button type="button" data-study-delete="'+task.id+'" aria-label="حذف المهمة">🗑</button></div></article>';
+  return '<article class="task-row study-module-task '+(late?'overdue':'')+'"><input type="checkbox" data-study-done="'+task.id+'" '+(task.completed?'checked':'')+' aria-label="إنجاز المهمة"><div class="task-main"><h4 class="'+(task.priority==='high'?'priority-high':'')+'">'+escapeHtml(task.title)+'</h4><p>الصعوبة: '+({easy:'سهلة',medium:'متوسطة',hard:'صعبة'}[task.difficulty]||'متوسطة')+' · الأولوية: '+priority+(task.category?' · '+escapeHtml(task.category):'')+(task.due_date?' · موعدها '+escapeHtml(task.due_date):'')+(task.estimated_minutes?' · '+task.estimated_minutes+' دقيقة':'')+(late?' · متأخرة':'')+'</p>'+(isStudyHomeworkTask(task)?homeworkDeadlineMarkup(task.due_date,task.created_at,task.id,task.completed):'')+'</div><div class="task-actions"><button type="button" data-study-backlog="'+task.id+'" aria-label="'+(backlog?'إخراج من المتراكم':'نقل للمتراكم')+'">'+(backlog?'إرجاع':'للمتراكم')+'</button><button type="button" data-study-edit="'+task.id+'" aria-label="تعديل المهمة">✎</button><button type="button" data-study-delete="'+task.id+'" aria-label="حذف المهمة">🗑</button></div></article>';
 }
 function renderStudyWeeklySummary(){
   const today=todayISOFor(),from=addDays(today,-6),sessions=studySessions.filter(s=>s.session_date>=from&&s.session_date<=today);
@@ -1925,7 +2077,7 @@ function renderIntegratedStudyPages(){
   const homework=open.filter(t=>!t.is_backlog&&isStudyHomeworkTask(t)).sort((a,b)=>(a.due_date||'9999').localeCompare(b.due_date||'9999'));
   const deadlines=document.getElementById('home-deadline-list');
   const nearest=homework.filter(t=>t.due_date).slice(0,3);
-  if(deadlines)deadlines.innerHTML=nearest.length?nearest.map(t=>'<article class="home-deadline-item"><div class="home-deadline-title"><b>'+escapeHtml(t.title)+'</b><span>'+(t.due_date<today?'متأخر':'موعد التسليم')+' · '+escapeHtml(t.due_date)+'</span></div>'+homeworkDeadlineMarkup(t.due_date,t.created_at)+'</article>').join(''):'<p class="empty">لا توجد واجبات مفتوحة بموعد تسليم مسجل.</p>';
+  if(deadlines)deadlines.innerHTML=nearest.length?nearest.map(t=>'<article class="home-deadline-item"><div class="home-deadline-title"><b>'+escapeHtml(t.title)+'</b><span>'+(t.due_date<today?'متأخر':'موعد التسليم')+' · '+escapeHtml(t.due_date)+'</span></div>'+homeworkDeadlineMarkup(t.due_date,t.created_at,t.id,t.completed)+'</article>').join(''):'<p class="empty">لا توجد واجبات مفتوحة بموعد تسليم مسجل.</p>';
   const backlog=open.filter(t=>t.is_backlog).sort((a,b)=>priority[a.priority]-priority[b.priority]||(a.due_date||'9999').localeCompare(b.due_date||'9999'));
   const backlogCount=document.getElementById('home-backlog-count'),backlogSummary=document.getElementById('home-backlog-summary'),backlogPreview=document.getElementById('home-backlog-preview');
   if(backlogCount)backlogCount.textContent=String(backlog.length);
@@ -1967,6 +2119,38 @@ globalThis.initializeStudyTracker=async function(client,user){if(!client||!user)
 globalThis.resetIntegratedStudyTracker=function(){studyModuleInitialized=false;activeStudyTab='home';};
 globalThis.refreshStudyOverview=function(){if(studyModuleInitialized)renderIntegratedStudyPages();};
 
+
+function bindAchievementSlider(){
+  const root=document.getElementById('achievement-slider');
+  const viewport=document.getElementById('achievement-slider-viewport');
+  const track=document.getElementById('achievement-slider-track');
+  const prev=document.getElementById('achievement-prev');
+  const next=document.getElementById('achievement-next');
+  if(!root||!viewport||!track||root.dataset.bound==='1')return;
+  root.dataset.bound='1';
+  const dots=[...root.querySelectorAll('.achievement-dot')];
+  let index=0,startX=0,startY=0,tracking=false;
+  function showSlide(nextIndex){
+    index=(nextIndex+2)%2;
+    track.style.transform=`translateX(${index===0?0:100}%)`;
+    dots.forEach((dot,i)=>dot.classList.toggle('active',i===index));
+    const daily=index===0;
+    prev.setAttribute('aria-label',daily?'إنجازات اليوم':'إنجازات اليوم');
+    next.setAttribute('aria-label',daily?'إنجازات الأسبوع':'إنجازات الأسبوع');
+    root.dataset.active=index===0?'daily':'weekly';
+  }
+  prev.addEventListener('click',()=>showSlide(index===0?1:0));
+  next.addEventListener('click',()=>showSlide(index===0?1:0));
+  viewport.addEventListener('touchstart',e=>{if(e.touches.length!==1)return;startX=e.touches[0].clientX;startY=e.touches[0].clientY;tracking=true;},{passive:true});
+  viewport.addEventListener('touchend',e=>{if(!tracking||!e.changedTouches.length)return;tracking=false;const dx=e.changedTouches[0].clientX-startX,dy=e.changedTouches[0].clientY-startY;if(Math.abs(dx)<45||Math.abs(dx)<Math.abs(dy)*1.2)return;showSlide(dx<0?1:0);},{passive:true});
+  viewport.addEventListener('touchcancel',()=>{tracking=false;},{passive:true});
+  let pointerStart=null;
+  viewport.addEventListener('pointerdown',e=>{if(e.pointerType==='touch')return;pointerStart={x:e.clientX,y:e.clientY};});
+  viewport.addEventListener('pointerup',e=>{if(!pointerStart)return;const dx=e.clientX-pointerStart.x,dy=e.clientY-pointerStart.y;pointerStart=null;if(Math.abs(dx)<55||Math.abs(dx)<Math.abs(dy)*1.2)return;showSlide(dx<0?1:0);});
+  showSlide(0);
+}
+
+bindAchievementSlider();
 boot();
 </script>
 </body>
