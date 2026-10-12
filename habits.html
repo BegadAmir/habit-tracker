@@ -257,14 +257,14 @@ input,select,textarea{border-radius:12px!important}select{min-height:40px;paddin
 .home-deadline-item .deadline-wrap{margin-top:8px}
 .deadline-label-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.deadline-done-control{display:inline-flex;align-items:center;gap:5px;cursor:pointer;color:var(--ink);font-weight:700}.deadline-done-control input{width:17px;height:17px;accent-color:#31865b;cursor:pointer}.deadline-tone-green .deadline-done-control{color:#31865b}.deadline-tone-yellow .deadline-done-control{color:#b78213}.deadline-tone-red .deadline-done-control{color:#c8443b}.deadline-done-control span{font-size:.74rem}
 
-/* Compact theme-aware assistant icon at the bottom-right */
-.ai-dock{position:fixed;z-index:1200;right:14px;bottom:calc(78px + env(safe-area-inset-bottom,0px));display:flex;align-items:flex-end;direction:rtl;font-family:inherit}
-.ai-dock-tab{width:48px;height:48px;display:grid;place-items:center;border:1px solid var(--border);border-radius:15px;padding:7px;background:var(--card);color:var(--ink);box-shadow:0 5px 18px #0002;font:inherit;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,background .2s,color .2s}
-.ai-dock-tab:hover{transform:translateY(-3px);box-shadow:0 9px 24px #0003}.ai-dock-icon{width:100%;height:100%;display:block}
-.ai-drawer{position:absolute;right:0;bottom:60px;transform:translateY(10px);width:min(390px,calc(100vw - 28px));height:min(650px,78vh);display:flex;flex-direction:column;gap:10px;padding:14px;background:var(--card,var(--paper));color:var(--ink);border:1px solid var(--border);border-radius:18px;box-shadow:0 18px 60px #0003;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .18s ease,transform .18s ease,visibility .18s;}
-.ai-dock.open .ai-drawer,.ai-dock:hover .ai-drawer,.ai-dock:focus-within .ai-drawer{opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0)}
+/* Persistent assistant side dock */
+.ai-dock{position:fixed;z-index:1200;right:0;top:42%;display:flex;align-items:center;direction:rtl;font-family:inherit}
+.ai-dock-tab{writing-mode:vertical-rl;display:flex;align-items:center;gap:9px;border:1px solid var(--border);border-right:0;border-radius:14px 0 0 14px;padding:14px 10px;background:var(--accent);color:#fff;box-shadow:0 8px 28px #0002;font:inherit;font-weight:800;cursor:pointer;transition:transform .18s ease}
+.ai-dock-tab:hover{transform:translateX(-3px)}.ai-dock-spark{font-size:1.15rem}
+.ai-drawer{position:absolute;right:48px;top:50%;transform:translate(12px,-50%);width:min(390px,calc(100vw - 70px));height:min(650px,82vh);display:flex;flex-direction:column;gap:10px;padding:14px;background:var(--card,var(--paper));color:var(--ink);border:1px solid var(--border);border-radius:18px;box-shadow:0 18px 60px #0003;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .18s ease,transform .18s ease,visibility .18s;}
+.ai-dock.open .ai-drawer,.ai-dock:hover .ai-drawer,.ai-dock:focus-within .ai-drawer{opacity:1;visibility:visible;pointer-events:auto;transform:translate(0,-50%)}
 .ai-drawer-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.ai-drawer-head>div{display:grid;gap:3px}.ai-drawer-head small,.ai-drawer-foot{font-size:.72rem;color:var(--muted)}.ai-dock-close{border:0;background:transparent;color:var(--ink);font-size:1.7rem;cursor:pointer;padding:0 6px}.ai-drawer-disclosure{margin:0}.ai-drawer-modes{display:flex;gap:6px;flex-wrap:wrap}.ai-drawer-modes button{flex:1;min-width:90px;padding:8px 6px;font-size:.8rem}.ai-drawer .ai-log{flex:1;min-height:100px;max-height:none;overflow:auto}.ai-drawer .ai-compose textarea{min-width:0;max-height:120px}.ai-drawer-compose button{align-self:stretch}.ai-drawer-foot{line-height:1.5}
-@media(max-width:520px){.ai-dock{right:12px;bottom:calc(76px + env(safe-area-inset-bottom,0px))}.ai-dock-tab{width:44px;height:44px;border-radius:14px;padding:6px}.ai-drawer{position:fixed;right:10px;bottom:calc(130px + env(safe-area-inset-bottom,0px));top:auto;transform:translateY(10px);width:calc(100vw - 20px);height:min(72vh,650px)}.ai-dock.open .ai-drawer,.ai-dock:hover .ai-drawer,.ai-dock:focus-within .ai-drawer{transform:translateY(0)}}
+@media(max-width:520px){.ai-dock{top:auto;bottom:18px}.ai-dock-tab{writing-mode:horizontal-tb;border:1px solid var(--border);border-radius:24px 0 0 24px;padding:12px}.ai-drawer{position:fixed;right:10px;bottom:72px;top:auto;transform:translateY(10px);width:calc(100vw - 20px);height:min(75vh,650px)}.ai-dock.open .ai-drawer,.ai-dock:hover .ai-drawer,.ai-dock:focus-within .ai-drawer{transform:translateY(0)}}
 
 /* Swipeable daily/weekly achievement widget */
 .achievement-slider-wrap{grid-column:1/-1;min-width:0;width:100%;margin-bottom:14px;direction:rtl;}
@@ -448,6 +448,10 @@ input,select,textarea{border-radius:12px!important}select{min-height:40px;paddin
 .deadline-wrap{display:grid;gap:5px;margin-top:8px}.deadline-label{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:.72rem;color:var(--muted)}.deadline-label b{font-weight:700}.deadline-track{height:8px;border-radius:999px;background:color-mix(in srgb,var(--border) 70%,transparent);overflow:hidden}.deadline-track span{display:block;height:100%;border-radius:inherit;transition:width .3s ease}.deadline-track.green span{background:#31865b}.deadline-track.yellow span{background:#d29b25}.deadline-track.red span{background:#c8443b}.deadline-track.empty span{background:transparent}.deadline-unset{margin-top:7px;color:var(--muted);font-size:.74rem}
 @media(max-width:760px){.study-week-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:639px){.study-home-heading{align-items:flex-start;flex-direction:column;gap:6px}.study-home-greeting{font-size:.75rem}.study-home-summaries{grid-template-columns:1fr;gap:8px}.study-summary-card{padding:12px}.study-week-metrics>div{padding:10px}.home-task-list .task-row{grid-template-columns:auto minmax(0,1fr)}.home-task-list .task-actions{grid-column:2;justify-content:flex-start}.deadline-label{font-size:.68rem}}
+
+.task-completed-badge{display:inline-flex;align-items:center;gap:4px;margin-inline-start:8px;padding:3px 8px;border-radius:999px;font-size:.72em;font-weight:800;color:var(--success,var(--accent));background:color-mix(in srgb,var(--accent) 12%,transparent);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);vertical-align:middle;white-space:nowrap}
+.task-row:has(input[type="checkbox"]:checked) .task-main h4{text-decoration:line-through;text-decoration-thickness:1px;opacity:.85}
+#view-archive .task-row{margin-block:8px}
 </style>
 </head>
 <body>
@@ -542,6 +546,7 @@ input,select,textarea{border-radius:12px!important}select{min-height:40px;paddin
     <button type="button" data-study-tab="tasks">📝 التسكات</button>
     <button type="button" data-study-tab="homework">📚 الواجبات</button>
     <button type="button" data-study-tab="backlog">🧱 المتراكم</button>
+    <button type="button" data-study-tab="archive">🗃️ الأرشيف</button>
   </nav>
   <div id="study-app-root" class="study-app-root">
 <div class="study-main">
@@ -597,6 +602,11 @@ input,select,textarea{border-radius:12px!important}select{min-height:40px;paddin
     <div id="study-tasks-list"></div>
   </section>
 
+  <section id="view-archive" class="view">
+    <div class="study-home-heading"><div><p class="eyebrow">إنجازاتك المحفوظة</p><h2>🗃️ أرشيف الإنجاز</h2><p class="muted">كل تاسك أو واجب أو مهمة متراكمة علّمت عليها كمكتملة هتظهر هنا، وتختفي من قوائم المهام المفتوحة.</p></div></div>
+    <div class="filters"><span class="chip" id="archive-count">0 مهمة منجزة</span><select id="archive-filter" class="filter-select" aria-label="تصفية الأرشيف"><option value="all">كل الإنجازات</option><option value="homework">الواجبات</option><option value="backlog">المتراكم المنجز</option><option value="tasks">التسكات</option></select></div>
+    <div id="study-archive-list"><p class="empty">لسه مفيش إنجازات محفوظة.</p></div>
+  </section>
   <section id="view-backlog" class="view">
     <div class="study-home-heading"><div><p class="eyebrow">محتاج يتلحق</p><h2>المتراكم</h2><p class="muted">انقل أي تاسك هنا من زر «للمتراكم»؛ ستجد مواعيده وصعوبته وأولويته.</p></div><span class="chip" id="study-backlog-count">0 مهمة</span></div>
     <div id="backlog-list"></div>
@@ -723,16 +733,7 @@ input,select,textarea{border-radius:12px!important}select{min-height:40px;paddin
 </div>
 
 <div id="ai-dock" class="ai-dock" aria-label="مساعد الموقع">
-  <button type="button" id="ai-dock-tab" class="ai-dock-tab" aria-label="فتح مساعد الموقع" title="مساعد الموقع" aria-expanded="false" aria-controls="ai-drawer">
-    <svg class="ai-dock-icon" viewBox="0 0 48 48" role="img" aria-hidden="true">
-      <rect x="3" y="3" width="42" height="42" rx="12" fill="var(--paper)" stroke="var(--ink)" stroke-width="1.8"/>
-      <g fill="var(--ink)">
-        <rect x="9" y="10" width="10" height="10" rx="3"/><rect x="23" y="11" width="15" height="3.2" rx="1.6"/><rect x="23" y="16" width="10" height="2.6" rx="1.3"/>
-        <rect x="9" y="23" width="10" height="10" rx="3"/><rect x="23" y="24" width="15" height="3.2" rx="1.6"/><rect x="23" y="29" width="10" height="2.6" rx="1.3"/>
-      </g>
-      <path d="M11.5 15.1l2.1 2.1 3.7-4.2M11.5 28.1l2.1 2.1 3.7-4.2" fill="none" stroke="var(--card)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-  </button>
+  <button type="button" id="ai-dock-tab" class="ai-dock-tab" aria-expanded="false" aria-controls="ai-drawer"><span class="ai-dock-spark">✦</span><span>اسأل المساعد</span></button>
   <aside id="ai-drawer" class="ai-drawer" aria-label="محادثة مساعد الموقع" aria-hidden="true">
     <div class="ai-drawer-head"><div><b>مساعد الموقع ✦</b><small>المهام · العادات · الدراسة · جدول الدروس</small></div><button type="button" id="ai-dock-close" class="ai-dock-close" aria-label="إغلاق المحادثة">×</button></div>
     <p class="ai-disclosure ai-drawer-disclosure">اسأل عن بيانات موقعك، اطلب اقتراح مهام، أو عدّل جدول الدروس. راجع أي تغييرات قبل حفظها.</p>
@@ -742,7 +743,7 @@ input,select,textarea{border-radius:12px!important}select{min-height:40px;paddin
     <div id="ai-action-preview"></div>
     <button type="button" class="btn-primary" id="ai-apply-actions" style="display:none;width:100%;margin-top:8px">تأكيد التعديلات على الموقع</button>
     <div class="ai-compose ai-drawer-compose"><textarea id="ai-message" rows="2" placeholder="اكتب رسالتك…"></textarea><button type="button" class="btn-primary" id="ai-send">إرسال</button></div>
-    <button type="button" class="btn-ghost" id="ai-save-tasks" style="display:none;width:100%;margin-top:8px">حفظ المهام المحددة</button>
+    <button type="button" class="btn-ghost" id="ai-save-tasks" style="display:none;width:100%;margin-top:8px">مراجعة وتأكيد إضافة المهام</button>
     <small class="ai-drawer-foot">المساعد يعتمد على البيانات المتاحة في الموقع، وقد تحتاج مراجعة التغييرات قبل اعتمادها.</small>
   </aside>
 </div>
@@ -1473,7 +1474,7 @@ function visibleTasks(){
 }
 function renderTasks(){
  const list=$('#tasks-list');if(!list)return;const rows=visibleTasks();list.className=rows.length?'':'empty';
- list.innerHTML=rows.length?rows.map(t=>{const cls=!t.completed&&t.due_date<todayISOFor()?'overdue':!t.completed&&t.due_date===todayISOFor()?'due-today':'';const homework=String(t.category||'').startsWith('واجب بعد درس ');return '<div class="task-row '+cls+'" draggable="'+($('#task-sort').value==='manual')+'" data-task-row="'+t.id+'"><input type="checkbox" data-task-done="'+t.id+'" '+(t.completed?'checked':'')+' aria-label="تغيير حالة المهمة"><div class="task-main"><h4 class="'+(t.priority==='high'?'priority-high':'')+'">'+escapeHtml(t.title)+'</h4><p>الصعوبة: '+({easy:'سهلة',medium:'متوسطة',hard:'صعبة'}[t.difficulty]||'متوسطة')+' · الأولوية: '+({high:'عالية',medium:'متوسطة',low:'منخفضة'}[t.priority]||'متوسطة')+' '+(t.description?' · '+escapeHtml(t.description):'')+' '+(t.category?' · '+escapeHtml(t.category):'')+' '+(t.due_date?' · '+t.due_date:'')+' '+(t.estimated_minutes?' · '+t.estimated_minutes+' دقيقة':'')+'</p>'+(homework?homeworkDeadlineMarkup(t.due_date,t.created_at,t.id,t.completed):'')+'</div><div class="task-actions"><button data-task-edit="'+t.id+'" aria-label="تعديل">✎</button><button data-task-delete="'+t.id+'" aria-label="حذف">🗑</button></div></div>';}).join(''):'لا توجد مهام في هذا العرض.';
+ list.innerHTML=rows.length?rows.map(t=>{const cls=!t.completed&&t.due_date<todayISOFor()?'overdue':!t.completed&&t.due_date===todayISOFor()?'due-today':'';const homework=String(t.category||'').startsWith('واجب بعد درس ');return '<div class="task-row '+cls+'" draggable="'+($('#task-sort').value==='manual')+'" data-task-row="'+t.id+'"><input type="checkbox" data-task-done="'+t.id+'" '+(t.completed?'checked':'')+' aria-label="تغيير حالة المهمة"><div class="task-main"><h4 class="'+(t.priority==='high'?'priority-high':'')+'">'+escapeHtml(t.title)+(t.completed?' <span class="task-completed-badge">✓ تم الحل</span>':'')+'</h4><p>الصعوبة: '+({easy:'سهلة',medium:'متوسطة',hard:'صعبة'}[t.difficulty]||'متوسطة')+' · الأولوية: '+({high:'عالية',medium:'متوسطة',low:'منخفضة'}[t.priority]||'متوسطة')+' '+(t.description?' · '+escapeHtml(t.description):'')+' '+(t.category?' · '+escapeHtml(t.category):'')+' '+(t.due_date?' · '+t.due_date:'')+' '+(t.estimated_minutes?' · '+t.estimated_minutes+' دقيقة':'')+'</p>'+(homework?homeworkDeadlineMarkup(t.due_date,t.created_at,t.id,t.completed):'')+'</div><div class="task-actions"><button data-task-edit="'+t.id+'" aria-label="تعديل">✎</button><button data-task-delete="'+t.id+'" aria-label="حذف">🗑</button></div></div>';}).join(''):'لا توجد مهام في هذا العرض.';
  const today=todayISOFor(),top=tasks.filter(t=>!t.completed&&!t.is_backlog&&(!t.due_date||t.due_date<=today)).sort((a,b)=>({high:0,medium:1,low:2}[a.priority]-{high:0,medium:1,low:2}[b.priority])||(a.due_date||'9999').localeCompare(b.due_date||'9999')).slice(0,3);
  $('#top-priorities').className=top.length?'':'empty';$('#top-priorities').innerHTML=top.length?top.map((t,i)=>'<div class="top-habit-row"><span class="top-habit-rank">'+(i+1)+'</span><span>'+escapeHtml(t.title)+'</span><b>'+({high:'عالية',medium:'متوسطة',low:'منخفضة'}[t.priority])+'</b></div>').join(''):'لا توجد مهام مفتوحة لتحديد الأولويات.';
 }
@@ -1797,6 +1798,8 @@ async function sendAIMessage(){
 async function saveGeneratedAITasks(){
   const selected=[...document.querySelectorAll('[data-ai-task]:checked')].map(el=>aiGeneratedTasks[Number(el.dataset.aiTask)]).filter(Boolean);
   if(!selected.length){toast('حدد مهمة واحدة على الأقل.');return;}
+  const preview=selected.slice(0,5).map((t,i)=>(i+1)+'. '+t.title).join('\n')+(selected.length>5?'\n… ومهام أخرى':'');
+  if(!await confirmDialog('تأكيد إضافة '+selected.length+' مهمة إلى الموقع؟\n\n'+preview+'\n\nلن تُضاف المهام إلا بعد موافقتك.'))return;
   let saved=0;
   for(const item of selected){
     const task=Object.assign({id:null,completed:false,sort_order:tasks.length,created_at:new Date().toISOString()},item);
@@ -1822,7 +1825,7 @@ function bindEvents(){
   $('#homework-analyze').onclick=analyzeHomeworkPrompt;$('#homework-save').onclick=saveHomeworkPlan;
   $('#homework-prompt').addEventListener('input',()=>{lessonHomeworkDraft=[];renderHomeworkPlan();});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshDailyTasksFromSupabase(false);});
-  const handleDailyTaskClick=async e=>{const edit=e.target.closest('[data-task-edit]');if(edit){openTaskModal(tasks.find(t=>t.id===edit.dataset.taskEdit));return;}const del=e.target.closest('[data-task-delete]');if(del){deleteTask(del.dataset.taskDelete);return;}const check=e.target.closest('[data-task-done]');if(check){const t=tasks.find(x=>x.id===check.dataset.taskDone);if(!t)return;const prev=t.completed;t.completed=check.checked;if(!await persistTask(t)){t.completed=prev;check.checked=prev;}renderAll();}};
+  const handleDailyTaskClick=async e=>{const edit=e.target.closest('[data-task-edit]');if(edit){openTaskModal(tasks.find(t=>t.id===edit.dataset.taskEdit));return;}const del=e.target.closest('[data-task-delete]');if(del){deleteTask(del.dataset.taskDelete);return;}const check=e.target.closest('[data-task-done]');if(check){const t=tasks.find(x=>x.id===check.dataset.taskDone);if(!t)return;const prev=t.completed;t.completed=check.checked;if(!await persistTask(t)){t.completed=prev;check.checked=prev;}else if(t.completed&&!prev){toast('✓ تم الحل! اتنقلت المهمة لأرشيف الإنجاز.');}else if(!t.completed&&prev){toast('رجّعنا المهمة لقائمة المهام المفتوحة.');}renderAll();}};
   $('#tasks-list').addEventListener('click',handleDailyTaskClick);
   document.addEventListener('change',async e=>{
     const box=e.target.closest('[data-deadline-done]');if(!box)return;
@@ -2054,7 +2057,7 @@ async function boot(){
 // Native study pages use the Habit Tracker's daily_tasks and study_sessions tables.
 let studyModuleInitialized=false,studyModuleBound=false,activeStudyTab='home';
 function showIntegratedStudyTab(name){
-  const allowed=['home','focus','tasks','homework','backlog'];
+  const allowed=['home','focus','tasks','homework','backlog','archive'];
   if(!allowed.includes(name))name='home';
   activeStudyTab=name;
   allowed.forEach(key=>{const view=document.getElementById('view-'+key);if(view)view.style.display=name===key?'block':'none';});
@@ -2100,6 +2103,15 @@ function renderIntegratedStudyPages(){
   if(filter==='open')all=all.filter(t=>!t.completed&&!t.is_backlog);else if(filter==='today')all=all.filter(t=>!t.completed&&t.due_date===today);else if(filter==='overdue')all=all.filter(t=>!t.completed&&t.due_date&&t.due_date<today);else if(filter==='upcoming')all=all.filter(t=>!t.completed&&t.due_date>today);else if(filter==='completed')all=all.filter(t=>t.completed);else if(filter==='backlog')all=all.filter(t=>t.is_backlog);
   all.sort((a,b)=>priority[a.priority]-priority[b.priority]||(a.due_date||'9999').localeCompare(b.due_date||'9999'));
   const allList=document.getElementById('study-tasks-list');if(allList)allList.innerHTML=all.length?all.map(studyTaskCardHTML).join(''):'<p class="empty">لا توجد مهام في هذا العرض.</p>';
+  const archiveFilter=document.getElementById('archive-filter')?.value||'all';
+  let archived=tasks.filter(t=>!!t.completed);
+  if(archiveFilter==='homework')archived=archived.filter(isStudyHomeworkTask);
+  else if(archiveFilter==='backlog')archived=archived.filter(t=>!!t.is_backlog);
+  else if(archiveFilter==='tasks')archived=archived.filter(t=>!isStudyHomeworkTask(t)&&!t.is_backlog);
+  archived.sort((a,b)=>String(b.completed_at||b.updated_at||b.created_at||'').localeCompare(String(a.completed_at||a.updated_at||a.created_at||'')));
+  const archiveList=document.getElementById('study-archive-list'),archiveCount=document.getElementById('archive-count');
+  if(archiveCount)archiveCount.textContent=archived.length+' إنجاز';
+  if(archiveList)archiveList.innerHTML=archived.length?archived.map(studyTaskCardHTML).join(''):'<p class="empty">مفيش إنجازات في القسم ده لسه.</p>';
   const active=tasks.filter(t=>!t.completed&&!t.is_backlog),done=tasks.filter(t=>t.completed),total=active.length+done.length,pct=total?Math.round(done.length/total*100):0;
   const taskPct=document.getElementById('task-progress-pct'),taskFill=document.getElementById('task-progress-fill'),taskSub=document.getElementById('task-progress-sub');if(taskPct)taskPct.textContent=pct+'%';if(taskFill)taskFill.style.width=pct+'%';if(taskSub)taskSub.textContent=done.length+' من '+total+' مهمة';
   const allBacklog=tasks.filter(t=>t.is_backlog),doneBacklog=allBacklog.filter(t=>t.completed),backlogPct=allBacklog.length?Math.round(doneBacklog.length/allBacklog.length*100):0;
@@ -2116,12 +2128,13 @@ async function updateStudyTask(id,patch){const task=tasks.find(t=>t.id===id);if(
 async function toggleStudyBacklog(id){const task=tasks.find(t=>t.id===id);if(!task)return;await updateStudyTask(id,{is_backlog:!task.is_backlog});}
 function bindIntegratedStudyModule(){
   if(studyModuleBound)return;studyModuleBound=true;const page=document.getElementById('study-page');
-  page.addEventListener('click',handleStudyTaskClick);page.addEventListener('change',e=>{if(e.target.matches('[data-study-done]'))updateStudyTask(e.target.dataset.studyDone,{completed:e.target.checked});});
+  page.addEventListener('click',handleStudyTaskClick);page.addEventListener('change',e=>{if(e.target.matches('[data-study-done]')){const task=tasks.find(t=>t.id===e.target.dataset.studyDone);updateStudyTask(e.target.dataset.studyDone,{completed:e.target.checked}).then(()=>{if(task)toast(e.target.checked?'✓ تم الحل! اتحفظت في أرشيف الإنجاز.':'رجعت المهمة لقائمة المهام المفتوحة.');});}});
   document.getElementById('study-task-filter').addEventListener('change',renderIntegratedStudyPages);
+  document.getElementById('archive-filter')?.addEventListener('change',renderIntegratedStudyPages);
   document.getElementById('study-add-task').addEventListener('click',()=>openTaskModal(null));
   document.getElementById('homework-add-task').addEventListener('click',()=>{openTaskModal(null);document.getElementById('task-category').value='واجب';});
   let start=null;page.addEventListener('touchstart',e=>{if(e.touches.length!==1||e.target.closest('input,textarea,select,[contenteditable="true"],.study-subtabs,.grid-wrap')){start=null;return;}start={x:e.touches[0].clientX,y:e.touches[0].clientY};},{passive:true});
-  page.addEventListener('touchend',e=>{if(!start||!e.changedTouches.length)return;const dx=e.changedTouches[0].clientX-start.x,dy=e.changedTouches[0].clientY-start.y;start=null;if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.25)return;const order=['home','focus','tasks','homework','backlog'],index=order.indexOf(activeStudyTab),next=index+(dx>0?1:-1);if(next>=0&&next<order.length)showIntegratedStudyTab(order[next]);},{passive:true});
+  page.addEventListener('touchend',e=>{if(!start||!e.changedTouches.length)return;const dx=e.changedTouches[0].clientX-start.x,dy=e.changedTouches[0].clientY-start.y;start=null;if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.25)return;const order=['home','focus','tasks','homework','backlog','archive'],index=order.indexOf(activeStudyTab),next=index+(dx>0?1:-1);if(next>=0&&next<order.length)showIntegratedStudyTab(order[next]);},{passive:true});
   page.addEventListener('touchcancel',()=>{start=null;},{passive:true});
 }
 globalThis.initializeStudyTracker=async function(client,user){if(!client||!user)return;sb=client;currentUser=user;bindIntegratedStudyModule();studyModuleInitialized=true;renderIntegratedStudyPages();showIntegratedStudyTab(activeStudyTab);};
