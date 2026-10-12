@@ -280,6 +280,18 @@ input,select,textarea{border-radius:12px!important}select{min-height:40px;paddin
 .achievement-dot.active{width:20px;background:var(--accent);}
 @media(min-width:980px){.achievement-slider-wrap{grid-column:1/-1!important;}}
 @media(prefers-reduced-motion:reduce){.achievement-slider-track,.achievement-arrow,.achievement-dot{transition:none!important}}
+
+/* Theme-aware compact checklist launcher: bottom-right, no old vertical label */
+.ai-dock{position:fixed!important;z-index:1200!important;right:18px!important;left:auto!important;top:auto!important;bottom:18px!important;display:flex;align-items:flex-end!important;direction:rtl!important}
+.ai-dock-tab{writing-mode:horizontal-tb!important;display:grid!important;place-items:center!important;width:46px!important;height:46px!important;min-width:46px!important;padding:9px!important;border:1px solid var(--border)!important;border-radius:14px!important;background:var(--card,var(--paper))!important;color:var(--ink)!important;box-shadow:0 5px 18px #0002!important;font:inherit!important;transition:transform .18s ease,box-shadow .18s ease,background .2s ease!important}
+.ai-dock-tab:hover{transform:translateY(-2px)!important;box-shadow:0 8px 22px #0003!important}
+.ai-dock-tab .ai-dock-spark,.ai-dock-tab>span{display:none!important}
+.ai-checklist-icon{display:block;width:27px;height:27px;color:var(--ink)!important}
+.ai-drawer{position:fixed!important;right:18px!important;left:auto!important;top:auto!important;bottom:74px!important;transform:translateY(10px)!important;max-height:calc(100vh - 100px)!important}
+.ai-dock.open .ai-drawer,.ai-dock:hover .ai-drawer,.ai-dock:focus-within .ai-drawer{transform:translateY(0)!important}
+@media(max-width:520px){.ai-dock{right:14px!important;bottom:14px!important}.ai-dock-tab{width:44px!important;height:44px!important;min-width:44px!important;border-radius:13px!important}.ai-drawer{right:10px!important;bottom:68px!important;top:auto!important;width:calc(100vw - 20px)!important;height:min(75vh,650px)!important;transform:translateY(10px)!important}}
+@media(prefers-color-scheme:dark){.ai-checklist-icon{color:var(--ink)!important}}
+
 </style>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style id="integrated-study-styles">
@@ -733,7 +745,7 @@ input,select,textarea{border-radius:12px!important}select{min-height:40px;paddin
 </div>
 
 <div id="ai-dock" class="ai-dock" aria-label="مساعد الموقع">
-  <button type="button" id="ai-dock-tab" class="ai-dock-tab" aria-expanded="false" aria-controls="ai-drawer"><span class="ai-dock-spark">✦</span><span>اسأل المساعد</span></button>
+  <button type="button" id="ai-dock-tab" class="ai-dock-tab" aria-label="فتح مساعد الموقع" title="مساعد الموقع" aria-expanded="false" aria-controls="ai-drawer"><svg class="ai-checklist-icon" viewBox="0 0 48 48" aria-hidden="true"><rect x="7" y="5" width="34" height="38" rx="7" fill="none" stroke="currentColor" stroke-width="2.8"/><path d="m13 16 3.2 3.2 5.2-6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M25 16h9M13 27l3.2 3.2 5.2-6M25 27h9M13 37l3.2 2 5.2-5M25 37h9" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
   <aside id="ai-drawer" class="ai-drawer" aria-label="محادثة مساعد الموقع" aria-hidden="true">
     <div class="ai-drawer-head"><div><b>مساعد الموقع ✦</b><small>المهام · العادات · الدراسة · جدول الدروس</small></div><button type="button" id="ai-dock-close" class="ai-dock-close" aria-label="إغلاق المحادثة">×</button></div>
     <p class="ai-disclosure ai-drawer-disclosure">اسأل عن بيانات موقعك، اطلب اقتراح مهام، أو عدّل جدول الدروس. راجع أي تغييرات قبل حفظها.</p>
