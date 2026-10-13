@@ -755,7 +755,7 @@ input,select,textarea{border-radius:12px!important}select{min-height:40px;paddin
     <div id="ai-action-preview"></div>
     <button type="button" class="btn-primary" id="ai-apply-actions" style="display:none;width:100%;margin-top:8px">تأكيد التعديلات على الموقع</button>
     <div class="ai-compose ai-drawer-compose"><textarea id="ai-message" rows="2" placeholder="اكتب رسالتك…"></textarea><button type="button" class="btn-primary" id="ai-send">إرسال</button></div>
-    <button type="button" class="btn-ghost" id="ai-save-tasks" style="display:none;width:100%;margin-top:8px">مراجعة وتأكيد إضافة المهام</button>
+    <div id="ai-task-preview-actions" style="display:none;gap:8px;margin-top:8px"><button type="button" class="btn-ghost" id="ai-return-edit" style="flex:1">رجوع للتعديل</button><button type="button" class="btn-primary" id="ai-save-tasks" style="flex:2">تأكيد وإضافة المهام المحددة</button></div>
     <small class="ai-drawer-foot">المساعد يعتمد على البيانات المتاحة في الموقع، وقد تحتاج مراجعة التغييرات قبل اعتمادها.</small>
   </aside>
 </div>
@@ -817,7 +817,7 @@ let lessonHomeworkPlan=null,lessonHomeworkDraft=[],lessonHomeworkPlanError='',le
 let editingTaskId=null;
 let timerRemaining=25*60, timerHandle=null, timerIsBreak=false, timerDeadline=0;
 let stopwatchHandle=null,stopwatchElapsed=0,stopwatchStartedAt=0;
-let aiMode='chat',aiHistory=[],aiGeneratedTasks=[],aiPendingActions=[];
+let aiMode='chat',aiHistory=[],aiGeneratedTasks=[],aiPendingActions=[],aiLastTaskPrompt='';
 const DEFAULT_SETTINGS={ theme:'bw', started:false, startDate:null, quoteIndex:-1, quotes:DEFAULT_QUOTES.slice(), durationDays:null, endDate:null, lockedEditDays:[],timerSound:'bell',customSoundPath:null };
 let settings=Object.assign({}, DEFAULT_SETTINGS);
 let view=(()=>{ const t=todayParts(); return {y:t.y, m:t.m}; })();
@@ -1757,19 +1757,19 @@ function setAIMode(mode){
   aiMode=['chat','tasks','schedule'].includes(mode)?mode:'chat';
   [['ai-mode-chat','chat'],['ai-mode-tasks','tasks'],['ai-mode-schedule','schedule']].forEach(([id,key])=>{const button=document.getElementById(id);if(!button)return;button.classList.toggle('btn-primary',aiMode===key);button.classList.toggle('btn-ghost',aiMode!==key);});
   $('#ai-message').placeholder=aiMode==='tasks'?'مثال: أضف 3 مهام لمراجعة الكيمياء هذا الأسبوع…':aiMode==='schedule'?'مثال: غيّرت موعد درس العربي ليوم الثلاثاء الساعة 6 مساءً…':'اسأل عن يومك أو اطلب مساعدة في المهام والعادات والدراسة…';
-  $('#ai-save-tasks').style.display='none';$('#ai-task-preview').innerHTML='';aiPendingActions=[];renderAIActionPreview();
+  $('#ai-task-preview-actions').style.display='none';$('#ai-task-preview').innerHTML='';aiGeneratedTasks=[];aiPendingActions=[];renderAIActionPreview();
 }
 function renderAITaskPreview(){
   const box=$('#ai-task-preview'),save=$('#ai-save-tasks');
-  if(!aiGeneratedTasks.length){box.innerHTML='';save.style.display='none';return;}
-  box.innerHTML='<p class="ai-disclosure">راجع الاقتراحات وحدد ما تريد حفظه:</p>'+aiGeneratedTasks.map((t,i)=>
-    '<div class="ai-task-preview"><label><input type="checkbox" data-ai-task="'+i+'" checked><span><b>'+escapeHtml(t.title)+'</b><br>الأولوية: '+({high:'عالية',medium:'متوسطة',low:'منخفضة'}[t.priority]||'متوسطة')+(t.due_date?' · الاستحقاق: '+escapeHtml(t.due_date):'')+(t.estimated_minutes?' · '+t.estimated_minutes+' دقيقة':'')+(t.category?' · '+escapeHtml(t.category):'')+'</span></label></div>'
+  if(!aiGeneratedTasks.length){box.innerHTML='';$('#ai-task-preview-actions').style.display='none';return;}
+  box.innerHTML='<p class="ai-disclosure">دي مسودة فقط. علّم على المهام اللي عاوز تضيفها؛ مش هتتحفظ قبل التأكيد.</p>'+aiGeneratedTasks.map((t,i)=>
+    '<div class="ai-task-preview"><label><input type="checkbox" data-ai-task="'+i+'" checked><span><b>'+escapeHtml(t.title)+'</b><br>'+(t.is_backlog?'📦 متراكم · ':'')+'الأولوية: '+({high:'عالية',medium:'متوسطة',low:'منخفضة'}[t.priority]||'متوسطة')+(t.due_date?' · الاستحقاق: '+escapeHtml(t.due_date):'')+(t.estimated_minutes?' · '+t.estimated_minutes+' دقيقة':'')+(t.category?' · '+escapeHtml(t.category):'')+(t.description?'<br>'+escapeHtml(t.description):'')+'</span></label></div>'
   ).join('');
-  save.style.display='block';
+  $('#ai-task-preview-actions').style.display='flex';
 }
 async function sendAIMessage(){
   const input=$('#ai-message'),prompt=input.value.trim();if(!prompt)return;
-  const send=$('#ai-send');send.disabled=true;send.textContent='جارٍ التفكير…';input.value='';
+  const send=$('#ai-send');send.disabled=true;send.textContent='جارٍ التفكير…';input.value='';aiLastTaskPrompt=prompt;
   if(aiMode==='chat'){aiHistory.push({role:'user',text:prompt});renderAIHistory();}
   const {data,error}=await sb.functions.invoke('habit-assistant',{body:{mode:aiMode,prompt,history:aiHistory.slice(-12),context:aiCurrentContext()}});
   send.disabled=false;send.textContent='إرسال';
@@ -1784,11 +1784,15 @@ async function sendAIMessage(){
       title:String(t.title||'').trim().slice(0,160),description:String(t.description||'').trim().slice(0,1000),
       priority:['high','medium','low'].includes(t.priority)?t.priority:'medium',
       due_date:/^\d{4}-\d{2}-\d{2}$/.test(String(t.due_date||''))?t.due_date:null,
-      estimated_minutes:Math.max(0,Math.min(1440,Number(t.estimated_minutes)||0)),category:String(t.category||'').trim().slice(0,60)
+      estimated_minutes:Math.max(0,Math.min(1440,Number(t.estimated_minutes)||0)),category:String(t.category||'').trim().slice(0,60),is_backlog:!!t.is_backlog
     })).filter(t=>t.title):[];
     if(!aiGeneratedTasks.length){toast('لم يقترح المساعد مهام قابلة للحفظ. جرّب وصفًا أوضح.');return;}
     aiHistory.push({role:'user',text:'إنشاء مهام: '+prompt},{role:'model',text:data.reply||'جهزت مسودة المهام. راجعها وحدد ما تريد حفظه.'});
     renderAIHistory();renderAITaskPreview();return;
+  }
+  if(aiMode==='chat'&&Array.isArray(data?.tasks)&&data.tasks.length){
+    aiGeneratedTasks=data.tasks.map(t=>({title:String(t.title||'').trim().slice(0,160),description:String(t.description||'').trim().slice(0,1000),priority:['high','medium','low'].includes(t.priority)?t.priority:'medium',due_date:/^\d{4}-\d{2}-\d{2}$/.test(String(t.due_date||''))?t.due_date:null,estimated_minutes:Math.max(0,Math.min(1440,Number(t.estimated_minutes)||0)),category:String(t.category||'').trim().slice(0,60),is_backlog:!!t.is_backlog})).filter(t=>t.title);
+    if(aiGeneratedTasks.length){aiHistory.push({role:'model',text:String(data?.reply||'جهزت مسودة مهام للمراجعة. علّم على اللي عاوز تضيفه ثم اضغط «تأكيد وإضافة المهام المحددة».')});renderAIHistory();renderAITaskPreview();return;}
   }
   if(aiMode==='schedule'){
     const rules=Array.isArray(data?.lesson_rules)?data.lesson_rules.filter(validHomeworkRule).map(r=>({
@@ -1810,14 +1814,20 @@ async function sendAIMessage(){
 async function saveGeneratedAITasks(){
   const selected=[...document.querySelectorAll('[data-ai-task]:checked')].map(el=>aiGeneratedTasks[Number(el.dataset.aiTask)]).filter(Boolean);
   if(!selected.length){toast('حدد مهمة واحدة على الأقل.');return;}
-  const preview=selected.slice(0,5).map((t,i)=>(i+1)+'. '+t.title).join('\n')+(selected.length>5?'\n… ومهام أخرى':'');
+  const preview=selected.slice(0,5).map((t,i)=>(i+1)+'. '+t.title+(t.is_backlog?' (متراكم)':'')).join('\n')+(selected.length>5?'\n… ومهام أخرى':'');
   if(!await confirmDialog('تأكيد إضافة '+selected.length+' مهمة إلى الموقع؟\n\n'+preview+'\n\nلن تُضاف المهام إلا بعد موافقتك.'))return;
-  let saved=0;
-  for(const item of selected){
-    const task=Object.assign({id:null,completed:false,sort_order:tasks.length,created_at:new Date().toISOString()},item);
-    if(await persistTask(task)){tasks.push(task);saved++;}
-  }
-  if(saved){renderAll();$('#ai-task-preview').innerHTML='';$('#ai-save-tasks').style.display='none';aiGeneratedTasks=[];toast('تم حفظ '+saved+' مهمة.');}
+  const savedItems=[];let failed=0;const button=$('#ai-save-tasks');button.disabled=true;button.textContent='جارٍ الحفظ…';
+  try{
+    for(const item of selected){
+      const task=Object.assign({id:null,completed:false,sort_order:tasks.length,created_at:new Date().toISOString(),is_backlog:false},item);
+      if(await persistTask(task)){tasks.push(task);savedItems.push(item);}else failed++;
+    }
+  }finally{button.disabled=false;button.textContent='تأكيد وإضافة المهام المحددة';}
+  if(savedItems.length){aiGeneratedTasks=aiGeneratedTasks.filter(item=>!savedItems.includes(item));renderAll();renderAITaskPreview();toast('تم حفظ '+savedItems.length+' مهمة بنجاح'+(failed?'، وفشل حفظ '+failed+' مهمة.':' في Supabase.'));}
+  else toast('لم تُحفظ أي مهمة. راجع رسالة الخطأ واتصال Supabase ثم حاول مرة أخرى.');
+}
+function returnToAITaskEdit(){
+  $('#ai-message').value=aiLastTaskPrompt||'';$('#ai-task-preview').innerHTML='';$('#ai-task-preview-actions').style.display='none';aiGeneratedTasks=[];$('#ai-message').focus();
 }
 function bindEvents(){
   document.querySelectorAll('.tabs [data-page]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('active',b===btn));document.querySelectorAll('.page-panel').forEach(p=>p.classList.toggle('active',p.id===btn.dataset.page));if(btn.dataset.page==='study-page'&&typeof globalThis.initializeStudyTracker==='function')globalThis.initializeStudyTracker(sb,currentUser).catch(err=>{console.error(err);toast('تعذر تحميل صفحة المذاكرة.');});}));
@@ -1832,7 +1842,7 @@ function bindEvents(){
   aiDockTab.onclick=()=>setAIDockOpen(!aiDock.classList.contains('open'));$('#ai-dock-close').onclick=()=>setAIDockOpen(false);
   aiDock.addEventListener('mouseenter',()=>setAIDockOpen(true));aiDock.addEventListener('mouseleave',()=>{if(!aiDock.contains(document.activeElement))setAIDockOpen(false);});
   document.addEventListener('keydown',e=>{if(e.key==='Escape')setAIDockOpen(false);});
-  $('#ai-send').onclick=sendAIMessage;$('#ai-save-tasks').onclick=saveGeneratedAITasks;$('#ai-apply-actions').onclick=applyAIActions;
+  $('#ai-send').onclick=sendAIMessage;$('#ai-save-tasks').onclick=saveGeneratedAITasks;$('#ai-return-edit').onclick=returnToAITaskEdit;$('#ai-apply-actions').onclick=applyAIActions;
   $('#ai-message').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAIMessage();}});
   $('#homework-analyze').onclick=analyzeHomeworkPrompt;$('#homework-save').onclick=saveHomeworkPlan;
   $('#homework-prompt').addEventListener('input',()=>{lessonHomeworkDraft=[];renderHomeworkPlan();});
