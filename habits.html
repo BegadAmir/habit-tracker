@@ -464,6 +464,49 @@ input,select,textarea{border-radius:12px!important}select{min-height:40px;paddin
 .task-completed-badge{display:inline-flex;align-items:center;gap:4px;margin-inline-start:8px;padding:3px 8px;border-radius:999px;font-size:.72em;font-weight:800;color:var(--success,var(--accent));background:color-mix(in srgb,var(--accent) 12%,transparent);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);vertical-align:middle;white-space:nowrap}
 .task-row:has(input[type="checkbox"]:checked) .task-main h4{text-decoration:line-through;text-decoration-thickness:1px;opacity:.85}
 #view-archive .task-row{margin-block:8px}
+
+/* AI drawer overflow/layout fix: keep every preview and control inside the panel */
+.ai-drawer{
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+  min-height:0!important;
+  gap:8px!important;
+}
+.ai-drawer > *{box-sizing:border-box; min-width:0; flex-shrink:0;}
+.ai-drawer .ai-log{
+  flex:1 1 120px!important;
+  min-height:70px!important;
+  max-height:none!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  overflow-wrap:anywhere;
+}
+#ai-task-preview,#ai-action-preview{
+  flex:0 1 38%!important;
+  min-height:0!important;
+  max-height:38%!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  overflow-wrap:anywhere;
+  scrollbar-gutter:stable;
+}
+#ai-task-preview .ai-task-preview,
+#ai-action-preview .ai-task-preview{
+  max-width:100%;
+  overflow-wrap:anywhere;
+  word-break:normal;
+}
+#ai-task-preview label{min-width:0;overflow-wrap:anywhere;}
+#ai-task-preview label span{min-width:0;flex:1;overflow-wrap:anywhere;}
+#ai-task-preview-actions{flex:0 0 auto!important;min-width:0;}
+#ai-task-preview-actions button{min-width:0;white-space:normal;overflow-wrap:anywhere;}
+.ai-drawer .ai-compose{flex:0 0 auto;min-width:0;}
+.ai-drawer .ai-compose textarea{min-width:0;width:0;flex:1 1 auto;box-sizing:border-box;}
+.ai-drawer .ai-drawer-foot{flex:0 0 auto;max-height:3.2em;overflow:hidden;}
+@media (max-height:650px){
+ .ai-drawer{height:calc(100vh - 90px)!important;max-height:calc(100vh - 90px)!important;bottom:74px!important;}
+ #ai-task-preview,#ai-action-preview{flex-basis:30%!important;max-height:30%!important;}
+}
 </style>
 </head>
 <body>
