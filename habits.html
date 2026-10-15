@@ -1114,18 +1114,13 @@ async function loadFromSupabase(){
     if(!habits.length){
       const createdAt=todayISOFor();
       habits=[
-        {id:uid(), name:'🌅 الاستيقاظ الساعة 4:30', createdAt,sortOrder:0},
+        {id:uid(), name:'🌅 الاستيقاظ الساعة 5:00', createdAt,sortOrder:0},
         {id:uid(), name:'🌙 النوم الساعة 10', createdAt,sortOrder:1},
         {id:uid(), name:'📝 حل ساتات', createdAt,sortOrder:2},
-        {id:uid(), name:'🏋️ كاليستينكس', createdAt,sortOrder:3},
+        {id:uid(), name:'🏋️ تمرين', createdAt,sortOrder:3},
         {id:uid(), name:'📵 بعيد عن الـ Shorts', createdAt,sortOrder:4},
-        {id:uid(), name:'🕌 ألف صلاة على النبي', createdAt,sortOrder:5},
-        {id:uid(), name:'📿 ألف استغفار', createdAt,sortOrder:6},
-        {id:uid(), name:'📖 ورد يومي من القرآن', createdAt,sortOrder:7},
-        {id:uid(), name:'🕋 الصلاة في المسجد', createdAt,sortOrder:8},
-        {id:uid(), name:'⌨️ تدريب الكتابة السريعة (نص ساعة)', createdAt,sortOrder:9},
-        {id:uid(), name:'🚫 الامتناع عن العادة السرية', createdAt,sortOrder:10},
-      ];
+        {id:uid(), name:'📖 ورد القرآن', createdAt,sortOrder:7},
+        {id:uid(), name:'🕋 الصلاة ف الوقت', createdAt,sortOrder:8},];
       const rows=habits.map(h=>({id:h.id, user_id:currentUser.id, name:h.name, created_at:h.createdAt,sort_order:h.sortOrder}));
       const {error:insErr}=await sb.from('habits').insert(rows);
       if(insErr){ console.error(insErr); toast('حصل خطأ في إنشاء العادات الافتراضية: '+describeError(insErr)); }
