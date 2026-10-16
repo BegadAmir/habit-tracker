@@ -1123,7 +1123,7 @@ async function loadFromSupabase(){
         {id:uid(), name:'🕋 الصلاة ف الوقت', createdAt,sortOrder:8},];
       const rows=habits.map(h=>({id:h.id, user_id:currentUser.id, name:h.name, created_at:h.createdAt,sort_order:h.sortOrder}));
       const {error:insErr}=await sb.from('habits').insert(rows);
-      if(insErr){ console.error(insErr); toast('حصل خطأ في إنشاء العادات الافتراضية: '+describeError(insErr)); }
+      if(insErr){ console.error(insErr); toast('حصل خطأ في إنشاء العادات الافتراضية: '+describeError(insErr));  }
     }
     await persistSettings();
   }else{
